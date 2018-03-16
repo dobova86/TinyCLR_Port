@@ -4,10 +4,8 @@ SDRAM code implementation
 */
 //=================================================================================================
 // STM32F429I-Discovery SDRAM configuration
-// Author : Radoslaw Kwiecien
-// e-mail : radek@dxp.pl
-// http://en.radzio.dxp.pl/stm32f429idiscovery/
-// Date : 24.11.2013
+// Author : Domenico Bova, from Radoslaw Kwiecien work
+// Date : 16/03/2018
 //=================================================================================================
 #include "stm32f7.h"
 //#include "gpiof4.h"
