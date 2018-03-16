@@ -1,0 +1,59 @@
+{
+  "configurations": [
+    {
+      "inheritEnvironments": [
+        "gcc_arm"
+      ],
+      "name": "gccarm",
+      "includePath": [
+        "${workspaceRoot}/CMSIS/CMSIS/Include",
+        "${workspaceRoot}/Targets/STM32F4",
+        "${workspaceRoot}/Devices/MMB",
+        "${workspaceRoot}/Core",
+        "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/Linux/gcc_arm/arm-none-eabi/include/c++/6.3.1",
+        "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/Linux/gcc_arm/arm-none-eabi/include/c++/6.3.1/arm-none-eabi/thumb/v7e-m/fpv4-sp/hard",
+        "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/Linux/gcc_arm/arm-none-eabi/include/c++/6.3.1/backward",
+        "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/Linux/gcc_arm/lib/gcc/arm-none-eabi/6.3.1/include",
+        "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/Linux/gcc_arm/lib/gcc/arm-none-eabi/6.3.1/include-fixed",
+        "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/Linux/gcc_arm/arm-none-eabi/include"
+      ]
+    },
+    {
+      "inheritEnvironments": [
+        "gcc_arm"
+      ],
+      "name": "gccarm_STM32F4",
+      "includePath": [
+        "${workspaceRoot}/CMSIS/CMSIS/Include",
+        "${workspaceRoot}/Targets/STM32F4xx",
+        "${workspaceRoot}/Devices/MMB",
+        "${workspaceRoot}/Core",
+        "H:/GNU Tools ARM Embedded/7 2017-q4-major/arm-none-eabi/include/c++/7.2.1",
+        "H:/GNU Tools ARM Embedded/7 2017-q4-major/arm-none-eabi/include/c++/7.2.1/arm-none-eabi/thumb/v7e-m/fpv4-sp/hard",
+        "H:/GNU Tools ARM Embedded/7 2017-q4-major/arm-none-eabi/include/c++/7.2.1/backward",
+        "H:/GNU Tools ARM Embedded/7 2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include",
+        "H:/GNU Tools ARM Embedded/7 2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include-fixed",
+        "H:/GNU Tools ARM Embedded/7 2017-q4-major/arm-none-eabi/include"
+      ]
+    },
+    {
+      "inheritEnvironments": [
+        "gcc_arm"
+      ],
+      "name": "gccarm_STM32F7",
+      "includePath": [
+        "${workspaceRoot}/CMSIS/CMSIS/Include",
+        "${workspaceRoot}/Targets/STM32F7xx",
+        //"${workspaceRoot}/Devices/MMB",
+        "${workspaceRoot}/Core",
+        "H:/GNU Tools ARM Embedded/7 2017-q4-major/arm-none-eabi/include/c++/7.2.1",
+        "H:/GNU Tools ARM Embedded/7 2017-q4-major/arm-none-eabi/include/c++/7.2.1/arm-none-eabi/thumb/v7e-m/fpv4-sp/hard",
+        "H:/GNU Tools ARM Embedded/7 2017-q4-major/arm-none-eabi/include/c++/7.2.1/backward",
+        "H:/GNU Tools ARM Embedded/7 2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include",
+        "H:/GNU Tools ARM Embedded/7 2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include-fixed",
+        "H:/GNU Tools ARM Embedded/7 2017-q4-major/arm-none-eabi/include"
+      ]
+    }
+
+  ]
+}

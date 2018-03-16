@@ -1,0 +1,4 @@
+TargetName:STM32F7xx
+OptimizeLevel:-Ofast
+AdditionalDeviceDrivers:MT48LC4M32_sdram
+AdditionalDeviceDrivers:DSI_Display_F769

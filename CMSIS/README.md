@@ -1,0 +1,1 @@
+When you download and extract CMSIS into this folder, you should see the folders "CMSIS" and "Device" and files "ARM.CMSIS.pdsc" and "LICENSE.txt".
