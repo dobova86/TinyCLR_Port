@@ -211,10 +211,12 @@ uint8_t OTM8009A_Init(uint32_t ColorCoding, uint32_t orientation)
 	DSI_IO_WriteCmd(0, (uint8_t *)ShortRegData2);
 	DSI_IO_WriteCmd(0, (uint8_t *)ShortRegData3);
 	OTM8009A_IO_Delay(10);
+
 	/* Not documented */
 	DSI_IO_WriteCmd(0, (uint8_t *)ShortRegData4);
 	DSI_IO_WriteCmd(0, (uint8_t *)ShortRegData5);
 	OTM8009A_IO_Delay(10);
+
 	/////////////////////////////////////////////////////////////////////
 
 	/* PWR_CTRL4 - 0xC4B0h - 178th parameter - Default 0xA8 */
@@ -383,7 +385,7 @@ uint8_t OTM8009A_Init(uint32_t ColorCoding, uint32_t orientation)
 	DSI_IO_WriteCmd(0, (uint8_t *)ShortRegData36);
 
 	/* Wait for sleep out exit */
-	OTM8009A_IO_Delay(120);
+	OTM8009A_IO_Delay(120);	
 
 	switch (ColorCoding)
 	{
@@ -439,6 +441,9 @@ uint8_t OTM8009A_Init(uint32_t ColorCoding, uint32_t orientation)
 /**
 	* @}
 	*/
+
+
+
 
 /**
 * @}

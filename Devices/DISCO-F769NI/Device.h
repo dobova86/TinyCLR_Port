@@ -14,7 +14,7 @@
 
 #pragma once
 
-#define STM32F769xx 1
+#define STM32F769xx 
 
 #include <STM32F7.h>
 

@@ -7,7 +7,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+//#define STM32F769xx	 1
+//#include <inc/stm32f7xx.h>
+
 #include <STM32F7.h>
+
+#define UNUSED(x) ((x)=(x))
+
+#define MAX_LAYER  2
+
+#define LCD_DSI_ID              0x11
+#define LCD_DSI_ID_REG          0xA8
+
 
 typedef struct
 {
@@ -976,6 +987,33 @@ typedef enum
 */
 #define __HAL_DSI_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__) ((__HANDLE__)->Instance->WISR & (__INTERRUPT__))
 
+
+#define __HAL_RCC_LTDC_CLK_ENABLE()   do { \
+                                        __IO uint32_t tmpreg; \
+                                        SET_BIT(RCC->APB2ENR, RCC_APB2ENR_LTDCEN);\
+                                        /* Delay after an RCC peripheral clock enabling */ \
+                                        tmpreg = READ_BIT(RCC->APB2ENR, RCC_APB2ENR_LTDCEN);\
+                                        UNUSED(tmpreg); \
+                                      } while(0)
+
+#define __HAL_RCC_DSI_CLK_ENABLE()   do { \
+                                        __IO uint32_t tmpreg; \
+                                        SET_BIT(RCC->APB2ENR, RCC_APB2ENR_DSIEN);\
+                                        /* Delay after an RCC peripheral clock enabling */ \
+                                        tmpreg = READ_BIT(RCC->APB2ENR, RCC_APB2ENR_DSIEN);\
+                                        UNUSED(tmpreg); \
+                                      } while(0)                                                                            
+
+#define __HAL_RCC_LTDC_CLK_DISABLE()   (RCC->APB2ENR &= ~(RCC_APB2ENR_LTDCEN))
+#define __HAL_RCC_DSI_CLK_DISABLE()    (RCC->APB2ENR &= ~(RCC_APB2ENR_DSIEN))
+
+#define __HAL_RCC_LTDC_FORCE_RESET()     (RCC->APB2RSTR |= (RCC_APB2RSTR_LTDCRST))
+#define __HAL_RCC_LTDC_RELEASE_RESET()   (RCC->APB2RSTR &= ~(RCC_APB2RSTR_LTDCRST))
+
+#define __HAL_RCC_DSI_FORCE_RESET()      (RCC->APB2RSTR |= (RCC_APB2RSTR_DSIRST))
+#define __HAL_RCC_DSI_RELEASE_RESET()    (RCC->APB2RSTR &= ~(RCC_APB2RSTR_DSIRST))
+
+
 #define BSP_LCD_DMA2D_IRQHandler        DMA2D_IRQHandler
 #define BSP_LCD_DSI_IRQHandler          DSI_IRQHandler
 #define BSP_LCD_LTDC_IRQHandler         LTDC_IRQHandler
@@ -1068,14 +1106,17 @@ typedef enum
 */
 
 
-
-
-bool HAL_DSI_ConfigVideoMode(DSI_HandleTypeDef *hdsi, DSI_VidCfgTypeDef *VidCfg);
-bool HAL_DSI_ConfigAdaptedCommandMode(DSI_HandleTypeDef *hdsi, DSI_CmdCfgTypeDef *CmdCfg);
-bool HAL_DSI_ConfigCommand(DSI_HandleTypeDef *hdsi, DSI_LPCmdTypeDef *LPCmd);
-bool HAL_DSI_Init(DSI_HandleTypeDef *hdsi, DSI_PLLInitTypeDef *PLLInit);
-void BSP_LCD_Reset(void);
-static uint16_t LCD_IO_GetID(void);
-void BSP_LCD_MspInit(void);
-bool BSP_DSI_Deinit(DSI_HandleTypeDef *hdsi);
-bool HAL_DSI_DeInit(DSI_HandleTypeDef *hdsi);
+//// Implementations
+//
+//bool HAL_DSI_ConfigVideoMode(DSI_HandleTypeDef *hdsi, DSI_VidCfgTypeDef *VidCfg);
+//bool HAL_DSI_ConfigAdaptedCommandMode(DSI_HandleTypeDef *hdsi, DSI_CmdCfgTypeDef *CmdCfg);
+//bool HAL_DSI_ConfigCommand(DSI_HandleTypeDef *hdsi, DSI_LPCmdTypeDef *LPCmd);
+//bool HAL_DSI_Init(DSI_HandleTypeDef *hdsi, DSI_PLLInitTypeDef *PLLInit);
+//void BSP_LCD_Reset(void);
+//static uint16_t LCD_IO_GetID(void);
+//void BSP_LCD_MspInit(void);
+//bool BSP_DSI_Deinit(DSI_HandleTypeDef *hdsi);
+//bool HAL_DSI_DeInit(DSI_HandleTypeDef *hdsi);
+//bool HAL_LTDC_StructInitFromVideoConfig(LTDC_HandleTypeDef* hltdc, DSI_VidCfgTypeDef *VidCfg);
+//
+////****************************
