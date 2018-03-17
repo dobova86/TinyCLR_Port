@@ -1233,11 +1233,11 @@ bool STM32F7_UsbClient_Initialize(int controller) {
 	return true;
 }
 
-void STM32F7_DebugLed(bool onoff)
+void STM32F7_DebugLed(uint16_t pin, bool onoff)
 {
-	STM32F7_GpioInternal_ConfigurePin(PIN(I, 1), STM32F7_Gpio_PortMode::GeneralPurposeOutput, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
-	STM32F7_GpioInternal_OpenPin(PIN(I, 1));
-	STM32F7_GpioInternal_WritePin(PIN(I, 1), onoff);
+	STM32F7_GpioInternal_ConfigurePin(pin, STM32F7_Gpio_PortMode::GeneralPurposeOutput, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
+	STM32F7_GpioInternal_OpenPin(pin);
+	STM32F7_GpioInternal_WritePin(pin, onoff);
 	//STM32F7_GpioInternal_ClosePin(PIN(I, 1));
 }
 

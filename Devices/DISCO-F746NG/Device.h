@@ -49,6 +49,15 @@
 
 #define SDRAM_16BIT
 #define USE_SDRAM_HEAP
+#define SDRAM_PINS {\
+				{ PIN(C, 3), AF(12) }, { PIN(D, 0), AF(12) }, { PIN(D, 1), AF(12) }, { PIN(D, 8), AF(12) }, { PIN(D, 9), AF(12) }, { PIN(D,10), AF(12) },\
+				{ PIN(D,14), AF(12) }, { PIN(D,15), AF(12) }, { PIN(E, 0), AF(12) }, { PIN(E, 1), AF(12) }, { PIN(E, 7), AF(12) }, { PIN(E, 8), AF(12) },\
+				{ PIN(E, 9), AF(12) }, { PIN(E,10), AF(12) }, { PIN(E,11), AF(12) }, { PIN(E,12), AF(12) }, { PIN(E,13), AF(12) }, { PIN(E,14), AF(12) },\
+				{ PIN(E,15), AF(12) }, { PIN(F, 0), AF(12) }, { PIN(F, 1), AF(12) }, { PIN(F, 2), AF(12) }, { PIN(F, 3), AF(12) }, { PIN(F, 4), AF(12) },\
+				{ PIN(F, 5), AF(12) }, { PIN(F,11), AF(12) }, { PIN(F,12), AF(12) }, { PIN(F,13), AF(12) }, { PIN(F,14), AF(12) }, { PIN(F,15), AF(12) },\
+				{ PIN(G, 0), AF(12) }, { PIN(G, 1), AF(12) }, { PIN(G, 4), AF(12) }, { PIN(G, 5), AF(12) }, { PIN(G,11), AF(12) }, { PIN(G,12), AF(12) },\
+				{ PIN(G,13), AF(12) }, { PIN(G,14), AF(12) }, { PIN(G,15), AF(12) }, { PIN(H, 3), AF(12) }, { PIN(H, 5), AF(12) },\
+			}
 
 #define DEPLOYMENT_SECTORS 	{ /* { 0x05, 0x08040000, 0x00040000 }, */  { 0x06, 0x08080000, 0x00040000 } , { 0x07, 0x080C0000, 0x00040000 } } //,
 

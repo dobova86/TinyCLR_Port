@@ -44,11 +44,38 @@
 //#define RUN_APP_STATE TinyCLR_Gpio_PinValue::High
 #define RUN_APP_FORCE_STATE true
 
-//#define BOOTLOADER_HOLD_ADDRESS 0x2004FFF8
-//#define BOOTLOADER_HOLD_VALUE 0x37D56D4A
-
-#define SDRAM_32BIT
-//#define USE_SDRAM_HEAP
+#define SDRAM_32BIT // possible: SDRAM_16BIT/_32BIT/_8BIT
+#define USE_SDRAM_HEAP
+#define SDRAM_PINS {\
+				{ PIN(C, 3), AF(12) }, { PIN(D, 0), AF(12) }, { PIN(D, 1), AF(12) }, { PIN(D, 8), AF(12) }, { PIN(D, 9), AF(12) }, { PIN(D,10), AF(12) },\
+				{ PIN(D,14), AF(12) }, { PIN(D,15), AF(12) }, { PIN(E, 0), AF(12) }, { PIN(E, 1), AF(12) }, { PIN(E, 7), AF(12) }, { PIN(E, 8), AF(12) },\
+				{ PIN(E, 9), AF(12) }, { PIN(E,10), AF(12) }, { PIN(E,11), AF(12) }, { PIN(E,12), AF(12) }, { PIN(E,13), AF(12) }, { PIN(E,14), AF(12) },\
+				{ PIN(E,15), AF(12) }, { PIN(F, 0), AF(12) }, { PIN(F, 1), AF(12) }, { PIN(F, 2), AF(12) }, { PIN(F, 3), AF(12) }, { PIN(F, 4), AF(12) },\
+				{ PIN(F, 5), AF(12) }, { PIN(F,11), AF(12) }, { PIN(F,12), AF(12) }, { PIN(F,13), AF(12) }, { PIN(F,14), AF(12) }, { PIN(F,15), AF(12) },\
+				{ PIN(G, 0), AF(12) }, { PIN(G, 1), AF(12) }, { PIN(G, 4), AF(12) }, { PIN(G, 5), AF(12) }, { PIN(G,11), AF(12) }, { PIN(G,12), AF(12) },\
+				{ PIN(G,13), AF(12) }, { PIN(G,14), AF(12) }, { PIN(G,15), AF(12) }, { PIN(H, 3), AF(12) }, { PIN(H, 5), AF(12) },\
+				{ PIN(H, 8), AF(12) }, { PIN(H, 9), AF(12) }, { PIN(H,10), AF(12) }, { PIN(H,11), AF(12) }, { PIN(H,12), AF(12) }, { PIN(H,13), AF(12) },\
+				{ PIN(H,14), AF(12) }, { PIN(H,15), AF(12) }, { PIN(I, 0), AF(12) }, { PIN(I, 1), AF(12) }, { PIN(I, 2), AF(12) }, { PIN(I, 3), AF(12) },\
+				{ PIN(I, 6), AF(12) }, { PIN(I, 7), AF(12) }, { PIN(I, 9), AF(12) }, { PIN(I,10), AF(12) },\
+			}
+// = {
+//	GPIOC,
+//	GPIOD, GPIOD,GPIOD,GPIOD,GPIOD,GPIOD,GPIOD,
+//	GPIOE, GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,
+//	GPIOF, GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,
+//	GPIOG, GPIOG,GPIOG,GPIOG,GPIOG,GPIOG,
+//	GPIOH, GPIOH,
+//	0
+//};
+//static uint8_t  PINInitTable; // = {
+//	3,								// C
+//	0,1,8,9,10,14,15,				// D
+//	0,1,7,8,9,10,11,12,13,14,15,	// E
+//	0,1,2,3,4, 5,11,12,13,14,15,	// F
+//	0,1,4,5,8,15,					// G
+//	3,5,							// H
+//	0
+//};
 
 #define DEPLOYMENT_SECTORS 	{\
 								{ 0x06, 0x08080000, 0x00040000 }, { 0x07, 0x080C0000, 0x00040000 },\
@@ -131,18 +158,11 @@
 #define STM32F7_UART_CTS_PINS { { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE, AF_NONE } }
 #define STM32F7_UART_RTS_PINS { { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE, AF_NONE } }
 
-#define INCLUDE_DISPLAY_DSI
+#define INCLUDE_DISPLAY_DSI	// this enable code for DSI Display. NOT DEFINE INCLUDE_DISPLAY
 
-// NOTE: Not used anymore with DSI interface
-#define STM32F7_DISPLAY_CONTROLLER_PINS {\
-				{ /* R */	PIN(I, 15), AF(14) }, { PIN(J,  0), AF(14) }, { PIN(J, 1), AF(14) }, { PIN(J, 2), AF(14) }, { PIN(J, 3), AF(14) }, { PIN(J, 4), AF(14) }, { PIN(J, 5), AF(14) }, { PIN(J, 6), AF(14) },\
-				{ /* G */	PIN(J,  7), AF(14) }, { PIN(J,  8), AF(14) }, { PIN(J, 9), AF(14) }, { PIN(J,10), AF(14) }, { PIN(J,11), AF(14) }, { PIN(K, 0), AF(14) }, { PIN(K, 1), AF(14) }, { PIN(K, 2), AF(14) },\
-				{ /* B */	PIN(E,  4), AF(14) }, { PIN(J, 13), AF(14) }, { PIN(J,14), AF(14) }, { PIN(J,15), AF(14) }, { PIN(G, 12), AF(9) }, { PIN(K, 4), AF(14) }, { PIN(K, 5), AF(14) }, { PIN(K, 6), AF(14) },\
-				{ /* CTRL */PIN(I,  9), AF(14) }, { PIN(I, 10), AF(14) }, { PIN(I,14), AF(14) }, { PIN(K, 7), AF(14) }\
-			 }
 
-#define STM32F7_DISPLAY_BACKLIGHT_PIN		{ PIN(K, 3), AF_NONE }
-#define STM32F7_DISPLAY_ENABLE_PIN			{ PIN(I, 12), AF_NONE } // this is LCD_DISP signal from PI12 to LCD 
+#define STM32F7_DISPLAY_BACKLIGHT_PIN		{ PIN(I, 14), AF_NONE } // LCD Backlight control
+#define STM32F7_DISPLAY_RESET_PIN			{ PIN(J, 15), AF_NONE } // this is DSI LCD RESET signal
 
 #define INCLUDE_USBCLIENT
 #define STM32F7_USB_QUEUE_SIZE 16

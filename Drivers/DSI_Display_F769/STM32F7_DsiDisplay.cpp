@@ -321,7 +321,7 @@ const uint8_t characters[129][5] = {
 0xff,0xff,0xff,0xff,0xff, /* 	 	0x80 */
 };
 
-#define VIDEO_RAM_SIZE (800*640*2) // Maximum LCD screen size times bytes per pixel
+#define VIDEO_RAM_SIZE (800*480*2) // Maximum LCD screen size times bytes per pixel
 //#define VIDEO_RAM_SIZE (0x40000) // Maximum LCD screen size times bytes per pixel
 
 //#define UNCACHE_LCD_BUFFER_ADDRESS 0xC0000000 // fix it on SDRAM (end=0xC003FC00)
@@ -396,7 +396,7 @@ bool HAL_DSI_ConfigVideoMode(DSI_HandleTypeDef *hdsi, DSI_VidCfgTypeDef *VidCfg)
 bool HAL_DSI_ConfigAdaptedCommandMode(DSI_HandleTypeDef *hdsi, DSI_CmdCfgTypeDef *CmdCfg);
 bool HAL_DSI_ConfigCommand(DSI_HandleTypeDef *hdsi, DSI_LPCmdTypeDef *LPCmd);
 bool HAL_DSI_Init(DSI_HandleTypeDef *hdsi, DSI_PLLInitTypeDef *PLLInit);
-void BSP_LCD_Reset(void);
+//void BSP_LCD_Reset(void);
 static uint16_t LCD_IO_GetID(void);
 void BSP_LCD_MspInit(void);
 bool BSP_DSI_Deinit(DSI_HandleTypeDef *hdsi);
@@ -414,7 +414,7 @@ DSI_HandleTypeDef  hdsi_discovery;
 static DSI_VidCfgTypeDef hdsivideo_handle;
 
 
-extern void STM32F7_DebugLed(bool onoff);
+extern void STM32F7_DebugLed(uint16_t pin, bool onoff);
 
 void STM32F7_WriteHello()
 {
@@ -565,22 +565,9 @@ void STM32F7_Ltdc_LayerConfiguration(LTDC_HandleTypeDef *hltdc, LTDC_LayerCfgTyp
 	hltdc->Instance->SRCR = LTDC_SRCR_IMR;
 }
 
-bool STM32F7_DSI_Init() {
-
-	DSI_TypeDef* dsiCfg = DSI;
-
-	return true;
-}
-
 bool STM32F7_Display_Initialize(LTDC_HandleTypeDef* hltdc) {
 	// InitializeConfiguration
 	LTDC_LayerCfgTypeDef      pLayerCfg;
-
-
-	auto b = STM32F7_DSI_Init();
-	//RCC->APB2RSTR |= RCC_APB2RSTR_LTDCRST;
-	//STM32F7_Time_Delay(nullptr, 0x10000);
-	//RCC->APB2RSTR &= ~(RCC_APB2RSTR_LTDCRST);
 
 	RCC->CR &= ~(RCC_CR_PLLSAION);
 	// Wait for locked bit
@@ -682,7 +669,7 @@ bool STM32F7_Display_Initialize(LTDC_HandleTypeDef* hltdc) {
 
 	m_STM32F7_DisplayEnable = true;
 
-	//STM32F7_DebugLed(true);
+	STM32F7_DebugLed(PIN(J,5), true);
 	//STM32F7_Display_Clear();
 	return true;
 }
@@ -840,30 +827,30 @@ void STM32F7_Display_Clear() {
 
 }
 
-const STM32F7_Gpio_Pin g_Display_ControllerPins[] = STM32F7_DISPLAY_CONTROLLER_PINS;
+//const STM32F7_Gpio_Pin g_Display_ControllerPins[] = STM32F7_DISPLAY_CONTROLLER_PINS;
 const STM32F7_Gpio_Pin g_Display_BacklightPin = STM32F7_DISPLAY_BACKLIGHT_PIN;
-const STM32F7_Gpio_Pin g_Display_EnablePin = STM32F7_DISPLAY_ENABLE_PIN;
+const STM32F7_Gpio_Pin g_Display_ResetPin = STM32F7_DISPLAY_RESET_PIN;
 
-bool  STM32F7_Display_SetPinConfiguration() {
-	for (int32_t i = 0; i < SIZEOF_ARRAY(g_Display_ControllerPins); i++) {
-		STM32F7_GpioInternal_ConfigurePin(g_Display_ControllerPins[i].number, STM32F7_Gpio_PortMode::AlternateFunction, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, g_Display_ControllerPins[i].alternateFunction);
-	}
+bool  STM32F7_DsiDisplay_SetPinConfiguration() {
 
-	if (m_STM32F7_DisplayOutputEnableIsFixed) {
-		STM32F7_GpioInternal_ConfigurePin(g_Display_EnablePin.number, STM32F7_Gpio_PortMode::GeneralPurposeOutput, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
-		//STM32F7_GpioInternal_WritePin(g_Display_EnablePin.number, m_STM32F7_DisplayOutputEnablePolarity);
-		STM32F7_GpioInternal_WritePin(g_Display_EnablePin.number, true);
-	}
-	else {
-		STM32F7_GpioInternal_ConfigurePin(g_Display_EnablePin.number, STM32F7_Gpio_PortMode::AlternateFunction, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, g_Display_EnablePin.alternateFunction);
-	}
+	// Reset need to be HIGH level
+	STM32F7_GpioInternal_ConfigurePin(g_Display_ResetPin.number, STM32F7_Gpio_PortMode::GeneralPurposeOutput, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
+	STM32F7_GpioInternal_WritePin(g_Display_ResetPin.number, true);
 
-	//backlight D7
+	//backlight LCD
 	STM32F7_GpioInternal_ConfigurePin(g_Display_BacklightPin.number, STM32F7_Gpio_PortMode::GeneralPurposeOutput, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
 	STM32F7_GpioInternal_WritePin(g_Display_BacklightPin.number, true);
 
 	return true;
 }
+
+bool STM32F7_DsiDisplay_ResetLCD() {
+	STM32F7_GpioInternal_ConfigurePin(g_Display_ResetPin.number, STM32F7_Gpio_PortMode::GeneralPurposeOutput, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
+	STM32F7_GpioInternal_WritePin(g_Display_ResetPin.number, false);
+	STM32F7_Time_Delay(nullptr, 10000000);
+	STM32F7_GpioInternal_WritePin(g_Display_ResetPin.number, true);
+}
+
 uint32_t* STM32F7_Display_GetFrameBuffer() {
 	return (uint32_t*)m_STM32F7_Display_VituralRam;
 }
@@ -1061,13 +1048,12 @@ TinyCLR_Result STM32F7_DsiDisplay_Release(const TinyCLR_Display_Provider* self) 
 }
 
 TinyCLR_Result STM32F7_DsiDisplay_Enable(const TinyCLR_Display_Provider* self) {
-	//if (STM32F7_Display_SetPinConfiguration() && STM32F7_Display_Initialize()) {
-	//}
+	if (!STM32F7_DsiDisplay_SetPinConfiguration()) {
+		return TinyCLR_Result::NotSupported;
+	}
 	auto a = BSP_LCD_InitEx(LCD_OrientationTypeDef::LCD_ORIENTATION_LANDSCAPE);
 
 	return TinyCLR_Result::Success;
-	
-	//return TinyCLR_Result::InvalidOperation;
 }
 
 TinyCLR_Result STM32F7_DsiDisplay_Disable(const TinyCLR_Display_Provider* self) {
@@ -1283,7 +1269,8 @@ uint8_t BSP_LCD_InitEx(LCD_OrientationTypeDef orientation)
 
 									 /* Toggle Hardware Reset of the DSI LCD using
 									 * its XRES signal (active low) */
-	BSP_LCD_Reset();
+	//BSP_LCD_Reset();
+	STM32F7_DsiDisplay_ResetLCD();
 
 	/* Check the connected monitor */
 	read_id = LCD_IO_GetID();
@@ -1403,11 +1390,6 @@ uint8_t BSP_LCD_InitEx(LCD_OrientationTypeDef orientation)
 	To avoid any synchronization issue, the DSI shall be started after enabling the LTDC */
 	HAL_DSI_Start(&hdsi_discovery);
 
-#if !defined(DATA_IN_ExtSDRAM)
-	/* Initialize the SDRAM */
-	//BSP_SDRAM_Init();
-#endif /* DATA_IN_ExtSDRAM */
-
 	/* Initialize the font */
 	//BSP_LCD_SetFont(&LCD_DEFAULT_FONT);
 
@@ -1441,34 +1423,6 @@ bool HAL_DSI_Start(DSI_HandleTypeDef *hdsi)
 	//__HAL_UNLOCK(hdsi);
 
 	return true;
-}
-
-
-void BSP_LCD_Reset(void) {
-	// TODO: Reset XRES pin for LCD, example:
-	/*
-	__HAL_RCC_GPIOJ_CLK_ENABLE();
-
-	/* Configure the GPIO on PJ15 */
-	//gpio_init_structure.Pin = GPIO_PIN_15;
-	//gpio_init_structure.Mode = GPIO_MODE_OUTPUT_PP;
-	//gpio_init_structure.Pull = GPIO_PULLUP;
-	//gpio_init_structure.Speed = GPIO_SPEED_HIGH;
-
-	//HAL_GPIO_Init(GPIOJ, &gpio_init_structure);
-
-	///* Activate XRES active low */
-	//HAL_GPIO_WritePin(GPIOJ, GPIO_PIN_15, GPIO_PIN_RESET);
-
-	//HAL_Delay(20); /* wait 20 ms */
-
-	//			   /* Desactivate XRES */
-	//HAL_GPIO_WritePin(GPIOJ, GPIO_PIN_15, GPIO_PIN_SET);
-
-	///* Wait for 10ms after releasing XRES before sending commands */
-	//HAL_Delay(10);
-
-
 }
 
 /**

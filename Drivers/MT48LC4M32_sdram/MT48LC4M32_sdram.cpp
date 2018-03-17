@@ -3,7 +3,7 @@
 SDRAM code implementation
 */
 //=================================================================================================
-// STM32F429I-Discovery SDRAM configuration
+// STM32F4xx/7xx-Discovery SDRAM configuration
 // Author : Domenico Bova, from Radoslaw Kwiecien work
 // Date : 16/03/2018
 //=================================================================================================
@@ -24,26 +24,28 @@ SDRAM code implementation
 #define FILL_PATTERN	0x001F //001F
 
 //=================================================================================================
-// GPIO configuration data (16bit data bus)
+// GPIO configuration data (16/32/8 bit data bus)
 //=================================================================================================
-static  GPIO_TypeDef * const GPIOInitTable[] = {
-	GPIOC,
-	GPIOD, GPIOD,GPIOD,GPIOD,GPIOD,GPIOD,GPIOD,
-	GPIOE, GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,
-	GPIOF, GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,
-	GPIOG, GPIOG,GPIOG,GPIOG,GPIOG,GPIOG,
-	GPIOH, GPIOH,
-	0
-};
-static uint8_t const PINInitTable[] = {
-	3,								// C
-	0,1,8,9,10,14,15,				// D
-	0,1,7,8,9,10,11,12,13,14,15,	// E
-	0,1,2,3,4, 5,11,12,13,14,15,	// F
-	0,1,4,5,8,15,					// G
-	3,5,							// H
-	0
-};
+const STM32F7_Gpio_Pin GPIOInitTable[] = SDRAM_PINS; // = {
+//	GPIOC,
+//	GPIOD, GPIOD,GPIOD,GPIOD,GPIOD,GPIOD,GPIOD,
+//	GPIOE, GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,
+//	GPIOF, GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,
+//	GPIOG, GPIOG,GPIOG,GPIOG,GPIOG,GPIOG,
+//	GPIOH, GPIOH,
+//	0
+//};
+//static uint8_t  PINInitTable; // = {
+//	3,								// C
+//	0,1,8,9,10,14,15,				// D
+//	0,1,7,8,9,10,11,12,13,14,15,	// E
+//	0,1,2,3,4, 5,11,12,13,14,15,	// F
+//	0,1,4,5,8,15,					// G
+//	3,5,							// H
+//	0
+//};
+
+#define TOTAL_PINS	SIZE_ARRAY(GPIOInitTable)
 
 //=================================================================================================
 // SDRAM_Init function
@@ -63,10 +65,7 @@ void SDRAM_Init(uint8_t databits)
 	// io pin enable
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN | RCC_AHB1ENR_GPIODEN | RCC_AHB1ENR_GPIOEEN | RCC_AHB1ENR_GPIOFEN | RCC_AHB1ENR_GPIOGEN | RCC_AHB1ENR_GPIOHEN;
 
-	while (GPIOInitTable[i] != 0) {
-		gpio_conf(GPIOInitTable[i], PINInitTable[i], MODE_AF, TYPE_PUSHPULL, SPEED_100MHz, PULLUP_UP, 12);
-		i++;
-	}
+	InitSdramPins();
 
 	RCC->AHB3ENR |= RCC_AHB3ENR_FMCEN;
 
@@ -116,21 +115,31 @@ void SDRAM_Init(uint8_t databits)
 	}
 }
 
-void gpio_conf(GPIO_TypeDef * GPIO, uint8_t pin, uint8_t mode, uint8_t type, uint8_t speed, uint8_t pullup, uint8_t af)
-{
-	GPIO->MODER = (GPIO->MODER   & MASK2BIT(pin)) | (mode << (pin * 2));
-	GPIO->OTYPER = (GPIO->OTYPER  & MASK1BIT(pin)) | (type << pin);
-	GPIO->OSPEEDR = (GPIO->OSPEEDR & MASK2BIT(pin)) | (speed << (pin * 2));
-	GPIO->PUPDR = (GPIO->PUPDR   & MASK2BIT(pin)) | (pullup << (pin * 2));
-	if (pin > 7)
-	{
-		GPIO->AFR[1] = (GPIO->AFR[1] & AFMASKH(pin)) | (af << ((pin - 8) * 4));
-	}
-	else
-	{
-		GPIO->AFR[0] = (GPIO->AFR[0] & AFMASKL(pin)) | (af << ((pin) * 4));
+void InitSdramPins() {
+	size_t totpins = SIZEOF_ARRAY(GPIOInitTable);
+	for (int i = 0; i < totpins; i++) {
+		STM32F7_GpioInternal_ConfigurePin(GPIOInitTable[i].number, STM32F7_Gpio_PortMode::AlternateFunction, 
+			STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, 
+			STM32F7_Gpio_PullDirection::None, GPIOInitTable[i].alternateFunction);
 	}
 }
+
+
+//void gpio_conf(GPIO_TypeDef * GPIO, uint8_t pin, uint8_t mode, uint8_t type, uint8_t speed, uint8_t pullup, uint8_t af)
+//{
+//	GPIO->MODER = (GPIO->MODER   & MASK2BIT(pin)) | (mode << (pin * 2));
+//	GPIO->OTYPER = (GPIO->OTYPER  & MASK1BIT(pin)) | (type << pin);
+//	GPIO->OSPEEDR = (GPIO->OSPEEDR & MASK2BIT(pin)) | (speed << (pin * 2));
+//	GPIO->PUPDR = (GPIO->PUPDR   & MASK2BIT(pin)) | (pullup << (pin * 2));
+//	if (pin > 7)
+//	{
+//		GPIO->AFR[1] = (GPIO->AFR[1] & AFMASKH(pin)) | (af << ((pin - 8) * 4));
+//	}
+//	else
+//	{
+//		GPIO->AFR[0] = (GPIO->AFR[0] & AFMASKL(pin)) | (af << ((pin) * 4));
+//	}
+//}
 
 
 //=================================================================================================

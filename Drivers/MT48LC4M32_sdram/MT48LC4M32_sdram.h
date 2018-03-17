@@ -52,16 +52,14 @@ SDRAM for DISCO-STM32F746NG
 #define AFMASKL(pin)	((uint32_t)~(15 << (pin * 4)))
 #define AFMASKH(pin)	((uint32_t)~(15 << ((pin - 8) * 4)))
 
-
 extern void STM32F7_DebugLed(bool onoff);
 //=================================================================================================
-//
+// PinsInit function
 //=================================================================================================
-void gpio_conf(GPIO_TypeDef * GPIO, uint8_t pin, uint8_t mode, uint8_t type, uint8_t speed, uint8_t pullup, uint8_t af);
+void InitSdramPins(void);
+
 //=================================================================================================
-//
+// Init function
 //=================================================================================================
 
-
-
-void SDRAM_Init(void);
+void SDRAM_Init(uint8_t databits);
