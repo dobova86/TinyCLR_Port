@@ -45,7 +45,7 @@ const STM32F7_Gpio_Pin GPIOInitTable[] = SDRAM_PINS; // = {
 //	0
 //};
 
-#define TOTAL_PINS	SIZE_ARRAY(GPIOInitTable)
+//#define TOTAL_PINS	SIZEOF_ARRAY(GPIOInitTable)
 
 //=================================================================================================
 // SDRAM_Init function
