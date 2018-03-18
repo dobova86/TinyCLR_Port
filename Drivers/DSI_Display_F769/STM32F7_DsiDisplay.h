@@ -12,6 +12,8 @@ GENERAL DISPLAY DSI for DISCOVERY-F769NI DEFINES
 
 #define MAX_LAYER  2
 
+#define RESET 0
+#define SET !RESET
 //// Implementations
 //
 //bool HAL_DSI_ConfigVideoMode(DSI_HandleTypeDef *hdsi, DSI_VidCfgTypeDef *VidCfg);

@@ -21,7 +21,7 @@ SDRAM code implementation
 #define TRP(x)  (x << 20)
 #define TRCD(x) (x << 24)
 
-#define FILL_PATTERN	0x001F //001F
+#define FILL_PATTERN	0x55AA55AA //001F
 
 //=================================================================================================
 // GPIO configuration data (16/32/8 bit data bus)
@@ -54,7 +54,8 @@ void SDRAM_Init(uint8_t databits)
 {
 	volatile uint32_t ptr = 0, pp = 0;
 	volatile uint32_t i = 0;
-	volatile uint8_t dbits = 0;
+	volatile uint32_t dbits = 0;
+	volatile uint32_t addr_lines = FMC_SDCR1_NR_0; //default to 12bit
 
 	uint32_t tmpmrd = (uint32_t) SDRAM_MODEREG_BURST_LENGTH_1 | \
 								SDRAM_MODEREG_BURST_TYPE_SEQUENTIAL | \
@@ -73,12 +74,14 @@ void SDRAM_Init(uint8_t databits)
 	//FMC_Bank5_6->SDCR[0] = FMC_SDCR1_SDCLK_1 | FMC_SDCR1_RBURST | FMC_SDCR1_RPIPE_1 | FMC_SDCR1_NR_0 | FMC_SDCR1_MWID_0 | FMC_SDCR1_NB | FMC_SDCR1_CAS;
 	if (databits == 16)
 		dbits = FMC_SDCR1_MWID_0;
-	else if (databits == 32)
+	else if (databits == 32) {
 		dbits = FMC_SDCR1_MWID_1;
+		//addr_lines = FMC_SDCR1_NR_0 | FMC_SDCR1_NR_1; // 13bit
+	}
 	else // databits == 8
 		dbits = 0;
 
-	FMC_Bank5_6->SDCR[0] = FMC_SDCR1_SDCLK_1 | FMC_SDCR1_RBURST | FMC_SDCR1_NR_0 | FMC_SDCR1_NB | FMC_SDCR1_CAS_1 | dbits;
+	FMC_Bank5_6->SDCR[0] = FMC_SDCR1_SDCLK_1 | FMC_SDCR1_RBURST | addr_lines | FMC_SDCR1_NB | FMC_SDCR1_CAS_1 | dbits;
 
 	//FMC_Bank5_6->SDCR[1] = FMC_SDCR2_NR_0 | FMC_SDCR2_NB | FMC_SDCR2_CAS_1 | FMC_SDCR2_MWID_0;
 	// Initialization step 2
@@ -106,8 +109,8 @@ void SDRAM_Init(uint8_t databits)
 	while (FMC_Bank5_6->SDSR & FMC_SDSR_BUSY);
 	
 	// Clear SDRAM
-	for (ptr = SDRAM_BASE; ptr < (SDRAM_BASE + SDRAM_SIZE); ptr += 2) {
-		*((uint16_t *)ptr) = FILL_PATTERN;
+	for (ptr = SDRAM_BASE; ptr < (SDRAM_BASE + SDRAM_SIZE); ptr += 4) {
+		*((uint32_t *)ptr) = FILL_PATTERN;
 		//pp = *((uint32_t *)ptr);
 		//if (pp != FILL_PATTERN) {
 		//	STM32F7_DebugLed(true);

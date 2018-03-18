@@ -347,6 +347,7 @@ extern "C" {
         RCC->AHB1ENR |= RCC_AHB1ENR_GPIOKEN;
 #endif
 #ifdef USE_SDRAM_HEAP
+		// Note: SDRAM_DATABITS is 
 		SDRAM_Init(SDRAM_DATABITS); // Init MT48LC4M32 SDRAM for heap (Databits depend on hardware implementation)
 #endif
     }

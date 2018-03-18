@@ -54,11 +54,15 @@ void OnSoftReset(const TinyCLR_Api_Provider* apiProvider) {
 #ifdef INCLUDE_DISPLAY
 	apiProvider->Add(apiProvider, TARGET(_Display_GetApi)());
 	apiProvider->SetDefaultSelector(apiProvider, TinyCLR_Api_Type::DisplayProvider, TARGET(_Display_GetApi)()->Name);
+#pragma message "Using Parallel Display interface"
+
 #endif
 
 #ifdef INCLUDE_DISPLAY_DSI
 	apiProvider->Add(apiProvider, TARGET(_DsiDisplay_GetApi)());
 	apiProvider->SetDefaultSelector(apiProvider, TinyCLR_Api_Type::DisplayProvider, TARGET(_DsiDisplay_GetApi)()->Name);
+#pragma message "Using DSI Display interface"
+
 #endif
 
 #ifdef INCLUDE_I2C

@@ -44,38 +44,20 @@
 //#define RUN_APP_STATE TinyCLR_Gpio_PinValue::High
 #define RUN_APP_FORCE_STATE true
 
-#define SDRAM_32BIT // possible: SDRAM_16BIT/_32BIT/_8BIT
+#define SDRAM_32BIT // SDRAM_16BIT for Disco-F746, SDRAM_32BIT for Disco-F769 [SDRAM_8BIT not used]
 #define USE_SDRAM_HEAP
-#define SDRAM_PINS {\
-				{ PIN(C, 3), AF(12) }, { PIN(D, 0), AF(12) }, { PIN(D, 1), AF(12) }, { PIN(D, 8), AF(12) }, { PIN(D, 9), AF(12) }, { PIN(D,10), AF(12) },\
+#define SDRAM_PINS {/* FMC bus pins (A0..12, D0-31) + CTRL Pins */\
+				{ PIN(G, 2), AF(12) }, { PIN(D, 0), AF(12) }, { PIN(D, 1), AF(12) }, { PIN(D, 8), AF(12) }, { PIN(D, 9), AF(12) }, { PIN(D,10), AF(12) },\
 				{ PIN(D,14), AF(12) }, { PIN(D,15), AF(12) }, { PIN(E, 0), AF(12) }, { PIN(E, 1), AF(12) }, { PIN(E, 7), AF(12) }, { PIN(E, 8), AF(12) },\
 				{ PIN(E, 9), AF(12) }, { PIN(E,10), AF(12) }, { PIN(E,11), AF(12) }, { PIN(E,12), AF(12) }, { PIN(E,13), AF(12) }, { PIN(E,14), AF(12) },\
 				{ PIN(E,15), AF(12) }, { PIN(F, 0), AF(12) }, { PIN(F, 1), AF(12) }, { PIN(F, 2), AF(12) }, { PIN(F, 3), AF(12) }, { PIN(F, 4), AF(12) },\
 				{ PIN(F, 5), AF(12) }, { PIN(F,11), AF(12) }, { PIN(F,12), AF(12) }, { PIN(F,13), AF(12) }, { PIN(F,14), AF(12) }, { PIN(F,15), AF(12) },\
-				{ PIN(G, 0), AF(12) }, { PIN(G, 1), AF(12) }, { PIN(G, 4), AF(12) }, { PIN(G, 5), AF(12) }, { PIN(G,11), AF(12) }, { PIN(G,12), AF(12) },\
-				{ PIN(G,13), AF(12) }, { PIN(G,14), AF(12) }, { PIN(G,15), AF(12) }, { PIN(H, 3), AF(12) }, { PIN(H, 5), AF(12) },\
+				{ PIN(G, 0), AF(12) }, { PIN(G, 1), AF(12) }, { PIN(G, 4), AF(12) }, { PIN(G, 5), AF(12) }, { PIN(G, 8), AF(12) }, { PIN(G,15), AF(12) },\
+				{ PIN(H, 2), AF(12) }, { PIN(H, 3), AF(12) }, { PIN(H, 5), AF(12) },\
 				{ PIN(H, 8), AF(12) }, { PIN(H, 9), AF(12) }, { PIN(H,10), AF(12) }, { PIN(H,11), AF(12) }, { PIN(H,12), AF(12) }, { PIN(H,13), AF(12) },\
 				{ PIN(H,14), AF(12) }, { PIN(H,15), AF(12) }, { PIN(I, 0), AF(12) }, { PIN(I, 1), AF(12) }, { PIN(I, 2), AF(12) }, { PIN(I, 3), AF(12) },\
-				{ PIN(I, 6), AF(12) }, { PIN(I, 7), AF(12) }, { PIN(I, 9), AF(12) }, { PIN(I,10), AF(12) },\
+				{ PIN(I, 4), AF(12) }, { PIN(I, 5), AF(12) }, { PIN(I, 6), AF(12) }, { PIN(I, 7), AF(12) }, { PIN(I, 9), AF(12) }, { PIN(I,10), AF(12) },\
 			}
-// = {
-//	GPIOC,
-//	GPIOD, GPIOD,GPIOD,GPIOD,GPIOD,GPIOD,GPIOD,
-//	GPIOE, GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,
-//	GPIOF, GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,
-//	GPIOG, GPIOG,GPIOG,GPIOG,GPIOG,GPIOG,
-//	GPIOH, GPIOH,
-//	0
-//};
-//static uint8_t  PINInitTable; // = {
-//	3,								// C
-//	0,1,8,9,10,14,15,				// D
-//	0,1,7,8,9,10,11,12,13,14,15,	// E
-//	0,1,2,3,4, 5,11,12,13,14,15,	// F
-//	0,1,4,5,8,15,					// G
-//	3,5,							// H
-//	0
-//};
 
 #define DEPLOYMENT_SECTORS 	{\
 								{ 0x06, 0x08080000, 0x00040000 }, { 0x07, 0x080C0000, 0x00040000 },\
@@ -83,13 +65,6 @@
 								{ 0x0A, 0x08180000, 0x00040000 }, { 0x0B, 0x081C0000, 0x00040000 }\
 							 } //,
 
-//#define DEPLOYMENT_SECTORS { { 0x06, 0x08040000, 0x00020000 },\
-//							 { 0x07, 0x08060000, 0x00020000 },\
-//							 { 0x08, 0x08080000, 0x00020000 },\
-//							 { 0x09, 0x080A0000, 0x00020000 },\
-//							 { 0x0A, 0x080C0000, 0x00020000 },\
-//							 { 0x0B, 0x080E0000, 0x00020000 }\
-//							}
 
 
 #define STM32F7_SYSTEM_CLOCK_HZ 216000000	 // 168000000 // 180000000 // 216000000
@@ -158,17 +133,18 @@
 #define STM32F7_UART_CTS_PINS { { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE, AF_NONE } }
 #define STM32F7_UART_RTS_PINS { { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE, AF_NONE } }
 
-#define INCLUDE_DISPLAY_DSI	// this enable code for DSI Display. NOT DEFINE INCLUDE_DISPLAY
+#define INCLUDE_DISPLAY_DSI	// this enable code for DSI Display. NOT DEFINE INCLUDE_DISPLAY toghether
 
 
 #define STM32F7_DISPLAY_BACKLIGHT_PIN		{ PIN(I, 14), AF_NONE } // LCD Backlight control
+#define STM32F7_DISPLAY_ENABLE_PIN			{ PIN(J,  2), AF_NONE } // LCD Enable control
 #define STM32F7_DISPLAY_RESET_PIN			{ PIN(J, 15), AF_NONE } // this is DSI LCD RESET signal
 
 #define INCLUDE_USBCLIENT
 #define STM32F7_USB_QUEUE_SIZE 16
 #define STM32F7_USB_FIFO_BUFFER_SIZE 64
 
-// NOTE: To USE discovery board for STM32F7 OTG_HS, you need both defines:
+// NOTE: To USE discovery board for STM32F769 OTG_HS, you need both defines:
 #define OTG_USE_HS	1
 #define OTG_USE_HS_ULPI	1
 

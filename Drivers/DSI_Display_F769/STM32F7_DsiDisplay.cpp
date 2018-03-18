@@ -324,8 +324,8 @@ const uint8_t characters[129][5] = {
 #define VIDEO_RAM_SIZE (800*480*2) // Maximum LCD screen size times bytes per pixel
 //#define VIDEO_RAM_SIZE (0x40000) // Maximum LCD screen size times bytes per pixel
 
-//#define UNCACHE_LCD_BUFFER_ADDRESS 0xC0000000 // fix it on SDRAM (end=0xC003FC00)
-#define UNCACHE_LCD_BUFFER_ADDRESS 0x20010000
+#define UNCACHE_LCD_BUFFER_ADDRESS 0xC0000000 // fix it on SDRAM (end=0xC003FC00)
+//#define UNCACHE_LCD_BUFFER_ADDRESS 0x081C0000
 
 #define VIDEO_RAM_ADDRESS UNCACHE_LCD_BUFFER_ADDRESS 
 
@@ -388,7 +388,7 @@ uint32_t* STM32F7_Display_GetFrameBuffer();
 
 static TinyCLR_Display_Provider displayProvider;
 static TinyCLR_Api_Info displayApi;
-static LTDC_HandleTypeDef hltdc_F;
+static LTDC_HandleTypeDef hltdc_discovery;
 
 // Implementations for the DSI Hal
 
@@ -422,7 +422,7 @@ void STM32F7_WriteHello()
 	char buffer[] = "\nDiscovery DISC0-STM32F769NI DSI Display driver\n";
 	size_t t = strlen(buffer);
 	STM32F7_Display_Clear();
-	STM32F7_Display_WriteString(NULL, buffer, t);	
+	STM32F7_DsiDisplay_WriteString(NULL, buffer, t);	
 }
 
 
@@ -575,10 +575,10 @@ bool STM32F7_Display_Initialize(LTDC_HandleTypeDef* hltdc) {
 
 	STM32F7_Time_Delay(nullptr, 0x20000);
 
-	RCC->PLLSAICFGR = (0xC0 << 6) | ((0x3) << 16) | ((0xF) << 24) | ((0x5) << 28);
+	RCC->PLLSAICFGR = (0x180 << 6) | ((0x3) << 16) | ((0xF) << 24) | ((0x7) << 28);
 
 	// LDTC clock set is at 9.5Mhz PLLR/4
-	MODIFY_REG(RCC->DCKCFGR1, RCC_DCKCFGR1_PLLSAIDIVR, (uint32_t)(0x00010000));
+	MODIFY_REG(RCC->DCKCFGR1, RCC_DCKCFGR1_PLLSAIDIVR, (uint32_t)(0x00000000));
 
 	//RCC->DCKCFGR1 &= ~(RCC_DCKCFGR1_PLLSAIDIVR);
 	//RCC->DCKCFGR1 |= RCC_DCKCFGR1_PLLSAIDIVR_0; // now LDTC clock is at 9.5Mhz 
@@ -669,7 +669,7 @@ bool STM32F7_Display_Initialize(LTDC_HandleTypeDef* hltdc) {
 
 	m_STM32F7_DisplayEnable = true;
 
-	STM32F7_DebugLed(PIN(J,5), true);
+	STM32F7_DebugLed(PIN(J,13), true);
 	//STM32F7_Display_Clear();
 	return true;
 }
@@ -847,7 +847,7 @@ bool  STM32F7_DsiDisplay_SetPinConfiguration() {
 bool STM32F7_DsiDisplay_ResetLCD() {
 	STM32F7_GpioInternal_ConfigurePin(g_Display_ResetPin.number, STM32F7_Gpio_PortMode::GeneralPurposeOutput, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
 	STM32F7_GpioInternal_WritePin(g_Display_ResetPin.number, false);
-	STM32F7_Time_Delay(nullptr, 10000000);
+	STM32F7_Time_Delay(nullptr, 1000000);
 	STM32F7_GpioInternal_WritePin(g_Display_ResetPin.number, true);
 }
 
@@ -1195,7 +1195,7 @@ bool HAL_DSI_Init(DSI_HandleTypeDef *hdsi, DSI_PLLInitTypeDef *PLLInit)
 	/* Enable the regulator */
 	__HAL_DSI_REG_ENABLE(hdsi);
 
-
+	while (__HAL_DSI_GET_FLAG(hdsi, DSI_FLAG_RRS) == RESET);
 	/* Set the PLL division factors */
 	hdsi->Instance->WRPCR &= ~(DSI_WRPCR_PLL_NDIV | DSI_WRPCR_PLL_IDF | DSI_WRPCR_PLL_ODF);
 	hdsi->Instance->WRPCR |= (((PLLInit->PLLNDIV) << 2) | ((PLLInit->PLLIDF) << 11) | ((PLLInit->PLLODF) << 16));
@@ -1204,6 +1204,7 @@ bool HAL_DSI_Init(DSI_HandleTypeDef *hdsi, DSI_PLLInitTypeDef *PLLInit)
 	__HAL_DSI_PLL_ENABLE(hdsi);
 
 	/* Get tick */
+	while (__HAL_DSI_GET_FLAG(hdsi, DSI_FLAG_PLLLS) == RESET);
 
 	/*************************** Set the PHY parameters ***************************/
 
@@ -1379,12 +1380,27 @@ uint8_t BSP_LCD_InitEx(LCD_OrientationTypeDef orientation)
 
 	/************************LTDC Initialization***********************************/
 
+	hltdc_discovery.Init.HorizontalSync = (HSA - 1);
+	hltdc_discovery.Init.AccumulatedHBP = (HSA + HBP - 1);
+	hltdc_discovery.Init.AccumulatedActiveW = (lcd_x_size + HSA + HBP - 1);
+	hltdc_discovery.Init.TotalWidth = (lcd_x_size + HSA + HBP + HFP - 1);
+
+	/* Initialize the LCD pixel width and pixel height */
+	hltdc_discovery.LayerCfg->ImageWidth = lcd_x_size;
+	hltdc_discovery.LayerCfg->ImageHeight = lcd_y_size;
+
+	hltdc_discovery.Init.Backcolor.Blue = 0;
+	hltdc_discovery.Init.Backcolor.Green = 0;
+	hltdc_discovery.Init.Backcolor.Red = 0;
+	hltdc_discovery.Init.PCPolarity = LTDC_PCPOLARITY_IPC;
+	hltdc_discovery.Instance = LTDC;
+
 	/* Get LTDC Configuration from DSI Configuration */
-	HAL_LTDC_StructInitFromVideoConfig(&(hltdc_F), &(hdsivideo_handle));
+	HAL_LTDC_StructInitFromVideoConfig(&(hltdc_discovery), &(hdsivideo_handle));
 
 	/* Initialize the LTDC */
 	//HAL_LTDC_Init(&hltdc_F);
-	STM32F7_Display_Initialize(&hltdc_F);
+	STM32F7_Display_Initialize(&hltdc_discovery);
 
 	/* Enable the DSI host and wrapper after the LTDC initialization
 	To avoid any synchronization issue, the DSI shall be started after enabling the LTDC */

@@ -44,7 +44,6 @@
       "includePath": [
         "${workspaceRoot}/CMSIS/CMSIS/Include",
         "${workspaceRoot}/Targets/STM32F7xx",
-        //"${workspaceRoot}/Devices/MMB",
         "${workspaceRoot}/Core",
         "H:/GNU Tools ARM Embedded/7 2017-q4-major/arm-none-eabi/include/c++/7.2.1",
         "H:/GNU Tools ARM Embedded/7 2017-q4-major/arm-none-eabi/include/c++/7.2.1/arm-none-eabi/thumb/v7e-m/fpv4-sp/hard",
