@@ -72,11 +72,11 @@ void SDRAM_Init(uint8_t databits)
 
 	// Initialization step 1
 	//FMC_Bank5_6->SDCR[0] = FMC_SDCR1_SDCLK_1 | FMC_SDCR1_RBURST | FMC_SDCR1_RPIPE_1 | FMC_SDCR1_NR_0 | FMC_SDCR1_MWID_0 | FMC_SDCR1_NB | FMC_SDCR1_CAS;
-	if (databits == 16)
+	if (databits == 16) {
 		dbits = FMC_SDCR1_MWID_0;
+	}
 	else if (databits == 32) {
 		dbits = FMC_SDCR1_MWID_1;
-		//addr_lines = FMC_SDCR1_NR_0 | FMC_SDCR1_NR_1; // 13bit
 	}
 	else // databits == 8
 		dbits = 0;
@@ -108,6 +108,9 @@ void SDRAM_Init(uint8_t databits)
 	FMC_Bank5_6->SDRTR |= (REFRESH_COUNT << 1);
 	while (FMC_Bank5_6->SDSR & FMC_SDSR_BUSY);
 	
+	// now remap SDRAM to 0x60000000 : this is a cached area, so we can avoid MPU registers programming
+	SYSCFG->MEMRMP |= SYSCFG_MEMRMP_SWP_FMC_0;
+
 	// Clear SDRAM
 	for (ptr = SDRAM_BASE; ptr < (SDRAM_BASE + SDRAM_SIZE); ptr += 4) {
 		*((uint32_t *)ptr) = FILL_PATTERN;

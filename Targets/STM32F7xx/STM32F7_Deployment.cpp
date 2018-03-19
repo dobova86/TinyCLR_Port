@@ -32,6 +32,7 @@ struct STM32F7_Flash_Deployment {
 
 //#define FLASH_CR_PSIZE_BITS FLASH_CR_PSIZE_0 // 16 bit programming
 #define FLASH_CR_PSIZE_BITS FLASH_CR_PSIZE_1 // 32 bit programming
+//#define FLASH_CR_PSIZE_BITS FLASH_CR_PSIZE_1 | FLASH_CR_PSIZE_0 // 64 bit programming
 
 #if STM32F7_SUPPLY_VOLTAGE_MV < 2100
 #error 16 bit Flash programming not allowed for voltages below 2.1V
@@ -103,6 +104,9 @@ TinyCLR_Result __section("SectionForFlashOperations") STM32F7_Flash_Write(const 
     if (STM32F7_Flash_GetSectorSizeForAddress(self, address, bytePerSector) != TinyCLR_Result::Success)
         return TinyCLR_Result::IndexOutOfRange;
 
+	// Need to disable cache to write flash sectors
+	SCB_DisableDCache();
+
     if (STM32F7_FLASH->CR & FLASH_CR_LOCK) { // unlock
         STM32F7_FLASH->KEYR = STM32F7_FLASH_KEY1;
         STM32F7_FLASH->KEYR = STM32F7_FLASH_KEY2;
@@ -134,6 +138,8 @@ TinyCLR_Result __section("SectionForFlashOperations") STM32F7_Flash_Write(const 
 
     // reset & lock the controller
     STM32F7_FLASH->CR = FLASH_CR_LOCK;
+
+	SCB_EnableDCache();
 
     return TinyCLR_Result::Success;
 }
@@ -167,7 +173,7 @@ TinyCLR_Result __section("SectionForFlashOperations") STM32F7_Flash_EraseSector(
 
     uint32_t num = deploymentSectors[sector].id;
 
-    if (num > 7)     
+    if (num > 0xB)     
 		return TinyCLR_Result::ArgumentOutOfRange;
 	
 
@@ -182,8 +188,8 @@ TinyCLR_Result __section("SectionForFlashOperations") STM32F7_Flash_EraseSector(
     // start erase
     cr |= FLASH_CR_STRT;
     STM32F7_FLASH->CR = cr;
-    // assure busy flag is set up (see STM32F7 errata)
-    //STM32F7_FLASH->CR = cr;
+    // assure busy flag is set up (see errata?)
+    STM32F7_FLASH->CR = cr;
     // wait for completion
     while (STM32F7_FLASH->SR & FLASH_SR_BSY);
 

@@ -15,14 +15,10 @@
 #include <TinyCLR.h>
 #include <Device.h>
 
-//#ifdef INCLUDE_DISPLAY_DSI
-//#include "..\Drivers\DSI_Display_F769\STM32F7_DsiDisplay.h"
-//#endif
 
 #define TARGET(a) CONCAT(DEVICE_TARGET, a)
 
 extern void SDRAM_Init(uint8_t databits);
-extern void STM32F7_DsiDisplay_Initialize(void);
 extern void STM32F7_WriteHello(void);
 
 
@@ -58,12 +54,12 @@ void OnSoftReset(const TinyCLR_Api_Provider* apiProvider) {
 
 #endif
 
-#ifdef INCLUDE_DISPLAY_DSI
-	apiProvider->Add(apiProvider, TARGET(_DsiDisplay_GetApi)());
-	apiProvider->SetDefaultSelector(apiProvider, TinyCLR_Api_Type::DisplayProvider, TARGET(_DsiDisplay_GetApi)()->Name);
-#pragma message "Using DSI Display interface"
-
-#endif
+//#ifdef INCLUDE_DISPLAY_DSI
+//	apiProvider->Add(apiProvider, TARGET(_DsiDisplay_GetApi)());
+//	apiProvider->SetDefaultSelector(apiProvider, TinyCLR_Api_Type::DisplayProvider, TARGET(_DsiDisplay_GetApi)()->Name);
+//#pragma message "Using DSI Display interface"
+//
+//#endif
 
 #ifdef INCLUDE_I2C
 	apiProvider->Add(apiProvider, TARGET(_I2c_GetApi)());

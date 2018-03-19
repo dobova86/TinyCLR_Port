@@ -324,7 +324,8 @@ const uint8_t characters[129][5] = {
 #define VIDEO_RAM_SIZE (800*480*2) // Maximum LCD screen size times bytes per pixel
 //#define VIDEO_RAM_SIZE (0x40000) // Maximum LCD screen size times bytes per pixel
 
-#define UNCACHE_LCD_BUFFER_ADDRESS 0xC0000000 // fix it on SDRAM (end=0xC003FC00)
+//#define UNCACHE_LCD_BUFFER_ADDRESS 0xC0000000 // fix it on SDRAM (end=0xC003FC00)
+#define UNCACHE_LCD_BUFFER_ADDRESS 0x60000000 // fix it on SDRAM (end=0x6003FC00) THIS IS REMAPPED through reg SYSCFG MEMRMP
 //#define UNCACHE_LCD_BUFFER_ADDRESS 0x081C0000
 
 #define VIDEO_RAM_ADDRESS UNCACHE_LCD_BUFFER_ADDRESS 
@@ -669,7 +670,7 @@ bool STM32F7_Display_Initialize(LTDC_HandleTypeDef* hltdc) {
 
 	m_STM32F7_DisplayEnable = true;
 
-	STM32F7_DebugLed(PIN(J,13), true);
+	//STM32F7_DebugLed(PIN(J,13), true);
 	//STM32F7_Display_Clear();
 	return true;
 }
@@ -847,7 +848,7 @@ bool  STM32F7_DsiDisplay_SetPinConfiguration() {
 bool STM32F7_DsiDisplay_ResetLCD() {
 	STM32F7_GpioInternal_ConfigurePin(g_Display_ResetPin.number, STM32F7_Gpio_PortMode::GeneralPurposeOutput, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
 	STM32F7_GpioInternal_WritePin(g_Display_ResetPin.number, false);
-	STM32F7_Time_Delay(nullptr, 1000000);
+	STM32F7_Time_Delay(nullptr, 100000);
 	STM32F7_GpioInternal_WritePin(g_Display_ResetPin.number, true);
 }
 

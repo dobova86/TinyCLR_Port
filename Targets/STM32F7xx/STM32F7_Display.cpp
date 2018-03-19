@@ -313,7 +313,8 @@ const uint8_t characters[129][5] = {
 #define VIDEO_RAM_SIZE (480*272*2) // Maximum LCD screen size times bytes per pixel
 //#define VIDEO_RAM_SIZE (0x40000) // Maximum LCD screen size times bytes per pixel
 
-#define UNCACHE_LCD_BUFFER_ADDRESS 0xC0000000 // fix it on SDRAM (end=0xC003FC00)
+//#define UNCACHE_LCD_BUFFER_ADDRESS 0xC0000000 // fix it on SDRAM (end=0xC003FC00)
+#define UNCACHE_LCD_BUFFER_ADDRESS 0x60000000 // fix it on SDRAM (end=0x6003FC00) SDRAM remapped with SYSCFG MEMRMP reg
 //#define UNCACHE_LCD_BUFFER_ADDRESS 0x20010000
 
 #define VIDEO_RAM_ADDRESS UNCACHE_LCD_BUFFER_ADDRESS 

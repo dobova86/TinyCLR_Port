@@ -5,7 +5,8 @@ SDRAM for DISCO-STM32F746NG
 */
 
 // SDRAM base address for Bank 1
-#define SDRAM_BASE ((uint32_t) 0xC0000000)
+//#define SDRAM_BASE ((uint32_t) 0xC0000000)
+#define SDRAM_BASE ((uint32_t) 0x60000000)
 
 // SDRAM size is 8MB --- USED ONLY TO FILL PATTERN IN MEMORY
 //#define SDRAM_SIZE ((uint32_t)0x800000)

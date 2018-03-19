@@ -166,6 +166,3 @@
 		}
 #endif
 
-#ifdef INCLUDE_DISPLAY_DSI
-#include "..\Drivers\DSI_Display_F769\STM32F7_DsiDisplay.h"
-#endif
