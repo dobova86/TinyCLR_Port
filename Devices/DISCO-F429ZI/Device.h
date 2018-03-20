@@ -45,23 +45,31 @@
 //#define BOOTLOADER_HOLD_ADDRESS 0x2002FFF8
 //#define BOOTLOADER_HOLD_VALUE 0x37D56D4A
 
-#define DEPLOYMENT_SECTORS { { 0x06, 0x08040000, 0x00020000 }, { 0x07, 0x08060000, 0x00020000 }, { 0x08, 0x08080000, 0x00020000 },\
+#define DEPLOYMENT_SECTORS {/* NOTE: F429 is 2Mb flash with dual bank org. At the moment NOT ALL sectors are acivated. See text file F429_flash_mem_banks.MD  */\
+							 { 0x06, 0x08040000, 0x00020000 }, { 0x07, 0x08060000, 0x00020000 }, { 0x08, 0x08080000, 0x00020000 },\
 							 { 0x09, 0x080A0000, 0x00020000 }, { 0x0A, 0x080C0000, 0x00020000 }, { 0x0B, 0x080E0000, 0x00020000 },\
-							 { 0x0C, 0x08100000, 0x00020000 } }
-
-//#define DEPLOYMENT_SECTORS { { 0x06, 0x08040000, 0x00020000 },\
-//							 { 0x07, 0x08060000, 0x00020000 },\
-//							 { 0x08, 0x08080000, 0x00020000 },\
-//							 { 0x09, 0x080A0000, 0x00020000 },\
-//							 { 0x0A, 0x080C0000, 0x00020000 },\
-//							 { 0x0B, 0x080E0000, 0x00020000 }\
-//							}
+							 { 0x10, 0x08110000, 0x00010000 }, { 0x10, 0x08120000, 0x00020000 }\
+						 }
 
 
-#define STM32F4_SYSTEM_CLOCK_HZ 168000000	 // 168000000 // 180000000
-#define STM32F4_AHB_CLOCK_HZ	168000000	 // 168000000 // 180000000
-#define STM32F4_APB1_CLOCK_HZ	42000000	 // 42000000  // 45000000
-#define STM32F4_APB2_CLOCK_HZ	84000000	 // 84000000  // 90000000
+
+#define USE_SDRAM_HEAP
+#define SDRAM_PINS {\
+				{ PIN(C, 0), AF(12) },\
+				{ PIN(D, 0), AF(12) }, { PIN(D, 1), AF(12) }, { PIN(D, 8), AF(12) }, { PIN(D, 9), AF(12) }, { PIN(D,10), AF(12) }, { PIN(D,14), AF(12) }, { PIN(D,15), AF(12) },\
+				{ PIN(E, 0), AF(12) }, { PIN(E, 1), AF(12) }, { PIN(E, 7), AF(12) }, { PIN(E, 8), AF(12) },	{ PIN(E, 9), AF(12) }, { PIN(E,10), AF(12) },\
+				{ PIN(E,11), AF(12) }, { PIN(E,12), AF(12) }, { PIN(E,13), AF(12) }, { PIN(E,14), AF(12) },	{ PIN(E,15), AF(12) },\
+				{ PIN(F, 0), AF(12) }, { PIN(F, 1), AF(12) }, { PIN(F, 2), AF(12) }, { PIN(F, 3), AF(12) }, { PIN(F, 4), AF(12) }, { PIN(F, 5), AF(12) },\
+				{ PIN(F,11), AF(12) }, { PIN(F,12), AF(12) }, { PIN(F,13), AF(12) }, { PIN(F,14), AF(12) }, { PIN(F,15), AF(12) },\
+				{ PIN(G, 0), AF(12) }, { PIN(G, 1), AF(12) }, { PIN(G, 8), AF(12) }, { PIN(G,15), AF(12) },\
+				{ PIN(B, 5), AF(12) }, { PIN(B, 6), AF(12) },\
+			}
+
+
+#define STM32F4_SYSTEM_CLOCK_HZ 180000000	 // 168000000 // 180000000
+#define STM32F4_AHB_CLOCK_HZ	180000000	 // 168000000 // 180000000
+#define STM32F4_APB1_CLOCK_HZ	45000000	 // 42000000  // 45000000
+#define STM32F4_APB2_CLOCK_HZ	90000000	 // 84000000  // 90000000
 #define STM32F4_EXT_CRYSTAL_CLOCK_HZ 8000000
 #define STM32F4_SUPPLY_VOLTAGE_MV 3300
 

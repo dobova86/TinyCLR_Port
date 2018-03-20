@@ -1,102 +1,119 @@
+
 ENTRY(EntryPoint)
 MEMORY
 {
-    D_CCM : ORIGIN = 0x10000000, LENGTH = 0x00010000
-    IRAM : ORIGIN = 0x20000000, LENGTH = 0x00030000
-    LR_FLASH : ORIGIN = 0x08000000, LENGTH = 2048k    
+	D_CCM : ORIGIN = 0x10000000, LENGTH = 0x00010000
+	IRAM : ORIGIN = 0x20000000, LENGTH = 0x00030000
+	LR_FLASH : ORIGIN = 0x08000000, LENGTH = 2048k
+	SDRAM : ORIGIN = 0xD0000000, LENGTH = 0x800000
 }
 SECTIONS
 {
-    ER_FLASH 0x08000000 :
-    {
-        * (i.EntryPoint)
-        * (SectionForBootstrapOperations)
-        * (SectionForFlashOperations)
-        * (.text*)
-        * (i.*)
-        * (.rodata*)
-        * (rodata)
-        * (.constdata*)
-        * (.conststring*)
-        * (.glue*)
-        * (tinyclr_metadata)
-        * (SectionForCode*)
-        PROVIDE(_sbrk = .);
-        PROVIDE(_write = .);
-        PROVIDE(_close = .);
-        PROVIDE(_fstat = .);
-        PROVIDE(_lseek = .);
-        PROVIDE(_read = .);
-        PROVIDE(_exit = .);
-        PROVIDE(_getpid = .);
-        PROVIDE(_kill = .);
-        PROVIDE(abort = .);
-        PROVIDE(__errno = .);
-        PROVIDE(_read = .);
-        PROVIDE(isatty = .);
-        PROVIDE(_isatty = .);
-    }>LR_FLASH
+	ER_FLASH 0x08000000 :
+	{
+		* (i.EntryPoint)
+		* (SectionForBootstrapOperations)
+		* (SectionForFlashOperations)
+		* (.text*)
+		* (i.*)
+		* (.rodata*)
+		* (rodata)
+		* (.constdata*)
+		* (.conststring*)
+		* (.glue*)
+		* (tinyclr_metadata)
+		* (SectionForCode*)
+		PROVIDE(_sbrk = .);
+		PROVIDE(_write = .);
+		PROVIDE(_close = .);
+		PROVIDE(_fstat = .);
+		PROVIDE(_lseek = .);
+		PROVIDE(_read = .);
+		PROVIDE(_exit = .);
+		PROVIDE(_getpid = .);
+		PROVIDE(_kill = .);
+		PROVIDE(abort = .);
+		PROVIDE(__errno = .);
+		PROVIDE(_read = .);
+		PROVIDE(isatty = .);
+		PROVIDE(_isatty = .);
+	}>LR_FLASH
 
-    ER_VECTORS 0x20000000 :
-    {
-        * (VectorTable)
-    }>IRAM
+	ER_VECTORS 0x20000000 :
+	{
+		* (VectorTable)
+	}>IRAM
 
-    ER_RAM_RW 0x20000400 : ALIGN(0x08)
-    {
-        * (rwdata)
-        * (.data*)
-    }>IRAM AT>LR_FLASH
+	ER_RAM_RW 0x20000400 : ALIGN(0x08)
+	{
+		* (rwdata)
+		* (.data*)
+	}>IRAM AT>LR_FLASH
 
-    .bss (NOLOAD) : ALIGN(0x08)
-    {
-        * (.bss*)
-        * (.zidata*)
-        PROVIDE(__exidx_start = .);
-        PROVIDE(__exidx_end = .);
-        * (COMMON)
-    }>IRAM
+	.bss (NOLOAD) : ALIGN(0x08)
+	{
+		* (.bss*)
+		* (.zidata*)
+		PROVIDE(__exidx_start = .);
+		PROVIDE(__exidx_end = .);
+		* (COMMON)
+	}>IRAM
 
-    ER_RAM_RO  : ALIGN(0x08)
-    {
+	ER_RAM_RO  : ALIGN(0x08)
+	{
 
-    }>IRAM AT>LR_FLASH
+	}>IRAM AT>LR_FLASH
 
-    /DISCARD/  :
-    {
-        * (.ARM.exidx*)
-        * (.ARM.extab*)
-    }
+	/DISCARD/  :
+	{
+		* (.ARM.exidx*)
+		* (.ARM.extab*)
+	}
 
-    ER_HEAP_BEGIN 0x20009000 :
-    {
-        * (SectionForHeapBegin)
-    }>IRAM
+	/*********************INTERNAL HEAP ****************************/
+	ER_HEAP_BEGIN 0x20009000 :
+	{
+		* (SectionForHeapBegin)
+	}>IRAM
 
-    ER_HEAP_END 0x2002F000 - 0x08 :
-    {
-        * (SectionForHeapEnd)
-    }>IRAM
+	ER_HEAP_END 0x2002F000 - 0x08 :
+	{
+		* (SectionForHeapEnd)
+	}>IRAM
+	/***************************************************************/
 
-    ER_RLP_BEGIN 0x2002F000 :
-    {
-        * (SectionForRlpBegin)
-    }>IRAM
+	/********************SDRAM HEAP ********************************
+	ER_HEAP_BEGIN 0xD0000000 :
+	{
+		* (SectionForHeapBegin)
+	}>SDRAM
 
-    ER_RLP_END 0x20030000 - 0x08 :
-    {
-        * (SectionForRlpEnd)
-    }>IRAM
+	ER_HEAP_END 0xD0100000 - 0x08 :
+	{
+		* (SectionForHeapEnd)
+	}>SDRAM
+	*****************************************************************/
 
-    ER_STACK_BOTTOM 0x10000000 :
-    {
-        * (SectionForStackBottom)
-    }>D_CCM
 
-    ER_STACK_TOP 0x10008000 - 0x08 :
-    {
-        * (SectionForStackTop +LAST)
-    }>D_CCM
+	ER_RLP_BEGIN 0x2002F000 :
+	{
+		* (SectionForRlpBegin)
+	}>IRAM
+
+	ER_RLP_END 0x20030000 - 0x08 :
+	{
+		* (SectionForRlpEnd)
+	}>IRAM
+
+	ER_STACK_BOTTOM 0x10000000 :
+	{
+		* (SectionForStackBottom)
+	}>D_CCM
+
+	ER_STACK_TOP 0x10008000 - 0x08 :
+	{
+		* (SectionForStackTop +LAST)
+	}>D_CCM
 }
 Load$$ER_FLASH$$Base = LOADADDR(ER_FLASH);
 Image$$ER_FLASH$$Length = SIZEOF(ER_FLASH);

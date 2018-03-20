@@ -347,11 +347,11 @@ extern "C" {
         RCC->AHB1ENR |= RCC_AHB1ENR_GPIOKEN;
 #endif
 #ifdef USE_SDRAM_HEAP
-		// Note: SDRAM_DATABITS is 
+		// Note: SDRAM_DATABITS is set in device.h
 		SDRAM_Init(SDRAM_DATABITS); // Init MT48LC4M32 SDRAM for heap (Databits depend on hardware implementation)
 #endif
     }
-		//STM32F7_DebugLed(true);
+		//STM32F7_DebugLed(PIN(J,3), true);
 }
 
 extern "C" {

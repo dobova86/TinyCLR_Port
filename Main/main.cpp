@@ -19,7 +19,6 @@
 #define TARGET(a) CONCAT(DEVICE_TARGET, a)
 
 extern void SDRAM_Init(uint8_t databits);
-extern void STM32F7_WriteHello(void);
 
 
 const TinyCLR_Api_Provider* apiProvider = nullptr;
@@ -53,13 +52,6 @@ void OnSoftReset(const TinyCLR_Api_Provider* apiProvider) {
 #pragma message "Using Parallel Display interface"
 
 #endif
-
-//#ifdef INCLUDE_DISPLAY_DSI
-//	apiProvider->Add(apiProvider, TARGET(_DsiDisplay_GetApi)());
-//	apiProvider->SetDefaultSelector(apiProvider, TinyCLR_Api_Type::DisplayProvider, TARGET(_DsiDisplay_GetApi)()->Name);
-//#pragma message "Using DSI Display interface"
-//
-//#endif
 
 #ifdef INCLUDE_I2C
 	apiProvider->Add(apiProvider, TARGET(_I2c_GetApi)());

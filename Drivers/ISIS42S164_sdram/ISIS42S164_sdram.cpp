@@ -4,12 +4,11 @@ SDRAM code implementation
 */
 //=================================================================================================
 // STM32F429I-Discovery SDRAM configuration
-// Author : Radoslaw Kwiecien
-// e-mail : radek@dxp.pl
-// http://en.radzio.dxp.pl/stm32f429idiscovery/
-// Date : 24.11.2013
+// Author : Dome Bova, on the code from Radoslaw Kwiecien
+// Date : 18.03.2018
 //=================================================================================================
-#include "STM32F4.h"
+#include <STM32F4.h>
+#include <Device.h>
 //#include "gpiof4.h"
 #include "ISIS42S164_sdram.h"
 
@@ -23,23 +22,12 @@ SDRAM code implementation
 #define TWR(x)  (x << 16)
 #define TRP(x)  (x << 20)
 #define TRCD(x) (x << 24)
-//=================================================================================================
-// GPIO configuration data
-//=================================================================================================
-static  GPIO_TypeDef * const GPIOInitTable[] = {
-	GPIOF, GPIOF, GPIOF, GPIOF, GPIOF, GPIOF, GPIOF, GPIOF, GPIOF, GPIOF, GPIOG, GPIOG,
-	GPIOD, GPIOD, GPIOD, GPIOD, GPIOE, GPIOE, GPIOE, GPIOE, GPIOE, GPIOE, GPIOE, GPIOE, GPIOE,
-	GPIOD, GPIOD, GPIOD,
-	GPIOB, GPIOB, GPIOC, GPIOE, GPIOE, GPIOF, GPIOG, GPIOG, GPIOG, GPIOG,
-	0
-};
-static uint8_t const PINInitTable[] = {
-	0, 1, 2, 3, 4, 5, 12, 13, 14, 15, 0, 1,
-	14, 15, 0, 1, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-	8, 9, 10,
-	5, 6, 0, 0, 1, 11, 4, 5, 8, 15,
-	0
-};
+
+#define FILL_PATTERN	0x55AA55AA //001F
+
+
+const STM32F4_Gpio_Pin GPIOInitTable[] = SDRAM_PINS;
+
 //=================================================================================================
 // SDRAM_Init function
 //=================================================================================================
@@ -48,19 +36,24 @@ void SDRAM_Init(void)
 	volatile uint32_t ptr = 0;
 	volatile uint32_t i = 0;
 
+	uint32_t tmpmrd = (uint32_t)SDRAM_MODEREG_BURST_LENGTH_1 | \
+		SDRAM_MODEREG_BURST_TYPE_SEQUENTIAL | \
+		SDRAM_MODEREG_CAS_LATENCY_2 | \
+		SDRAM_MODEREG_OPERATING_MODE_STANDARD | \
+		SDRAM_MODEREG_WRITEBURST_MODE_SINGLE;
+
+
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN | RCC_AHB1ENR_GPIOEEN | RCC_AHB1ENR_GPIOFEN | RCC_AHB1ENR_GPIOGEN;
 
-	while (GPIOInitTable[i] != 0) {
-		gpio_conf(GPIOInitTable[i], PINInitTable[i], MODE_AF, TYPE_PUSHPULL, SPEED_100MHz, PULLUP_NONE, 12);
-		i++;
-	}
+	InitSdramPins();
 
 	RCC->AHB3ENR |= RCC_AHB3ENR_FMCEN;
+
 	// Initialization step 1
 	FMC_Bank5_6->SDCR[0] = FMC_SDCR1_SDCLK_1 | FMC_SDCR1_RBURST | FMC_SDCR1_RPIPE_1;
 	FMC_Bank5_6->SDCR[1] = FMC_SDCR1_NR_0 | FMC_SDCR1_MWID_0 | FMC_SDCR1_NB | FMC_SDCR1_CAS;
 	// Initialization step 2
-	FMC_Bank5_6->SDTR[0] = TRC(7) | TRP(2);
+	FMC_Bank5_6->SDTR[0] = TMRD(2) | TXSR(7) | TRAS(4) | TRC(7) | TWR(2) | TRP(2) | TRCD(2);
 	FMC_Bank5_6->SDTR[1] = TMRD(2) | TXSR(7) | TRAS(4) | TWR(2) | TRCD(2);
 	// Initialization step 3	
 	while (FMC_Bank5_6->SDSR & FMC_SDSR_BUSY);
@@ -75,30 +68,29 @@ void SDRAM_Init(void)
 	FMC_Bank5_6->SDCMR = 3 | FMC_SDCMR_CTB2 | (4 << 5);
 	// Initialization step 7
 	while (FMC_Bank5_6->SDSR & FMC_SDSR_BUSY);
-	FMC_Bank5_6->SDCMR = 4 | FMC_SDCMR_CTB2 | (1 << 5) | (0x231 << 9);
+	FMC_Bank5_6->SDCMR = 4 | FMC_SDCMR_CTB2 | (1 << 5) | (tmpmrd << 9);
 	// Initialization step 8
 	while (FMC_Bank5_6->SDSR & FMC_SDSR_BUSY);
-	FMC_Bank5_6->SDRTR |= (683 << 1);
+	FMC_Bank5_6->SDRTR |= (REFRESH_COUNT << 1);
 	while (FMC_Bank5_6->SDSR & FMC_SDSR_BUSY);
+
+	// remap SDRAM to 0x60000000
+	//SYSCFG->MEMRMP |= SYSCFG_MEMRMP_SWP_FMC_0;
+
 	// Clear SDRAM
-	for (ptr = SDRAM_BASE; ptr < (SDRAM_BASE + SDRAM_SIZE); ptr += 4)
+	for (ptr = SDRAM_BASE; ptr < (SDRAM_BASE + SDRAM_SIZE); ptr += 4) {
 		*((uint32_t *)ptr) = 0xFFFFFFFF;
+	}
 }
 
 
-void gpio_conf(GPIO_TypeDef * GPIO, uint8_t pin, uint8_t mode, uint8_t type, uint8_t speed, uint8_t pullup, uint8_t af)
-{
-	GPIO->MODER = (GPIO->MODER   & MASK2BIT(pin)) | (mode << (pin * 2));
-	GPIO->OTYPER = (GPIO->OTYPER  & MASK1BIT(pin)) | (type << pin);
-	GPIO->OSPEEDR = (GPIO->OSPEEDR & MASK2BIT(pin)) | (speed << (pin * 2));
-	GPIO->PUPDR = (GPIO->PUPDR   & MASK2BIT(pin)) | (pullup << (pin * 2));
-	if (pin > 7)
-	{
-		GPIO->AFR[1] = (GPIO->AFR[1] & AFMASKH(pin)) | (af << ((pin - 8) * 4));
-	}
-	else
-	{
-		GPIO->AFR[0] = (GPIO->AFR[0] & AFMASKL(pin)) | (af << ((pin) * 4));
+
+void InitSdramPins() {
+	size_t totpins = SIZEOF_ARRAY(GPIOInitTable);
+	for (int i = 0; i < totpins; i++) {
+		STM32F4_GpioInternal_ConfigurePin(GPIOInitTable[i].number, STM32F4_Gpio_PortMode::AlternateFunction,
+			STM32F4_Gpio_OutputType::PushPull, STM32F4_Gpio_OutputSpeed::VeryHigh,
+			STM32F4_Gpio_PullDirection::None, GPIOInitTable[i].alternateFunction);
 	}
 }
 

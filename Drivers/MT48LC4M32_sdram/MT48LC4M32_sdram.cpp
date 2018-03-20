@@ -26,7 +26,10 @@ SDRAM code implementation
 //=================================================================================================
 // GPIO configuration data (16/32/8 bit data bus)
 //=================================================================================================
-const STM32F7_Gpio_Pin GPIOInitTable[] = SDRAM_PINS; // = {
+
+const STM32F7_Gpio_Pin GPIOInitTable[] = SDRAM_PINS;
+
+// = {
 //	GPIOC,
 //	GPIOD, GPIOD,GPIOD,GPIOD,GPIOD,GPIOD,GPIOD,
 //	GPIOE, GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,

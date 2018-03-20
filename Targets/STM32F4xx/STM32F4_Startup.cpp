@@ -19,6 +19,8 @@
 
 #include "../../Drivers/SPIDisplay/SPIDisplay.h"
 
+extern void SDRAM_Init(void);
+
 void STM32F4_Startup_OnSoftReset(const TinyCLR_Api_Provider* apiProvider) {
     apiProvider->Add(apiProvider, SPIDisplay_GetApi());
 }
@@ -311,6 +313,10 @@ extern "C" {
 #ifdef RCC_AHB1ENR_GPIOKEN
         RCC->AHB1ENR |= RCC_AHB1ENR_GPIOKEN;
 #endif
+
+#ifdef USE_SDRAM_HEAP
+		SDRAM_Init();
+#endif 
     }
 }
 
