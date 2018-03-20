@@ -95,7 +95,7 @@
 
 #define INCLUDE_ADC
 
-//#define INCLUDE_CAN
+#define INCLUDE_CAN
 #define STM32F7_CAN_BUFFER_DEFAULT_SIZE { 128 , 128 }
 #define STM32F7_CAN_TX_PINS { { PIN(D, 1), AF(9) }, { PIN(B, 9), AF(9) } }
 #define STM32F7_CAN_RX_PINS { { PIN(D, 0), AF(9) }, { PIN(B, 8), AF(9) } }

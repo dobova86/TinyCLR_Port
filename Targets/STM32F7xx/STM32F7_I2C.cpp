@@ -16,6 +16,8 @@
 
 #include "STM32F7.h"
 
+#ifdef INCLUDE_I2C
+
 void STM32F7_I2c_StartTransaction(int32_t port_id);
 void STM32F7_I2c_StopTransaction(int32_t port_id);
 
@@ -482,3 +484,5 @@ TinyCLR_Result STM32F7_I2c_Release(const TinyCLR_I2c_Provider* self) {
 
     return TinyCLR_Result::Success;
 }
+
+#endif // INCLDE_I2C
