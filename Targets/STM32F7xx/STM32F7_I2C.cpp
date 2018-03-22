@@ -18,6 +18,11 @@
 
 #ifdef INCLUDE_I2C
 
+
+#define I2C_TIMINGR_FM	0x00B01B59 // timings reg for fastmode (400khz) - value calculated with STCubeMX
+#define I2C_TIMINGR_SM  0x80201721 // timings reg for standard mode (100Khz) - value calculated with STCubeMX
+
+
 void STM32F7_I2c_StartTransaction(int32_t port_id);
 void STM32F7_I2c_StopTransaction(int32_t port_id);
 
@@ -32,9 +37,9 @@ static I2C_TypeDef* g_STM32_I2c_Port[TOTAL_I2C_CONTROLLERS];
 
 struct STM32F7_I2c_Configuration {
 
-    int32_t                  address;
-    uint8_t                  clockRate;     // primary clock factor to generate the i2c clock
-    uint8_t                  clockRate2;   // additional clock factors, if more than one is needed for the clock (optional)
+    int32_t					address;
+    uint32_t				clockRate;     // primary clock factor to generate the i2c clock reg TIMINGR
+    //uint8_t               clockRate2;   // additional clock factors, if more than one is needed for the clock (optional)
 };
 struct STM32F7_I2c_Transaction {
     bool                        isReadTransaction;
@@ -87,11 +92,14 @@ const TinyCLR_Api_Info* STM32F7_I2c_GetApi() {
     if (TOTAL_I2C_CONTROLLERS > 2)
         g_STM32_I2c_Port[2] = I2C3;
 
+    if (TOTAL_I2C_CONTROLLERS > 3)
+        g_STM32_I2c_Port[3] = I2C4;
+
     for (auto i = 0; i < TOTAL_I2C_CONTROLLERS; i++) {
         STM32F7_I2c_Release(i2cProvider[i]);
         g_I2cConfiguration[i].address = 0;
         g_I2cConfiguration[i].clockRate = 0;
-        g_I2cConfiguration[i].clockRate2 = 0;
+        //g_I2cConfiguration[i].clockRate2 = 0;
 
         g_ReadI2cTransactionAction[i].bytesToTransfer = 0;
         g_ReadI2cTransactionAction[i].bytesTransferred = 0;
@@ -209,6 +217,10 @@ void STM32F7_I2C3_ER_Interrupt(void *param) {
     STM32F7_I2C_ER_Interrupt(2);
 }
 
+void STM32F7_I2C4_ER_Interrupt(void *param) {
+    STM32F7_I2C_ER_Interrupt(3);
+}
+
 void STM32F7_I2C1_EV_Interrupt(void *param) {
     STM32F7_I2C_EV_Interrupt(0);
 }
@@ -221,37 +233,35 @@ void STM32F7_I2C3_EV_Interrupt(void *param) {
     STM32F7_I2C_EV_Interrupt(2);
 }
 
+void STM32F7_I2C4_EV_Interrupt(void *param) {
+	STM32F7_I2C_EV_Interrupt(3);
+}
+
+
 void STM32F7_I2c_StartTransaction(int32_t port_id) {
     auto& I2Cx = g_STM32_I2c_Port[port_id];
 
-    uint32_t ccr = g_I2cConfiguration[port_id].clockRate + (g_I2cConfiguration[port_id].clockRate2 << 8);
-    if (I2Cx->CCR != ccr) { // set clock rate and rise time
-        uint32_t trise;
-        if (ccr & I2C_CCR_FS) { // fast => 0.3ns rise time
-            trise = STM32F7_APB1_CLOCK_HZ / (1000 * 3333) + 1; // PCLK1 / 3333kHz
-        }
-        else { // slow => 1.0ns rise time
-            trise = STM32F7_APB1_CLOCK_HZ / (1000 * 1000) + 1; // PCLK1 / 1000kHz
-        }
+	uint32_t timingr = g_I2cConfiguration[port_id].clockRate; //+ (g_I2cConfiguration[port_id].clockRate2 << 8);
+    if (I2Cx->TIMINGR != timingr) { // set clock rate and rise time
         I2Cx->CR1 = 0; // disable peripheral
-        I2Cx->CCR = ccr;
-        I2Cx->TRISE = trise;
+        I2Cx->TIMINGR = timingr;
     }
+	I2Cx->CR1 = I2C_CR1_ERRIE | I2C_CR1_NACKIE | I2C_CR1_TXIE | I2C_CR1_RXIE;
+    I2Cx->ICR = 0; // reset error flags
+    I2Cx->CR1 |= I2C_CR1_PE; // enable and reset special flags
 
-    I2Cx->CR1 = I2C_CR1_PE; // enable and reset special flags
-    I2Cx->SR1 = 0; // reset error flags
-    I2Cx->CR2 |= I2C_CR2_ITEVTEN | I2C_CR2_ITERREN; // enable interrupts
-    I2Cx->CR1 = I2C_CR1_PE | I2C_CR1_START | I2C_CR1_ACK; // send start
+    //I2Cx->CR2 |= I2C_CR2_ITEVTEN | I2C_CR2_ITERREN; // enable interrupts
+	//I2Cx->CR2 |= I2C_CR2_START; // | I2C_CR1_ACK; // send start
 }
 
 void STM32F7_I2c_StopTransaction(int32_t port_id) {
     auto& I2Cx = g_STM32_I2c_Port[port_id];
 
-    if (I2Cx->SR2 & I2C_SR2_BUSY && !(I2Cx->CR1 & I2C_CR1_STOP)) {
-        I2Cx->CR1 |= I2C_CR1_STOP; // send stop
+    if (I2Cx->ISR & I2C_ISR_BUSY && !(I2Cx->CR2 & I2C_CR2_STOP)) {
+        I2Cx->CR2 |= I2C_CR2_STOP; // send stop
     }
 
-    I2Cx->CR2 &= ~(I2C_CR2_ITBUFEN | I2C_CR2_ITEVTEN | I2C_CR2_ITERREN); // disable interrupts
+    I2Cx->CR1 &= ~(I2C_CR1_ERRIE | I2C_CR1_NACKIE | I2C_CR1_TXIE | I2C_CR1_RXIE); // disable interrupts
 
     g_currentI2cTransactionAction[port_id]->isDone = true;
 }
@@ -364,7 +374,7 @@ TinyCLR_Result STM32F7_I2c_WriteRead(const TinyCLR_I2c_Provider* self, const uin
 
 TinyCLR_Result STM32F7_I2c_SetActiveSettings(const TinyCLR_I2c_Provider* self, int32_t slaveAddress, TinyCLR_I2c_BusSpeed busSpeed) {
     uint32_t rateKhz;
-    uint32_t ccr;
+    uint32_t timingr;
 
     int32_t port_id = self->Index;
 
@@ -376,16 +386,13 @@ TinyCLR_Result STM32F7_I2c_SetActiveSettings(const TinyCLR_I2c_Provider* self, i
         return TinyCLR_Result::NotSupported;
 
     if (rateKhz <= 100) { // slow clock
-        ccr = (STM32F7_APB1_CLOCK_HZ / 1000 / 2 - 1) / rateKhz + 1; // round up
-        if (ccr > 0xFFF) ccr = 0xFFF; // max divider
+		timingr = I2C_TIMINGR_SM; //(STM32F7_APB1_CLOCK_HZ / 1000 / 2 - 1) / rateKhz + 1; // round up
     }
     else { // fast clock
-        ccr = (STM32F7_APB1_CLOCK_HZ / 1000 / 3 - 1) / rateKhz + 1; // round up
-        ccr |= 0x8000; // set fast mode (duty cycle 1:2)
+		timingr = I2C_TIMINGR_FM; //(STM32F7_APB1_CLOCK_HZ / 1000 / 3 - 1) / rateKhz + 1; // round up
     }
 
-    g_I2cConfiguration[port_id].clockRate = (uint8_t)ccr; // low byte
-    g_I2cConfiguration[port_id].clockRate2 = (uint8_t)(ccr >> 8); // high byte
+    g_I2cConfiguration[port_id].clockRate = timingr; // low byte
     g_I2cConfiguration[port_id].address = slaveAddress;
 
     return TinyCLR_Result::Success;
@@ -428,16 +435,23 @@ TinyCLR_Result STM32F7_I2c_Acquire(const TinyCLR_I2c_Provider* self) {
         STM32F7_InterruptInternal_Activate(I2C3_EV_IRQn, (uint32_t*)&STM32F7_I2C3_EV_Interrupt, 0);
         STM32F7_InterruptInternal_Activate(I2C3_ER_IRQn, (uint32_t*)&STM32F7_I2C3_ER_Interrupt, 0);
         break;
+    case 3:
+        RCC->APB1ENR |= RCC_APB1ENR_I2C4EN; // enable I2C clock
+        RCC->APB1RSTR = RCC_APB1RSTR_I2C4RST; // reset I2C peripheral
+        STM32F7_InterruptInternal_Activate(I2C4_EV_IRQn, (uint32_t*)&STM32F7_I2C4_EV_Interrupt, 0);
+        STM32F7_InterruptInternal_Activate(I2C4_ER_IRQn, (uint32_t*)&STM32F7_I2C4_ER_Interrupt, 0);
+        break;
     }
 
     RCC->APB1RSTR = 0;
 
-    I2Cx->CR2 = STM32F7_APB1_CLOCK_HZ / 1000000; // APB1 clock in MHz
-    I2Cx->CCR = (STM32F7_APB1_CLOCK_HZ / 1000 / 2 - 1) / 100 + 1; // 100KHz
-    I2Cx->TRISE = STM32F7_APB1_CLOCK_HZ / (1000 * 1000) + 1; // 1ns;
+    //I2Cx->CR2 = STM32F7_APB1_CLOCK_HZ / 1000000; // APB1 clock in MHz
+    //I2Cx->CCR = (STM32F7_APB1_CLOCK_HZ / 1000 / 2 - 1) / 100 + 1; // 100KHz
+	I2Cx->TIMINGR = I2C_TIMINGR_FM; // initialize in fast mode
+	//I2Cx->TRISE = STM32F7_APB1_CLOCK_HZ / (1000 * 1000) + 1; // 1ns;
     I2Cx->OAR1 = 0x4000; // init address register
 
-    I2Cx->CR1 = I2C_CR1_PE; // enable peripheral
+    I2Cx->CR1 |= I2C_CR1_PE; // enable peripheral
 
     return TinyCLR_Result::Success;
 }
