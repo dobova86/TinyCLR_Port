@@ -18,10 +18,70 @@
 
 #ifdef INCLUDE_I2C
 
+typedef enum
+{
+	HAL_I2C_MODE_NONE = 0x00U,   /*!< No I2C communication on going             */
+	HAL_I2C_MODE_MASTER = 0x10U,   /*!< I2C communication is in Master Mode       */
+	HAL_I2C_MODE_SLAVE = 0x20U,   /*!< I2C communication is in Slave Mode        */
+	HAL_I2C_MODE_MEM = 0x40U    /*!< I2C communication is in Memory Mode       */
 
-#define I2C_TIMINGR_FM	0x00B01B59 // timings reg for fastmode (400khz) - value calculated with STCubeMX
+} HAL_I2C_ModeTypeDef;
+
+#define  I2C_NO_STARTSTOP               (0x00000000U)
+#define  I2C_GENERATE_STOP              (uint32_t)(0x80000000U | I2C_CR2_STOP)
+#define  I2C_GENERATE_START_READ        (uint32_t)(0x80000000U | I2C_CR2_START | I2C_CR2_RD_WRN)
+#define  I2C_GENERATE_START_WRITE       (uint32_t)(0x80000000U | I2C_CR2_START)
+
+//#define I2C_TIMINGR_FM	0x00B01B59 // timings reg for fastmode (400khz) - value calculated with STCubeMX
+#define I2C_TIMINGR_FM	0xA0110206 // timings reg for fastmode (400khz) - value calculated with STCubeMX
 #define I2C_TIMINGR_SM  0x80201721 // timings reg for standard mode (100Khz) - value calculated with STCubeMX
 
+/** @defgroup I2C_Interrupt_configuration_definition I2C Interrupt configuration definition
+* @brief I2C Interrupt definition
+*        Elements values convention: 0xXXXXXXXX
+*           - XXXXXXXX  : Interrupt control mask
+* @{
+*/
+#define I2C_IT_ERRI                     I2C_CR1_ERRIE
+#define I2C_IT_TCI                      I2C_CR1_TCIE
+#define I2C_IT_STOPI                    I2C_CR1_STOPIE
+#define I2C_IT_NACKI                    I2C_CR1_NACKIE
+#define I2C_IT_ADDRI                    I2C_CR1_ADDRIE
+#define I2C_IT_RXI                      I2C_CR1_RXIE
+#define I2C_IT_TXI                      I2C_CR1_TXIE
+/**
+* @}
+*/
+
+/** @defgroup I2C_Flag_definition I2C Flag definition
+* @{
+*/
+#define I2C_FLAG_TXE                    I2C_ISR_TXE
+#define I2C_FLAG_TXIS                   I2C_ISR_TXIS
+#define I2C_FLAG_RXNE                   I2C_ISR_RXNE
+#define I2C_FLAG_ADDR                   I2C_ISR_ADDR
+#define I2C_FLAG_AF                     I2C_ISR_NACKF
+#define I2C_FLAG_STOPF                  I2C_ISR_STOPF
+#define I2C_FLAG_TC                     I2C_ISR_TC
+#define I2C_FLAG_TCR                    I2C_ISR_TCR
+#define I2C_FLAG_BERR                   I2C_ISR_BERR
+#define I2C_FLAG_ARLO                   I2C_ISR_ARLO
+#define I2C_FLAG_OVR                    I2C_ISR_OVR
+#define I2C_FLAG_PECERR                 I2C_ISR_PECERR
+#define I2C_FLAG_TIMEOUT                I2C_ISR_TIMEOUT
+#define I2C_FLAG_ALERT                  I2C_ISR_ALERT
+#define I2C_FLAG_BUSY                   I2C_ISR_BUSY
+#define I2C_FLAG_DIR                    I2C_ISR_DIR
+
+
+
+#define __HAL_I2C_CLEAR_FLAG(__HANDLE__, __FLAG__)				(((__FLAG__) == I2C_FLAG_TXE) ? ((__HANDLE__)->ISR |= (__FLAG__)) : ((__HANDLE__)->ICR = (__FLAG__)))
+
+#define __HAL_I2C_ENABLE(__HANDLE__)                            (SET_BIT((__HANDLE__)->Instance->CR1,  I2C_CR1_PE))
+#define __HAL_I2C_DISABLE(__HANDLE__)                           (CLEAR_BIT((__HANDLE__)->Instance->CR1, I2C_CR1_PE))
+#define __HAL_I2C_GENERATE_NACK(__HANDLE__)                     (SET_BIT((__HANDLE__)->Instance->CR2, I2C_CR2_NACK))
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void STM32F7_I2c_StartTransaction(int32_t port_id);
 void STM32F7_I2c_StopTransaction(int32_t port_id);
@@ -39,7 +99,7 @@ struct STM32F7_I2c_Configuration {
 
     int32_t					address;
     uint32_t				clockRate;     // primary clock factor to generate the i2c clock reg TIMINGR
-    //uint8_t               clockRate2;   // additional clock factors, if more than one is needed for the clock (optional)
+    uint8_t                 clockRate2;   // additional clock factors, if more than one is needed for the clock (optional)
 };
 struct STM32F7_I2c_Transaction {
     bool                        isReadTransaction;
@@ -99,7 +159,7 @@ const TinyCLR_Api_Info* STM32F7_I2c_GetApi() {
         STM32F7_I2c_Release(i2cProvider[i]);
         g_I2cConfiguration[i].address = 0;
         g_I2cConfiguration[i].clockRate = 0;
-        //g_I2cConfiguration[i].clockRate2 = 0;
+        g_I2cConfiguration[i].clockRate2 = 0; // not used on F7
 
         g_ReadI2cTransactionAction[i].bytesToTransfer = 0;
         g_ReadI2cTransactionAction[i].bytesTransferred = 0;
@@ -111,18 +171,24 @@ const TinyCLR_Api_Info* STM32F7_I2c_GetApi() {
     return &i2cApi;
 }
 
-void STM32F7_I2C_ER_Interrupt(int32_t port_id) {// Error Interrupt Handler
+
+// Error Interrupt Handle
+void STM32F7_I2C_ER_Interrupt(int32_t port_id) {
     INTERRUPT_STARTED_SCOPED(isr);
 
-    g_STM32_I2c_Port[port_id]->ICR = 0; // reset errors
+    g_STM32_I2c_Port[port_id]->ICR = I2C_ICR_ALERTCF | I2C_ICR_TIMOUTCF | I2C_ICR_OVRCF; // reset errors
 
     if (g_currentI2cTransactionAction[port_id] != nullptr)
         g_currentI2cTransactionAction[port_id]->result = TinyCLR_I2c_TransferStatus::SlaveAddressNotAcknowledged;
 
+
     STM32F7_I2c_StopTransaction(port_id);
 }
 
-void STM32F7_I2C_EV_Interrupt(int32_t port_id) {// Event Interrupt Handler
+
+
+// Event Interrupt Handler
+void STM32F7_I2C_EV_Interrupt(int32_t port_id) {
     INTERRUPT_STARTED_SCOPED(isr);
 
     auto& I2Cx = g_STM32_I2c_Port[port_id];
@@ -130,81 +196,54 @@ void STM32F7_I2C_EV_Interrupt(int32_t port_id) {// Event Interrupt Handler
     STM32F7_I2c_Transaction *transaction = g_currentI2cTransactionAction[port_id];
 
     int todo = transaction->bytesToTransfer;
-    int sr1 = I2Cx->ISR;  // read status register
-	int sr2 = I2C_ICR_ADDRCF;  I2Cx->ICR |= sr2;  // clear ADDR bit
-    int cr1 = I2Cx->CR1;  // initial control register
-	int cr2 = I2Cx->CR2;
+    uint32_t isr_r = I2Cx->ISR;  // read status register
+    uint32_t cr1 = I2Cx->CR1;  // initial control register
+	uint32_t cr2 = I2Cx->CR2;
 
-    if (transaction->isReadTransaction) { // read transaction
-        if (sr1 & I2C_ISR_BUSY) { // start bit
-            if (todo == 1) {
-                I2Cx->CR2 = (cr2 &= ~I2C_CR2_NACK); // last byte nack
-            }
-            else if (todo == 2) {
-                I2Cx->CR2 = (cr2 |= I2C_CR2_NACK); // prepare 2nd byte nack
-            }
-            uint8_t addr = g_I2cConfiguration[port_id].address << 1; // address bits
-            I2Cx->TXDR = addr + 1; // send header byte with read bit;
-        }
-        else {
-            if (sr1 & I2C_ISR_ADDR) { // address sent
-                if (todo == 1) {
-                    I2Cx->CR2 = (cr2 |= I2C_CR2_STOP); // send stop after single byte
-                }
-                else if (todo == 2) {
-                    I2Cx->CR2 = (cr2 &= ~(I2C_CR2_NACK)); // last byte nack
-                }
-            }
-            else {
-                while (sr1 & I2C_ISR_RXNE) { // data available
-                    if (todo == 2) { // 2 bytes remaining
-                        I2Cx->CR2 = (cr2 |= I2C_CR2_STOP); // stop after last byte
-                    }
-                    else if (todo == 3) { // 3 bytes remaining
-                        //if (!(sr1 & I2C_ISR_BUSY)) break; // assure 2 bytes are received
-                        I2Cx->CR2 = (cr2 &= ~(I2C_CR2_NACK)); // last byte nack
-                    }
-                    uint8_t data = I2Cx->RXDR; // read data
-                    transaction->buffer[transaction->bytesTransferred] = data; // save data
-                    transaction->bytesTransferred++;
-                    transaction->bytesToTransfer = --todo; // update todo
-                    sr1 = I2Cx->ISR;  // update status register copy
-                }
-            }
-            if (todo == 1) {
-                I2Cx->CR1 |= I2C_CR1_RXIE; // enable I2C_SR1_RXNE interrupt
-            }
-        }
-    }
-    else { // write transaction
-        if (sr1 & I2C_ISR_BUSY) { // start bit
-            uint8_t addr = g_I2cConfiguration[port_id].address << 1; // address bits
-            I2Cx->TXDR = addr; // send header byte with write bit;
-        }
-        else {
-            while (todo && (sr1 & I2C_ISR_TXE)) {
-                I2Cx->TXDR = transaction->buffer[transaction->bytesTransferred]; // next data byte;
-                transaction->bytesTransferred++;
-                transaction->bytesToTransfer = --todo; // update todo
-                sr1 = I2Cx->ISR;  // update status register copy
-            }
-            if (!(sr1 & I2C_ISR_TC)) todo++; // last byte not yet sent
-        }
-    }
+	uint8_t nbytes = 0;
 
-    if (todo == 0) { // all received or all sent
-        if (transaction->repeatedStart) { // start next unit
-            I2Cx->CR1 &= ~I2C_CR1_RXIE; // disable I2C_SR1_RXNE interrupt
-            I2Cx->CR2 = I2C_CR2_START | I2C_CR2_NACK; // send restart
+	
+    //transaction->isReadTransaction { // read transaction
+	if (((isr_r & I2C_ISR_NACKF) != 0 ) && (( cr1 & I2C_CR1_NACKIE) != 0 )) {
+			// Error .... to do
+			__HAL_I2C_CLEAR_FLAG(I2Cx, I2C_FLAG_AF);
+			STM32F7_I2c_StopTransaction(port_id);
+	}
+	else if (((isr_r & I2C_ISR_RXNE) != 0) && ((cr1 & I2C_CR1_RXIE ) != 0 )) {
+			uint8_t data = I2Cx->RXDR; // read data
+			transaction->buffer[transaction->bytesTransferred] = data; // save data
+			transaction->bytesTransferred++;
+			transaction->bytesToTransfer--; // update todo
+			//usr_r = I2Cx->ISR;  // update status register copy				
+	}
+    else if (((isr_r & I2C_ISR_TXIS) != 0) && ((cr1 & I2C_CR1_TXIE) != 0)) {// write transaction
+			I2Cx->TXDR = transaction->buffer[transaction->bytesTransferred]; // next data byte;
+			transaction->bytesTransferred++;
+			transaction->bytesToTransfer--; // update todo
+			//isr_r = I2Cx->ISR;  // update status register copy		
+	}
+	else if (((isr_r & I2C_ISR_TCR) != 0) && ((cr1 & I2C_CR1_TCIE) != 0)) {
+		// not used
+		//I2Cx->CR2 |= I2C_CR2_STOP;
+		//STM32F7_I2c_StopTransaction(port_id);
+	}
+	else if (((isr_r & I2C_ISR_TC) != 0) && ((cr1 & I2C_CR1_TCIE) != 0)) { // transfer complete
+		// not used
+		//I2Cx->CR2 |= I2C_CR2_STOP;
+		//STM32F7_I2c_StopTransaction(port_id);
+	}
+	else if (((isr_r & I2C_ISR_STOPF) != 0) && ((cr1 & I2C_CR1_STOPIE) != 0)) {
+		//STM32F7_I2c_StopTransaction(port_id);
+	}
 
-            g_currentI2cTransactionAction[port_id] = &g_ReadI2cTransactionAction[port_id];
-        }
-        else {
-            STM32F7_I2c_StopTransaction(port_id);
-        }
-    }
+	if (transaction->bytesToTransfer == 0) {
+		STM32F7_I2c_StopTransaction(port_id);
+	}
+
+	I2Cx->ICR |= I2C_ICR_STOPCF | I2C_ICR_ADDRCF | I2C_ICR_ALERTCF | I2C_ICR_TIMOUTCF | I2C_ICR_NACKCF;
 }
 
+// Error interrupt
 void STM32F7_I2C1_ER_Interrupt(void *param) {
     STM32F7_I2C_ER_Interrupt(0);
 }
@@ -221,6 +260,7 @@ void STM32F7_I2C4_ER_Interrupt(void *param) {
     STM32F7_I2C_ER_Interrupt(3);
 }
 
+// Event interrupt
 void STM32F7_I2C1_EV_Interrupt(void *param) {
     STM32F7_I2C_EV_Interrupt(0);
 }
@@ -241,25 +281,45 @@ void STM32F7_I2C4_EV_Interrupt(void *param) {
 void STM32F7_I2c_StartTransaction(int32_t port_id) {
     auto& I2Cx = g_STM32_I2c_Port[port_id];
 
+	I2Cx->CR1 &= ~(I2C_CR1_PE);
+
 	uint32_t timingr = g_I2cConfiguration[port_id].clockRate; //+ (g_I2cConfiguration[port_id].clockRate2 << 8);
     if (I2Cx->TIMINGR != timingr) { // set clock rate and rise time
-        I2Cx->CR1 = 0; // disable peripheral
         I2Cx->TIMINGR = timingr;
     }
-	I2Cx->CR1 = I2C_CR1_ERRIE | I2C_CR1_NACKIE | I2C_CR1_TXIE | I2C_CR1_RXIE;
-    I2Cx->ICR = 0; // reset error flags
-    I2Cx->CR1 |= I2C_CR1_PE; // enable and reset special flags
+	uint32_t Request = 0;
 
-    //I2Cx->CR2 |= I2C_CR2_ITEVTEN | I2C_CR2_ITERREN; // enable interrupts
-	//I2Cx->CR2 |= I2C_CR2_START; // | I2C_CR1_ACK; // send start
+	if (g_currentI2cTransactionAction[port_id]->isReadTransaction) {
+		Request = I2C_GENERATE_START_READ;
+	}
+	else {
+		Request = I2C_GENERATE_START_WRITE;
+	}
+	I2Cx->CR1 |= I2C_CR1_PE; // enable and reset special flags
+
+	uint32_t Mode = I2C_CR2_AUTOEND;
+	uint32_t Size = g_currentI2cTransactionAction[port_id]->bytesToTransfer;
+	uint32_t DevAddress = (g_I2cConfiguration[port_id].address) << 1;
+
+	MODIFY_REG(I2Cx->CR2, ((I2C_CR2_SADD | I2C_CR2_NBYTES | I2C_CR2_RELOAD | I2C_CR2_AUTOEND | (I2C_CR2_RD_WRN & (uint32_t)(Request >> (31U - I2C_CR2_RD_WRN_Pos))) | I2C_CR2_START | I2C_CR2_STOP)), \
+							(uint32_t)(((uint32_t)DevAddress & I2C_CR2_SADD) | (((uint32_t)Size << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES) | (uint32_t)Mode | (uint32_t)Request) );
+
+	
+
+	if (g_currentI2cTransactionAction[port_id]->isReadTransaction) {
+		I2Cx->CR1 |= I2C_CR1_ERRIE | I2C_CR1_NACKIE | I2C_CR1_RXIE; // | I2C_CR1_STOPIE | I2C_CR1_TCIE
+	}
+	else {
+		I2Cx->CR1 |= I2C_CR1_ERRIE | I2C_CR1_NACKIE | I2C_CR1_TXIE; // | I2C_CR1_STOPIE | I2C_CR1_TCIE
+	}
 }
 
 void STM32F7_I2c_StopTransaction(int32_t port_id) {
     auto& I2Cx = g_STM32_I2c_Port[port_id];
 
-    if (I2Cx->ISR & I2C_ISR_BUSY && !(I2Cx->CR2 & I2C_CR2_STOP)) {
-        I2Cx->CR2 |= I2C_CR2_STOP; // send stop
-    }
+    //if (I2Cx->ISR & I2C_ISR_BUSY && !(I2Cx->CR2 & I2C_CR2_STOP)) {
+        //I2Cx->CR2 |= I2C_CR2_STOP; // send stop
+    //}
 
     I2Cx->CR1 &= ~(I2C_CR1_ERRIE | I2C_CR1_NACKIE | I2C_CR1_TXIE | I2C_CR1_RXIE); // disable interrupts
 
@@ -395,6 +455,8 @@ TinyCLR_Result STM32F7_I2c_SetActiveSettings(const TinyCLR_I2c_Provider* self, i
     g_I2cConfiguration[port_id].clockRate = timingr; // low byte
     g_I2cConfiguration[port_id].address = slaveAddress;
 
+
+
     return TinyCLR_Result::Success;
 }
 
@@ -445,11 +507,8 @@ TinyCLR_Result STM32F7_I2c_Acquire(const TinyCLR_I2c_Provider* self) {
 
     RCC->APB1RSTR = 0;
 
-    //I2Cx->CR2 = STM32F7_APB1_CLOCK_HZ / 1000000; // APB1 clock in MHz
-    //I2Cx->CCR = (STM32F7_APB1_CLOCK_HZ / 1000 / 2 - 1) / 100 + 1; // 100KHz
 	I2Cx->TIMINGR = I2C_TIMINGR_FM; // initialize in fast mode
-	//I2Cx->TRISE = STM32F7_APB1_CLOCK_HZ / (1000 * 1000) + 1; // 1ns;
-    I2Cx->OAR1 = 0x4000; // init address register
+    //I2Cx->OAR1 = I2C_OAR1_OA1EN; // init address register
 
     I2Cx->CR1 |= I2C_CR1_PE; // enable peripheral
 
@@ -489,6 +548,14 @@ TinyCLR_Result STM32F7_I2c_Release(const TinyCLR_I2c_Provider* self) {
 
         I2Cx->CR1 = 0; // disable peripheral
         RCC->APB1ENR &= ~RCC_APB1ENR_I2C3EN; // disable I2C clock
+
+        break;
+    case 3:
+        STM32F7_InterruptInternal_Deactivate(I2C4_EV_IRQn);
+        STM32F7_InterruptInternal_Deactivate(I2C4_ER_IRQn);
+
+        I2Cx->CR1 = 0; // disable peripheral
+        RCC->APB1ENR &= ~RCC_APB1ENR_I2C4EN; // disable I2C clock
 
         break;
     }

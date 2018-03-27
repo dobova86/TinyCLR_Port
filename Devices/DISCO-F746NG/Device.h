@@ -117,9 +117,9 @@
 						   /*PKx*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(),\
 						  }
 
-#define INCLUDE_I2C
-#define STM32F7_I2C_SCL_PINS { { PIN(B, 8), AF(4) } }
-#define STM32F7_I2C_SDA_PINS { { PIN(B, 9), AF(4) } }
+#define INCLUDE_I2C			/*   I2C1                  I2C2                     I2C3                     I2C4                   */
+#define STM32F7_I2C_SCL_PINS { { PIN(B, 8), AF(4) }} //, { PIN_NONE  , AF_NONE }, { PIN_NONE  , AF_NONE }, { PIN_NONE  , AF_NONE } }
+#define STM32F7_I2C_SDA_PINS { { PIN(B, 9), AF(4) }} //, { PIN_NONE  , AF_NONE }, { PIN_NONE  , AF_NONE }, { PIN_NONE  , AF_NONE } }
 
 #define INCLUDE_PWM
 #define STM32F7_PWM_PINS {/* CH         1                          2                        3                        4                       */\
