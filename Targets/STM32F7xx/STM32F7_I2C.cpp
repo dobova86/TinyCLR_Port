@@ -228,9 +228,15 @@ void STM32F7_I2C_EV_Interrupt(int32_t port_id) {
 		//STM32F7_I2c_StopTransaction(port_id);
 	}
 	else if (((isr_r & I2C_ISR_TC) != 0) && ((cr1 & I2C_CR1_TCIE) != 0)) { // transfer complete
-		// not used
-		//I2Cx->CR2 |= I2C_CR2_STOP;
-		//STM32F7_I2c_StopTransaction(port_id);
+		// reapeted start
+		if (transaction->repeatedStart) {
+			// load NBYTES reg again
+			transaction = &g_ReadI2cTransactionAction[port_id];
+			nbytes = transaction->bytesToTransfer;
+			//I2Cx->CR2 &= ~(I2C_CR2_NBYTES_Msk);
+			I2Cx->CR2 |= nbytes << I2C_CR2_NBYTES_Pos;
+			I2Cx->CR2 |= I2C_CR2_START;
+		}
 	}
 	else if (((isr_r & I2C_ISR_STOPF) != 0) && ((cr1 & I2C_CR1_STOPIE) != 0)) {
 		//STM32F7_I2c_StopTransaction(port_id);
@@ -294,6 +300,9 @@ void STM32F7_I2c_StartTransaction(int32_t port_id) {
 	I2Cx->CR1 |= I2C_CR1_PE; // enable i2c and reset special flags
 
 	uint32_t Mode = I2C_CR2_AUTOEND;
+	if (g_currentI2cTransactionAction[port_id]->repeatedStart) {
+		Mode = 0;
+	}
 	uint32_t Size = g_currentI2cTransactionAction[port_id]->bytesToTransfer;
 	uint32_t DevAddress = (g_I2cConfiguration[port_id].address) << 1;
 
@@ -409,7 +418,6 @@ TinyCLR_Result STM32F7_I2c_WriteRead(const TinyCLR_I2c_Provider* self, const uin
 
     while (g_currentI2cTransactionAction[port_id]->isDone == false && timeout > 0) {
         STM32F7_Time_Delay(nullptr, 1000);
-
         timeout--;
     }
 
@@ -430,24 +438,17 @@ TinyCLR_Result STM32F7_I2c_WriteRead(const TinyCLR_I2c_Provider* self, const uin
 }
 
 TinyCLR_Result STM32F7_I2c_SetActiveSettings(const TinyCLR_I2c_Provider* self, int32_t slaveAddress, TinyCLR_I2c_BusSpeed busSpeed) {
-    uint32_t rateKhz;
-    uint32_t timingr;
+    uint32_t timingr = 0;
 
     int32_t port_id = self->Index;
 
     if (busSpeed == TinyCLR_I2c_BusSpeed::FastMode)
-        rateKhz = 400; // FastMode
+ 		timingr = I2C_TIMINGR_FM; // see defines
     else if (busSpeed == TinyCLR_I2c_BusSpeed::StandardMode)
-        rateKhz = 100; // StandardMode
+		timingr = I2C_TIMINGR_SM; // see defines
     else
         return TinyCLR_Result::NotSupported;
 
-    if (rateKhz <= 100) { // slow clock
-		timingr = I2C_TIMINGR_SM; //(STM32F7_APB1_CLOCK_HZ / 1000 / 2 - 1) / rateKhz + 1; // round up
-    }
-    else { // fast clock
-		timingr = I2C_TIMINGR_FM; //(STM32F7_APB1_CLOCK_HZ / 1000 / 3 - 1) / rateKhz + 1; // round up
-    }
 
     g_I2cConfiguration[port_id].clockRate = timingr; // low byte
     g_I2cConfiguration[port_id].address = slaveAddress;

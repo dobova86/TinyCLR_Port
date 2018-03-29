@@ -506,7 +506,7 @@ struct TinyCLR_Gpio_Provider {
 ////////////////////////////////////////////////////////////////////////////////
 enum class TinyCLR_I2c_BusSpeed : uint32_t {
     StandardMode = 0,
-    FastMode = 1,
+    FastMode = 1	
 };
 
 enum class TinyCLR_I2c_TransferStatus : uint32_t {
