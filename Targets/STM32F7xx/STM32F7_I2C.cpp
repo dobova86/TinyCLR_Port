@@ -32,8 +32,8 @@ typedef enum
 #define  I2C_GENERATE_START_READ        (uint32_t)(0x80000000U | I2C_CR2_START | I2C_CR2_RD_WRN)
 #define  I2C_GENERATE_START_WRITE       (uint32_t)(0x80000000U | I2C_CR2_START)
 
-//#define I2C_TIMINGR_FM	0x00B01B59 // timings reg for fastmode (400khz) - value calculated with STCubeMX
-#define I2C_TIMINGR_FM	0xA0110206 // timings reg for fastmode (400khz) - value calculated with STCubeMX
+#define I2C_TIMINGR_FM	0x00B01B59 // timings reg for fastmode (400khz) - value calculated with STCubeMX
+//#define I2C_TIMINGR_FM	0xA0110206 // timings reg for fastmode (400khz) - value calculated with STCubeMX
 #define I2C_TIMINGR_SM  0x80201721 // timings reg for standard mode (100Khz) - value calculated with STCubeMX
 
 /** @defgroup I2C_Interrupt_configuration_definition I2C Interrupt configuration definition
@@ -281,13 +281,9 @@ void STM32F7_I2C4_EV_Interrupt(void *param) {
 void STM32F7_I2c_StartTransaction(int32_t port_id) {
     auto& I2Cx = g_STM32_I2c_Port[port_id];
 
-	I2Cx->CR1 &= ~(I2C_CR1_PE);
-
-	uint32_t timingr = g_I2cConfiguration[port_id].clockRate; //+ (g_I2cConfiguration[port_id].clockRate2 << 8);
-    if (I2Cx->TIMINGR != timingr) { // set clock rate and rise time
-        I2Cx->TIMINGR = timingr;
-    }
 	uint32_t Request = 0;
+	uint32_t timingr = g_I2cConfiguration[port_id].clockRate; //+ (g_I2cConfiguration[port_id].clockRate2 << 8);
+	I2Cx->TIMINGR = timingr;
 
 	if (g_currentI2cTransactionAction[port_id]->isReadTransaction) {
 		Request = I2C_GENERATE_START_READ;
@@ -295,7 +291,7 @@ void STM32F7_I2c_StartTransaction(int32_t port_id) {
 	else {
 		Request = I2C_GENERATE_START_WRITE;
 	}
-	I2Cx->CR1 |= I2C_CR1_PE; // enable and reset special flags
+	I2Cx->CR1 |= I2C_CR1_PE; // enable i2c and reset special flags
 
 	uint32_t Mode = I2C_CR2_AUTOEND;
 	uint32_t Size = g_currentI2cTransactionAction[port_id]->bytesToTransfer;
@@ -303,8 +299,6 @@ void STM32F7_I2c_StartTransaction(int32_t port_id) {
 
 	MODIFY_REG(I2Cx->CR2, ((I2C_CR2_SADD | I2C_CR2_NBYTES | I2C_CR2_RELOAD | I2C_CR2_AUTOEND | (I2C_CR2_RD_WRN & (uint32_t)(Request >> (31U - I2C_CR2_RD_WRN_Pos))) | I2C_CR2_START | I2C_CR2_STOP)), \
 							(uint32_t)(((uint32_t)DevAddress & I2C_CR2_SADD) | (((uint32_t)Size << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES) | (uint32_t)Mode | (uint32_t)Request) );
-
-	
 
 	if (g_currentI2cTransactionAction[port_id]->isReadTransaction) {
 		I2Cx->CR1 |= I2C_CR1_ERRIE | I2C_CR1_NACKIE | I2C_CR1_RXIE; // | I2C_CR1_STOPIE | I2C_CR1_TCIE
@@ -321,7 +315,10 @@ void STM32F7_I2c_StopTransaction(int32_t port_id) {
         //I2Cx->CR2 |= I2C_CR2_STOP; // send stop
     //}
 
-    I2Cx->CR1 &= ~(I2C_CR1_ERRIE | I2C_CR1_NACKIE | I2C_CR1_TXIE | I2C_CR1_RXIE); // disable interrupts
+    I2Cx->CR1 &= ~(I2C_CR1_ERRIE | I2C_CR1_NACKIE | I2C_CR1_TXIE | I2C_CR1_RXIE ); // disable interrupts
+	
+	// disable the i2c PE bit of I2C_CR1 ? This means reset the i2c setting any time
+	//I2Cx->CR1 &= ~(I2C_CR1_PE);
 
     g_currentI2cTransactionAction[port_id]->isDone = true;
 }
@@ -507,10 +504,12 @@ TinyCLR_Result STM32F7_I2c_Acquire(const TinyCLR_I2c_Provider* self) {
 
     RCC->APB1RSTR = 0;
 
-	I2Cx->TIMINGR = I2C_TIMINGR_FM; // initialize in fast mode
+	//I2Cx->TIMINGR = I2C_TIMINGR_FM; // initialize in fast mode
     //I2Cx->OAR1 = I2C_OAR1_OA1EN; // init address register
-
-    I2Cx->CR1 |= I2C_CR1_PE; // enable peripheral
+	
+	//I2Cx->TIMINGR = timingr;
+	
+    //I2Cx->CR1 |= I2C_CR1_PE; // enable peripheral
 
     return TinyCLR_Result::Success;
 }
