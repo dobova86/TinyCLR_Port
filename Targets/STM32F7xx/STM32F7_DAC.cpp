@@ -19,9 +19,9 @@
 #ifdef INCLUDE_DAC
 ///////////////////////////////////////////////////////////////////////////////
 
-#define STM32F7_DAC_CHANNELS             2       // number of channels
-#define STM32F7_DAC_FIRST_PIN           4       // channel 0 pin (A4)
-#define STM32F7_DAC_RESOLUTION_INT_BIT    12      // max resolution in bit
+#define STM32F7_DAC_CHANNELS				2       // number of channels
+#define STM32F7_DAC_FIRST_PIN				4       // channel 0 pin (A4)
+#define STM32F7_DAC_RESOLUTION_INT_BIT		12      // max resolution in bit
 
 static TinyCLR_Dac_Provider dacProvider;
 static TinyCLR_Api_Info dacApi;

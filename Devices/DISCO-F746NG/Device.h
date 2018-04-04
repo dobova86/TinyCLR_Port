@@ -58,22 +58,6 @@
 				{ PIN(G, 0), AF(12) }, { PIN(G, 1), AF(12) }, { PIN(G, 4), AF(12) }, { PIN(G, 5), AF(12) }, { PIN(G, 8), AF(12) }, { PIN(G,15), AF(12) },\
 				{ PIN(H, 3), AF(12) }, { PIN(H, 5), AF(12) },\
 			}
-//	GPIOC,
-//	GPIOD, GPIOD,GPIOD,GPIOD,GPIOD,GPIOD,GPIOD,
-//	GPIOE, GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,
-//	GPIOF, GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,GPIOF,
-//	GPIOG, GPIOG,GPIOG,GPIOG,GPIOG,GPIOG,
-//	GPIOH, GPIOH,
-//	0
-//};
-//static uint8_t  PINInitTable; // = {
-//	3,								// C
-//	0,1,8,9,10,14,15,				// D
-//	0,1,7,8,9,10,11,12,13,14,15,	// E
-//	0,1,2,3,4, 5,11,12,13,14,15,	// F
-//	0,1,4,5,8,15,					// G
-//	3,5,							// H
-//	0
 
 #define DEPLOYMENT_SECTORS 	{ /* { 0x05, 0x08040000, 0x00040000 }, */  { 0x06, 0x08080000, 0x00040000 } , { 0x07, 0x080C0000, 0x00040000 } } //,
 
@@ -95,7 +79,7 @@
 
 #define INCLUDE_ADC
 
-#define INCLUDE_CAN
+//#define INCLUDE_CAN
 #define STM32F7_CAN_BUFFER_DEFAULT_SIZE { 128 , 128 }
 #define STM32F7_CAN_TX_PINS { { PIN(D, 1), AF(9) }, { PIN(B, 9), AF(9) } }
 #define STM32F7_CAN_RX_PINS { { PIN(D, 0), AF(9) }, { PIN(B, 8), AF(9) } }

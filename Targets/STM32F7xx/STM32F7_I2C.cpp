@@ -20,10 +20,10 @@
 
 typedef enum
 {
-	HAL_I2C_MODE_NONE = 0x00U,   /*!< No I2C communication on going             */
-	HAL_I2C_MODE_MASTER = 0x10U,   /*!< I2C communication is in Master Mode       */
-	HAL_I2C_MODE_SLAVE = 0x20U,   /*!< I2C communication is in Slave Mode        */
-	HAL_I2C_MODE_MEM = 0x40U    /*!< I2C communication is in Memory Mode       */
+    HAL_I2C_MODE_NONE = 0x00U,   /*!< No I2C communication on going             */
+    HAL_I2C_MODE_MASTER = 0x10U,   /*!< I2C communication is in Master Mode       */
+    HAL_I2C_MODE_SLAVE = 0x20U,   /*!< I2C communication is in Slave Mode        */
+    HAL_I2C_MODE_MEM = 0x40U    /*!< I2C communication is in Memory Mode       */
 
 } HAL_I2C_ModeTypeDef;
 
@@ -33,7 +33,7 @@ typedef enum
 #define  I2C_GENERATE_START_WRITE       (uint32_t)(0x80000000U | I2C_CR2_START)
 
 #define I2C_TIMINGR_FM	0x00B01B59 // timings reg for fastmode (400khz) - value calculated with STCubeMX
-//#define I2C_TIMINGR_FM	0xA0110206 // timings reg for fastmode (400khz) - value calculated with STCubeMX
+//#define I2C_TIMINGR_FM	0xA0110206 // timings reg for fastmode (400khz) - value calculated with STCubeMX (with ANFON ??)
 #define I2C_TIMINGR_SM  0x80201721 // timings reg for standard mode (100Khz) - value calculated with STCubeMX
 
 /** @defgroup I2C_Interrupt_configuration_definition I2C Interrupt configuration definition
@@ -198,55 +198,53 @@ void STM32F7_I2C_EV_Interrupt(int32_t port_id) {
     int todo = transaction->bytesToTransfer;
     uint32_t isr_r = I2Cx->ISR;  // read status register
     uint32_t cr1 = I2Cx->CR1;  // initial control register
-	uint32_t cr2 = I2Cx->CR2;
+    uint32_t cr2 = I2Cx->CR2;
 
-	uint8_t nbytes = 0;
+    uint8_t nbytes = 0;
 
-	
+    
     //transaction->isReadTransaction { // read transaction
-	if (((isr_r & I2C_ISR_NACKF) != 0 ) && (( cr1 & I2C_CR1_NACKIE) != 0 )) {
-			// Error .... to do
-			__HAL_I2C_CLEAR_FLAG(I2Cx, I2C_FLAG_AF);
-			STM32F7_I2c_StopTransaction(port_id);
-	}
-	else if (((isr_r & I2C_ISR_RXNE) != 0) && ((cr1 & I2C_CR1_RXIE ) != 0 )) {
-			uint8_t data = I2Cx->RXDR; // read data
-			transaction->buffer[transaction->bytesTransferred] = data; // save data
-			transaction->bytesTransferred++;
-			transaction->bytesToTransfer--; // update todo
-			//usr_r = I2Cx->ISR;  // update status register copy				
-	}
+    if (((isr_r & I2C_ISR_NACKF) != 0 ) && (( cr1 & I2C_CR1_NACKIE) != 0 )) {
+            // Error .... to do
+            __HAL_I2C_CLEAR_FLAG(I2Cx, I2C_FLAG_AF);
+            STM32F7_I2c_StopTransaction(port_id);
+    }
+    else if (((isr_r & I2C_ISR_RXNE) != 0) && ((cr1 & I2C_CR1_RXIE ) != 0 )) {
+            uint8_t data = I2Cx->RXDR; // read data
+            transaction->buffer[transaction->bytesTransferred] = data; // save data
+            transaction->bytesTransferred++;
+            transaction->bytesToTransfer--; // update todo
+            //usr_r = I2Cx->ISR;  // update status register copy				
+    }
     else if (((isr_r & I2C_ISR_TXIS) != 0) && ((cr1 & I2C_CR1_TXIE) != 0)) {// write transaction
-			I2Cx->TXDR = transaction->buffer[transaction->bytesTransferred]; // next data byte;
-			transaction->bytesTransferred++;
-			transaction->bytesToTransfer--; // update todo
-			//isr_r = I2Cx->ISR;  // update status register copy		
-	}
-	else if (((isr_r & I2C_ISR_TCR) != 0) && ((cr1 & I2C_CR1_TCIE) != 0)) {
-		// not used
-		//I2Cx->CR2 |= I2C_CR2_STOP;
-		//STM32F7_I2c_StopTransaction(port_id);
-	}
-	else if (((isr_r & I2C_ISR_TC) != 0) && ((cr1 & I2C_CR1_TCIE) != 0)) { // transfer complete
-		// reapeted start
-		if (transaction->repeatedStart) {
-			// load NBYTES reg again
-			transaction = &g_ReadI2cTransactionAction[port_id];
-			nbytes = transaction->bytesToTransfer;
-			//I2Cx->CR2 &= ~(I2C_CR2_NBYTES_Msk);
-			I2Cx->CR2 |= nbytes << I2C_CR2_NBYTES_Pos;
-			I2Cx->CR2 |= I2C_CR2_START;
-		}
-	}
-	else if (((isr_r & I2C_ISR_STOPF) != 0) && ((cr1 & I2C_CR1_STOPIE) != 0)) {
-		//STM32F7_I2c_StopTransaction(port_id);
-	}
+            I2Cx->TXDR = transaction->buffer[transaction->bytesTransferred]; // next data byte;
+            transaction->bytesTransferred++;
+            transaction->bytesToTransfer--; // update todo
+            //isr_r = I2Cx->ISR;  // update status register copy		
+    }
+    else if (((isr_r & I2C_ISR_TCR) != 0) && ((cr1 & I2C_CR1_TCIE) != 0)) { // not used: MAX 255 byte transfer allowed
+        // not used
+    }
+    else if (((isr_r & I2C_ISR_TC) != 0) && ((cr1 & I2C_CR1_TCIE) != 0)) { // transfer complete, with AUTOEND=0 
+        // reapeted start
+        if (transaction->repeatedStart) {
+            // load NBYTES reg again
+            transaction = &g_ReadI2cTransactionAction[port_id]; // now transaction is the read transaction
+            nbytes = transaction->bytesToTransfer;			
+            I2Cx->CR2 |= nbytes << I2C_CR2_NBYTES_Pos; // reprogram transfers to do
+            I2Cx->CR2 |= I2C_CR2_START | I2C_CR2_AUTOEND;
+        }
+    }
+    else if (((isr_r & I2C_ISR_STOPF) != 0) && ((cr1 & I2C_CR1_STOPIE) != 0)) { // not used: MAX 255 byte transfer allowed
+        //STM32F7_I2c_StopTransaction(port_id);
+    }
 
-	if (transaction->bytesToTransfer == 0) {
-		STM32F7_I2c_StopTransaction(port_id);
-	}
+    if (transaction->bytesToTransfer == 0) { // AUTOEND = 1
+        STM32F7_I2c_StopTransaction(port_id);
+    }
 
-	I2Cx->ICR |= I2C_ICR_STOPCF | I2C_ICR_ADDRCF | I2C_ICR_ALERTCF | I2C_ICR_TIMOUTCF | I2C_ICR_NACKCF;
+    // Clear INT flags
+    I2Cx->ICR |= I2C_ICR_STOPCF | I2C_ICR_ADDRCF | I2C_ICR_ALERTCF | I2C_ICR_TIMOUTCF | I2C_ICR_NACKCF;
 }
 
 // Error interrupt
@@ -280,41 +278,43 @@ void STM32F7_I2C3_EV_Interrupt(void *param) {
 }
 
 void STM32F7_I2C4_EV_Interrupt(void *param) {
-	STM32F7_I2C_EV_Interrupt(3);
+    STM32F7_I2C_EV_Interrupt(3);
 }
 
 
 void STM32F7_I2c_StartTransaction(int32_t port_id) {
     auto& I2Cx = g_STM32_I2c_Port[port_id];
 
-	uint32_t Request = 0;
-	uint32_t timingr = g_I2cConfiguration[port_id].clockRate; //+ (g_I2cConfiguration[port_id].clockRate2 << 8);
-	I2Cx->TIMINGR = timingr;
+    uint32_t Request = 0;
+    uint32_t timingr = g_I2cConfiguration[port_id].clockRate; //+ (g_I2cConfiguration[port_id].clockRate2 << 8);
+    I2Cx->TIMINGR = timingr;
 
-	if (g_currentI2cTransactionAction[port_id]->isReadTransaction) {
-		Request = I2C_GENERATE_START_READ;
-	}
-	else {
-		Request = I2C_GENERATE_START_WRITE;
-	}
-	I2Cx->CR1 |= I2C_CR1_PE; // enable i2c and reset special flags
+    if (g_currentI2cTransactionAction[port_id]->isReadTransaction) {
+        Request = I2C_GENERATE_START_READ;
+    }
+    else {
+        Request = I2C_GENERATE_START_WRITE;
+    }
+    I2Cx->CR1 |= I2C_CR1_PE; // enable i2c and reset special flags
 
-	uint32_t Mode = I2C_CR2_AUTOEND;
-	if (g_currentI2cTransactionAction[port_id]->repeatedStart) {
-		Mode = 0;
-	}
-	uint32_t Size = g_currentI2cTransactionAction[port_id]->bytesToTransfer;
-	uint32_t DevAddress = (g_I2cConfiguration[port_id].address) << 1;
+    uint32_t Mode = I2C_CR2_AUTOEND;
+    if (g_currentI2cTransactionAction[port_id]->repeatedStart) {
+        Mode = 0;
+    }
+    uint32_t Size = g_currentI2cTransactionAction[port_id]->bytesToTransfer;
+    uint32_t DevAddress = (g_I2cConfiguration[port_id].address) << 1;
 
-	MODIFY_REG(I2Cx->CR2, ((I2C_CR2_SADD | I2C_CR2_NBYTES | I2C_CR2_RELOAD | I2C_CR2_AUTOEND | (I2C_CR2_RD_WRN & (uint32_t)(Request >> (31U - I2C_CR2_RD_WRN_Pos))) | I2C_CR2_START | I2C_CR2_STOP)), \
-							(uint32_t)(((uint32_t)DevAddress & I2C_CR2_SADD) | (((uint32_t)Size << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES) | (uint32_t)Mode | (uint32_t)Request) );
+    MODIFY_REG(I2Cx->CR2, ((I2C_CR2_SADD | I2C_CR2_NBYTES | I2C_CR2_RELOAD | I2C_CR2_AUTOEND | (I2C_CR2_RD_WRN & (uint32_t)(Request >> (31U - I2C_CR2_RD_WRN_Pos))) | I2C_CR2_START | I2C_CR2_STOP)), \
+                            (uint32_t)(((uint32_t)DevAddress & I2C_CR2_SADD) | (((uint32_t)Size << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES) | (uint32_t)Mode | (uint32_t)Request) );
 
-	if (g_currentI2cTransactionAction[port_id]->isReadTransaction) {
-		I2Cx->CR1 |= I2C_CR1_ERRIE | I2C_CR1_NACKIE | I2C_CR1_RXIE; // | I2C_CR1_STOPIE | I2C_CR1_TCIE
-	}
-	else {
-		I2Cx->CR1 |= I2C_CR1_ERRIE | I2C_CR1_NACKIE | I2C_CR1_TXIE; // | I2C_CR1_STOPIE | I2C_CR1_TCIE
-	}
+    if (g_currentI2cTransactionAction[port_id]->isReadTransaction) {
+        I2Cx->CR1 |= I2C_CR1_ERRIE | I2C_CR1_NACKIE | I2C_CR1_RXIE; // | I2C_CR1_STOPIE | I2C_CR1_TCIE
+    }
+    else {
+        I2Cx->CR1 |= I2C_CR1_ERRIE | I2C_CR1_NACKIE | I2C_CR1_TXIE; // | I2C_CR1_STOPIE | I2C_CR1_TCIE
+    }
+
+    if (g_currentI2cTransactionAction[port_id]->repeatedStart) I2Cx->CR1 |= I2C_CR1_TCIE;
 }
 
 void STM32F7_I2c_StopTransaction(int32_t port_id) {
@@ -325,9 +325,9 @@ void STM32F7_I2c_StopTransaction(int32_t port_id) {
     //}
 
     I2Cx->CR1 &= ~(I2C_CR1_ERRIE | I2C_CR1_NACKIE | I2C_CR1_TXIE | I2C_CR1_RXIE ); // disable interrupts
-	
-	// disable the i2c PE bit of I2C_CR1 ? This means reset the i2c setting any time
-	//I2Cx->CR1 &= ~(I2C_CR1_PE);
+    
+    // disable the i2c PE bit of I2C_CR1 ? This means reset the i2c setting any time
+    //I2Cx->CR1 &= ~(I2C_CR1_PE);
 
     g_currentI2cTransactionAction[port_id]->isDone = true;
 }
@@ -443,9 +443,9 @@ TinyCLR_Result STM32F7_I2c_SetActiveSettings(const TinyCLR_I2c_Provider* self, i
     int32_t port_id = self->Index;
 
     if (busSpeed == TinyCLR_I2c_BusSpeed::FastMode)
- 		timingr = I2C_TIMINGR_FM; // see defines
+        timingr = I2C_TIMINGR_FM; // see defines
     else if (busSpeed == TinyCLR_I2c_BusSpeed::StandardMode)
-		timingr = I2C_TIMINGR_SM; // see defines
+        timingr = I2C_TIMINGR_SM; // see defines
     else
         return TinyCLR_Result::NotSupported;
 
@@ -505,11 +505,11 @@ TinyCLR_Result STM32F7_I2c_Acquire(const TinyCLR_I2c_Provider* self) {
 
     RCC->APB1RSTR = 0;
 
-	//I2Cx->TIMINGR = I2C_TIMINGR_FM; // initialize in fast mode
+    //I2Cx->TIMINGR = I2C_TIMINGR_FM; // initialize in fast mode
     //I2Cx->OAR1 = I2C_OAR1_OA1EN; // init address register
-	
-	//I2Cx->TIMINGR = timingr;
-	
+    
+    //I2Cx->TIMINGR = timingr;
+    
     //I2Cx->CR1 |= I2C_CR1_PE; // enable peripheral
 
     return TinyCLR_Result::Success;
