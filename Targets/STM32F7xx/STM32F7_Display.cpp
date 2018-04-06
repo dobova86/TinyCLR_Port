@@ -825,7 +825,7 @@ void STM32F7_Display_Clear() {
 
 }
 
-const STM32F7_Gpio_Pin g_Display_ControllerPins[] = STM32F7_DISPLAY_CONTROLLER_PINS;
+const STM32F7_Gpio_Pin g_Display_ControllerPins[] = STM32F7_DISPLAY_CONTROLLERS_PINS;
 const STM32F7_Gpio_Pin g_Display_BacklightPin = STM32F7_DISPLAY_BACKLIGHT_PIN;
 const STM32F7_Gpio_Pin g_Display_EnablePin = STM32F7_DISPLAY_ENABLE_PIN;
 
