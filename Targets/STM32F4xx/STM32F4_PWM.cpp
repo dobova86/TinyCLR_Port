@@ -16,8 +16,6 @@
 
 #include "STM32F4.h"
 
-void STM32F4_Pwm_Reset();
-
 #if STM32F4_APB1_CLOCK_HZ == STM32F4_AHB_CLOCK_HZ
 #define PWM1_CLK_HZ (STM32F4_APB1_CLOCK_HZ)
 #else
@@ -49,7 +47,7 @@ typedef  TIM_TypeDef* ptr_TIM_TypeDef;
 
 struct PwmController {
     ptr_TIM_TypeDef     timerdef;
-    STM32F4_Gpio_Pin         gpioPin[PWM_PER_CONTROLLER];
+    STM32F4_Gpio_Pin    gpioPin[PWM_PER_CONTROLLER];
 
     bool                invert[PWM_PER_CONTROLLER];
     bool                isOpened[PWM_PER_CONTROLLER];
@@ -94,8 +92,6 @@ const TinyCLR_Api_Info* STM32F4_Pwm_GetApi() {
         pwmProviders[i]->GetMaxFrequency = &STM32F4_Pwm_GetMaxFrequency;
         pwmProviders[i]->GetPinCount = &STM32F4_Pwm_GetPinCount;
     }
-
-    STM32F4_Pwm_Reset();
 
     pwmApi.Author = "GHI Electronics, LLC";
     pwmApi.Name = "GHIElectronics.TinyCLR.NativeApis.STM32F4.PwmProvider";
@@ -446,6 +442,8 @@ void STM32F4_Pwm_ResetController(int32_t controller) {
             STM32F4_Pwm_DisablePin(pwmProviders[controller], p);
             STM32F4_Pwm_ReleasePin(pwmProviders[controller], p);
         }
+
+        g_PwmController[controller].isOpened[p] = false;
     }
 
     g_PwmController[controller].theoryFreq = 0.0;

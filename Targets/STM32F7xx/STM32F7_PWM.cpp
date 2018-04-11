@@ -16,8 +16,6 @@
 
 #include "STM32F7.h"
 
-void STM32F7_Pwm_Reset();
-
 #if STM32F7_APB1_CLOCK_HZ == STM32F7_AHB_CLOCK_HZ
 #define PWM1_CLK_HZ (STM32F7_APB1_CLOCK_HZ)
 #else
@@ -94,8 +92,6 @@ const TinyCLR_Api_Info* STM32F7_Pwm_GetApi() {
         pwmProviders[i]->GetMaxFrequency = &STM32F7_Pwm_GetMaxFrequency;
         pwmProviders[i]->GetPinCount = &STM32F7_Pwm_GetPinCount;
     }
-
-    STM32F7_Pwm_Reset();
 
     pwmApi.Author = "GHI Electronics, LLC";
     pwmApi.Name = "GHIElectronics.TinyCLR.NativeApis.STM32F7.PwmProvider";
@@ -414,7 +410,7 @@ void STM32F7_Pwm_Reset() {
     if (TOTAL_PWM_CONTROLLER > 1) g_PwmController[1].timerdef = TIM2;
     if (TOTAL_PWM_CONTROLLER > 2) g_PwmController[2].timerdef = TIM3;
     if (TOTAL_PWM_CONTROLLER > 3) g_PwmController[3].timerdef = TIM4;
-#if !defined(STM32F701xE) && !defined(STM32F711xE)
+#if !defined(STM32F401xE) && !defined(STM32F411xE)
     if (TOTAL_PWM_CONTROLLER > 4) g_PwmController[4].timerdef = TIM5;
     if (TOTAL_PWM_CONTROLLER > 5) g_PwmController[5].timerdef = TIM6;
     if (TOTAL_PWM_CONTROLLER > 6) g_PwmController[6].timerdef = TIM7;
@@ -446,6 +442,8 @@ void STM32F7_Pwm_ResetController(int32_t controller) {
             STM32F7_Pwm_DisablePin(pwmProviders[controller], p);
             STM32F7_Pwm_ReleasePin(pwmProviders[controller], p);
         }
+
+        g_PwmController[controller].isOpened[p] = false;
     }
 
     g_PwmController[controller].theoryFreq = 0.0;

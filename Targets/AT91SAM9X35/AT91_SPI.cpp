@@ -45,8 +45,6 @@ static uint8_t spiProviderDefs[TOTAL_SPI_CONTROLLERS * sizeof(TinyCLR_Spi_Provid
 static TinyCLR_Spi_Provider* spiProviders[TOTAL_SPI_CONTROLLERS];
 static TinyCLR_Api_Info spiApi;
 
-void AT91_Spi_Reset();
-
 const TinyCLR_Api_Info* AT91_Spi_GetApi() {
     for (int i = 0; i < TOTAL_SPI_CONTROLLERS; i++) {
         spiProviders[i] = (TinyCLR_Spi_Provider*)(spiProviderDefs + (i * sizeof(TinyCLR_Spi_Provider)));
@@ -71,8 +69,6 @@ const TinyCLR_Api_Info* AT91_Spi_GetApi() {
     spiApi.Version = 0;
     spiApi.Count = TOTAL_SPI_CONTROLLERS;
     spiApi.Implementation = spiProviders;
-
-    AT91_Spi_Reset();
 
     return &spiApi;
 }
@@ -380,10 +376,7 @@ TinyCLR_Result AT91_Spi_Release(const TinyCLR_Spi_Provider* self) {
     if (self == nullptr)
         return TinyCLR_Result::ArgumentNull;
 
-    int32_t controller = (self->Index);    
-
-    if (controller == 0) // SPI0 is for serial flash
-        return TinyCLR_Result::Success;
+    int32_t controller = (self->Index);
 
     AT91_PMC &pmc = AT91::PMC();
 
@@ -393,7 +386,7 @@ TinyCLR_Result AT91_Spi_Release(const TinyCLR_Spi_Provider* self) {
 
     switch (controller) {
     case 0:
-
+        pmc.DisablePeriphClock(AT91C_ID_SPI0);
         break;
 
     case 1:
@@ -402,21 +395,26 @@ TinyCLR_Result AT91_Spi_Release(const TinyCLR_Spi_Provider* self) {
 
     }
 
-    uint32_t clkPin, misoPin, mosiPin;
+    if (g_SpiController[controller].isOpened) {
+        uint32_t clkPin, misoPin, mosiPin;
 
-    clkPin = g_at91_spi_sclk_pins[controller].number;
-    misoPin = g_at91_spi_miso_pins[controller].number;
-    mosiPin = g_at91_spi_mosi_pins[controller].number;
+        clkPin = g_at91_spi_sclk_pins[controller].number;
+        misoPin = g_at91_spi_miso_pins[controller].number;
+        mosiPin = g_at91_spi_mosi_pins[controller].number;
 
-    AT91_Gpio_ConfigurePin(clkPin, AT91_Gpio_Direction::Input, AT91_Gpio_PeripheralSelection::None, AT91_Gpio_ResistorMode::PullDown);
-    AT91_Gpio_ConfigurePin(misoPin, AT91_Gpio_Direction::Input, AT91_Gpio_PeripheralSelection::None, AT91_Gpio_ResistorMode::PullDown);
-    AT91_Gpio_ConfigurePin(mosiPin, AT91_Gpio_Direction::Input, AT91_Gpio_PeripheralSelection::None, AT91_Gpio_ResistorMode::PullDown);
+        AT91_Gpio_ClosePin(clkPin);
+        AT91_Gpio_ClosePin(misoPin);
+        AT91_Gpio_ClosePin(mosiPin);
 
-    if (g_SpiController[controller].chipSelectLine != PIN_NONE) {
-        AT91_Gpio_EnableInputPin(g_SpiController[controller].chipSelectLine, TinyCLR_Gpio_PinDriveMode::InputPullDown);
+        if (g_SpiController[controller].chipSelectLine != PIN_NONE) {
+            AT91_Gpio_ClosePin(g_SpiController[controller].chipSelectLine);
 
-        g_SpiController[controller].chipSelectLine = PIN_NONE;
+            g_SpiController[controller].chipSelectLine = PIN_NONE;
+        }
     }
+
+    g_SpiController[controller].clockFrequency = 0;
+    g_SpiController[controller].dataBitLength = 0;
 
     g_SpiController[controller].isOpened = false;
 
@@ -449,8 +447,8 @@ TinyCLR_Result AT91_Spi_GetSupportedDataBitLengths(const TinyCLR_Spi_Provider* s
 
 void AT91_Spi_Reset() {
     for (auto i = 0; i < TOTAL_SPI_CONTROLLERS; i++) {
-        if (g_SpiController[i].isOpened == true) {
-            AT91_Spi_Release(spiProviders[i]);
-        }
+        AT91_Spi_Release(spiProviders[i]);
+
+        g_SpiController[i].isOpened = false;
     }
 }

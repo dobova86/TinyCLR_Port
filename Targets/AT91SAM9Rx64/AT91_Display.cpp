@@ -901,7 +901,7 @@ void AT91_Display_BitBltEx(int32_t x, int32_t y, int32_t width, int32_t height, 
     case AT91_LCD_Rotation::rotateNormal_0:
 
         if (xOffset == 0 && yOffset == 0 &&
-            width == screenWidth &&    height == screenHeight) {
+            width == screenWidth && height == screenHeight) {
             AT91_Display_MemCopy(to, from, (screenWidth*screenHeight * 2));
         }
         else {
@@ -1139,7 +1139,12 @@ const TinyCLR_Api_Info* AT91_Display_GetApi() {
 }
 
 void AT91_Display_Reset() {
-    AT91_Display_Uninitialize();
+    AT91_Display_Clear();
+
+    if (m_AT91_DisplayEnable)
+        AT91_Display_Uninitialize();
+
+    m_AT91_DisplayEnable = false;
 }
 
 #endif // INCLUDE_DISPLAY

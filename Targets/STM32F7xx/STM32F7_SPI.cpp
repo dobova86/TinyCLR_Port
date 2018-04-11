@@ -34,10 +34,6 @@ static const int TOTAL_SPI_CONTROLLERS = SIZEOF_ARRAY(g_STM32F7_Spi_Sclk_Pins);
 
 static ptr_SPI_TypeDef g_STM32_Spi_Port[TOTAL_SPI_CONTROLLERS];
 
-void STM32F7_Spi_Reset();
-
-// Pins
-
 struct SpiController {
     uint8_t *readBuffer;
     uint8_t *writeBuffer;
@@ -103,14 +99,10 @@ const TinyCLR_Api_Info* STM32F7_Spi_GetApi() {
 #endif
 #endif
 #endif
-
-    STM32F7_Spi_Reset();
-
     return &spiApi;
 }
 
 bool STM32F7_Spi_Transaction_Start(int32_t controller) {
-
     STM32F7_GpioInternal_WritePin(g_SpiController[controller].chipSelectLine, false);
 
     return true;
@@ -141,9 +133,11 @@ bool STM32F7_Spi_Transaction_nWrite8_nRead8(int32_t controller) {
     uint8_t out = outLen > 0 ? outBuf[0] : 0;
     uint8_t in;
 
+    volatile uint8_t *dataReg = reinterpret_cast<uint8_t*>((uint32_t)&spi->DR);
+
     while (!(spi->SR & SPI_SR_TXE)); // wait for Tx empty
 
-    spi->DR = out; // write first word
+    *dataReg = out; // write first word
 
     while (++i < num) {
         if (i < outLen) {
@@ -152,14 +146,13 @@ bool STM32F7_Spi_Transaction_nWrite8_nRead8(int32_t controller) {
         else {
             out = 0;
         }
-
         while (!(spi->SR & SPI_SR_RXNE));
 
-        in = spi->DR; // read input
+        in = *dataReg; // read input
 
         while (!(spi->SR & SPI_SR_TXE)); // wait for Tx empty
 
-        spi->DR = out; // start output
+        *dataReg = out; // start output
 
         if (ii < inLen) {
             inBuf[ii] = (uint8_t)in; // save input data
@@ -170,7 +163,7 @@ bool STM32F7_Spi_Transaction_nWrite8_nRead8(int32_t controller) {
 
     while (!(spi->SR & SPI_SR_RXNE));
 
-    in = spi->DR; // read last input
+    in = *dataReg; // read last input
 
     if (ii < inLen) {
         inBuf[ii] = (uint8_t)in; // save last input
@@ -180,7 +173,55 @@ bool STM32F7_Spi_Transaction_nWrite8_nRead8(int32_t controller) {
 }
 
 bool STM32F7_Spi_Transaction_nWrite16_nRead16(int32_t controller) {
-    // TODO
+    ptr_SPI_TypeDef spi = g_STM32_Spi_Port[controller];
+
+    uint16_t* outBuf = (uint16_t*)g_SpiController[controller].writeBuffer;
+    uint16_t* inBuf = (uint16_t*)g_SpiController[controller].readBuffer;
+    int32_t outLen = (g_SpiController[controller].writeLength % 2) == 0 ? g_SpiController[controller].writeLength >> 1 : (g_SpiController[controller].writeLength >> 1) + 1;
+    int32_t inLen = (g_SpiController[controller].readLength % 2) == 0 ? g_SpiController[controller].readLength >> 1 : (g_SpiController[controller].readLength >> 1) + 1;
+
+    int32_t num, ii, i = 0;
+
+    if (inLen) { // write & read
+        num = inLen;
+        ii = 0;
+    }
+    else { // write only
+        num = outLen;
+        ii = 0x80000000; // disable write to inBuf
+    }
+
+    uint16_t out = outBuf[0];
+    uint16_t in;
+
+    spi->DR = out; // write first word
+
+    while (++i < num) {
+        if (i < outLen) {
+            out = outBuf[i]; // get new output data
+        }
+
+        while (!(spi->SR & SPI_SR_RXNE)) {
+            /* wait for Rx buffer full */
+        }
+
+        in = spi->DR; // read input
+        spi->DR = out; // start output
+
+        if (ii >= 0)
+            inBuf[ii] = in; // save input data
+
+        ii++;
+    }
+    while (!(spi->SR & SPI_SR_RXNE)) {
+        /* wait for Rx buffer full */
+    }
+
+    in = spi->DR; // read last input
+
+    if (ii >= 0)
+        inBuf[ii] = in; // save last input
+
     return true;
 }
 
@@ -301,18 +342,19 @@ TinyCLR_Result STM32F7_Spi_SetActiveSettings(const TinyCLR_Spi_Provider* self, i
 
     ptr_SPI_TypeDef spi = g_STM32_Spi_Port[controller];
 
-
-    uint32_t cr1 = SPI_CR1_CPOL | SPI_CR1_CPHA | SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0;
+    uint32_t cr1 = SPI_CR1_CRCL | SPI_CR1_CPOL | SPI_CR1_CPHA | SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0;
     // Clear configuration
     spi->CR1 &= ~cr1;
+    spi->CR2 &= ~SPI_CR2_FRXTH;
 
     cr1 = 0;
-
     // set new configuration
-    //if (dataBitLength == DATA_BIT_LENGTH_16) {
-    //    cr1 |= SPI_CR1_DFF;
-    //}
-
+    if (g_SpiController[controller].dataBitLength == DATA_BIT_LENGTH_16) {
+        cr1 |= SPI_CR1_CRCL;
+    }
+    else {
+        spi->CR2 |= SPI_CR2_FRXTH;
+    }
     switch (mode) {
 
     case TinyCLR_Spi_Mode::Mode0: // CPOL = 0, CPHA = 0.
@@ -354,7 +396,6 @@ TinyCLR_Result STM32F7_Spi_SetActiveSettings(const TinyCLR_Spi_Provider* self, i
     if (clock > clockKhz) {
         cr1 |= SPI_CR1_BR_0;
     }
-
     spi->CR1 |= cr1;
 
     if (STM32F7_GpioInternal_OpenPin(g_SpiController[controller].chipSelectLine)) {
@@ -427,13 +468,15 @@ TinyCLR_Result STM32F7_Spi_Acquire(const TinyCLR_Spi_Provider* self) {
 
     ptr_SPI_TypeDef spi = g_STM32_Spi_Port[controller];
 
-    spi->CR1 = SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_MSTR | SPI_CR1_SPE;;
+    // set mode bits
+    spi->CR1 = SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_MSTR | SPI_CR1_SPE;
 
     STM32F7_GpioInternal_ConfigurePin(sclk.number, STM32F7_Gpio_PortMode::AlternateFunction, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, sclk.alternateFunction);
     STM32F7_GpioInternal_ConfigurePin(miso.number, STM32F7_Gpio_PortMode::AlternateFunction, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, miso.alternateFunction);
     STM32F7_GpioInternal_ConfigurePin(mosi.number, STM32F7_Gpio_PortMode::AlternateFunction, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, mosi.alternateFunction);
 
     g_SpiController[controller].isOpened = true;
+
     return TinyCLR_Result::Success;
 }
 
@@ -442,6 +485,10 @@ TinyCLR_Result STM32F7_Spi_Release(const TinyCLR_Spi_Provider* self) {
         return TinyCLR_Result::ArgumentNull;
 
     int32_t controller = (self->Index);
+
+    ptr_SPI_TypeDef spi = g_STM32_Spi_Port[controller];
+
+    spi->CR1 = 0; // disable SPI
 
     switch (controller) {
 #ifdef SPI1
@@ -481,22 +528,24 @@ TinyCLR_Result STM32F7_Spi_Release(const TinyCLR_Spi_Provider* self) {
 #endif
     }
 
-    auto& sclk = g_STM32F7_Spi_Sclk_Pins[controller];
-    auto& miso = g_STM32F7_Spi_Miso_Pins[controller];
-    auto& mosi = g_STM32F7_Spi_Mosi_Pins[controller];
+    if (g_SpiController[controller].isOpened) {
+        auto& sclk = g_STM32F7_Spi_Sclk_Pins[controller];
+        auto& miso = g_STM32F7_Spi_Miso_Pins[controller];
+        auto& mosi = g_STM32F7_Spi_Mosi_Pins[controller];
 
-    STM32F7_GpioInternal_ConfigurePin(miso.number, STM32F7_Gpio_PortMode::Input, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
-    STM32F7_GpioInternal_ConfigurePin(mosi.number, STM32F7_Gpio_PortMode::Input, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
-    STM32F7_GpioInternal_ConfigurePin(sclk.number, STM32F7_Gpio_PortMode::Input, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
+        STM32F7_GpioInternal_ConfigurePin(miso.number, STM32F7_Gpio_PortMode::Input, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
+        STM32F7_GpioInternal_ConfigurePin(mosi.number, STM32F7_Gpio_PortMode::Input, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
+        STM32F7_GpioInternal_ConfigurePin(sclk.number, STM32F7_Gpio_PortMode::Input, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
 
-    STM32F7_GpioInternal_ClosePin(sclk.number);
-    STM32F7_GpioInternal_ClosePin(miso.number);
-    STM32F7_GpioInternal_ClosePin(mosi.number);
+        STM32F7_GpioInternal_ClosePin(sclk.number);
+        STM32F7_GpioInternal_ClosePin(miso.number);
+        STM32F7_GpioInternal_ClosePin(mosi.number);
 
-    if (g_SpiController[controller].chipSelectLine != PIN_NONE) {
-        STM32F7_GpioInternal_ClosePin(g_SpiController[controller].chipSelectLine);
+        if (g_SpiController[controller].chipSelectLine != PIN_NONE) {
+            STM32F7_GpioInternal_ClosePin(g_SpiController[controller].chipSelectLine);
 
-        g_SpiController[controller].chipSelectLine = PIN_NONE;
+            g_SpiController[controller].chipSelectLine = PIN_NONE;
+        }
     }
 
     g_SpiController[controller].isOpened = false;
@@ -539,11 +588,10 @@ TinyCLR_Result STM32F7_Spi_GetSupportedDataBitLengths(const TinyCLR_Spi_Provider
 
     return TinyCLR_Result::Success;
 }
-
 void STM32F7_Spi_Reset() {
     for (auto i = 0; i < TOTAL_SPI_CONTROLLERS; i++) {
-        if (g_SpiController[i].isOpened == true) {
-            STM32F7_Spi_Release(spiProviders[i]);
-        }
+        STM32F7_Spi_Release(spiProviders[i]);
+
+        g_SpiController[i].isOpened = false;
     }
 }

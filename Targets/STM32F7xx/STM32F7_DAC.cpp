@@ -19,12 +19,14 @@
 #ifdef INCLUDE_DAC
 ///////////////////////////////////////////////////////////////////////////////
 
-#define STM32F7_DAC_CHANNELS				2       // number of channels
-#define STM32F7_DAC_FIRST_PIN				4       // channel 0 pin (A4)
-#define STM32F7_DAC_RESOLUTION_INT_BIT		12      // max resolution in bit
+#define STM32F7_DAC_CHANNELS             2       // number of channels
+#define STM32F7_DAC_FIRST_PIN           4       // channel 0 pin (A4)
+#define STM32F7_DAC_RESOLUTION_INT_BIT    12      // max resolution in bit
 
 static TinyCLR_Dac_Provider dacProvider;
 static TinyCLR_Api_Info dacApi;
+
+bool g_stm32f7_dac_isOpened[STM32F7_DAC_CHANNELS];
 
 const TinyCLR_Api_Info* STM32F7_Dac_GetApi() {
     dacProvider.Parent = &dacApi;
@@ -45,10 +47,6 @@ const TinyCLR_Api_Info* STM32F7_Dac_GetApi() {
     dacApi.Version = 0;
     dacApi.Count = 1;
     dacApi.Implementation = &dacProvider;
-
-    for (auto i = 0; i < STM32F7_Dac_GetChannelCount(&dacProvider); i++) {
-        STM32F7_Dac_ReleaseChannel(&dacProvider, i);
-    }
 
     return &dacApi;
 }
@@ -84,6 +82,8 @@ TinyCLR_Result STM32F7_Dac_AcquireChannel(const TinyCLR_Dac_Provider* self, int3
         DAC->CR |= DAC_CR_EN1; // enable channel 1
     }
 
+    g_stm32f7_dac_isOpened[channel] = true;
+
     return TinyCLR_Result::Success;
 }
 
@@ -100,13 +100,15 @@ TinyCLR_Result STM32F7_Dac_ReleaseChannel(const TinyCLR_Dac_Provider* self, int3
         DAC->CR &= ~DAC_CR_EN1; // disable channel 1
     }
 
-    // free pin
-    STM32F7_GpioInternal_ClosePin(STM32F7_DAC_FIRST_PIN + channel);
-
     if ((DAC->CR & (DAC_CR_EN1 | DAC_CR_EN2)) == 0) { // all channels off
         // disable DA clock
         RCC->APB1ENR &= ~RCC_APB1ENR_DACEN;
     }
+
+    if (g_stm32f7_dac_isOpened[STM32F7_DAC_FIRST_PIN + channel])
+        STM32F7_GpioInternal_ClosePin(STM32F7_DAC_FIRST_PIN + channel);
+
+    g_stm32f7_dac_isOpened[channel] = false;
 
     return TinyCLR_Result::Success;
 }
@@ -136,6 +138,14 @@ int32_t STM32F7_Dac_GetMinValue(const TinyCLR_Dac_Provider* self) {
 
 int32_t STM32F7_Dac_GetMaxValue(const TinyCLR_Dac_Provider* self) {
     return ((1 << STM32F7_DAC_RESOLUTION_INT_BIT) - 1);
+}
+
+void STM32F7_Dac_Reset() {
+    for (auto i = 0; i < STM32F7_Dac_GetChannelCount(&dacProvider); i++) {
+        STM32F7_Dac_ReleaseChannel(&dacProvider, i);
+
+        g_stm32f7_dac_isOpened[i] = false;
+    }
 }
 
 #endif

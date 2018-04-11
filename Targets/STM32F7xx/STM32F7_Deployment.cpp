@@ -14,6 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if defined(__GNUC__)
+// GCC ARM linker does not link to some variable below if optimize mode.
+#pragma GCC optimize 0
+#endif
+
 #include "STM32F7.h"
 #include <stdio.h>
 
@@ -21,18 +26,51 @@
 #define STM32F7_FLASH               ((FLASH_TypeDef *) FLASH_R_BASE)
 #endif
 
-//typedef uint16_t CHIP_WORD;
+/** @defgroup FLASH_Program_Parallelism FLASH Program Parallelism
+  * @{
+  */
+#define FLASH_PSIZE_BYTE           ((uint32_t)0x00000000)
+#define FLASH_PSIZE_HALF_WORD      ((uint32_t)FLASH_CR_PSIZE_0)
+#define FLASH_PSIZE_WORD           ((uint32_t)FLASH_CR_PSIZE_1)
+#define FLASH_PSIZE_DOUBLE_WORD    ((uint32_t)FLASH_CR_PSIZE)
+#define CR_PSIZE_MASK              ((uint32_t)0xFFFFFCFF)
+
+  /*******************  Bits definition for FLASH_SR register  ******************/
+#define FLASH_SR_EOP_Pos              (0U)
+#define FLASH_SR_EOP_Msk              (0x1U << FLASH_SR_EOP_Pos)               /*!< 0x00000001 */
+#define FLASH_SR_EOP                  FLASH_SR_EOP_Msk
+#define FLASH_SR_OPERR_Pos            (1U)
+#define FLASH_SR_OPERR_Msk            (0x1U << FLASH_SR_OPERR_Pos)             /*!< 0x00000002 */
+#define FLASH_SR_OPERR                FLASH_SR_OPERR_Msk
+#define FLASH_SR_WRPERR_Pos           (4U)
+#define FLASH_SR_WRPERR_Msk           (0x1U << FLASH_SR_WRPERR_Pos)            /*!< 0x00000010 */
+#define FLASH_SR_WRPERR               FLASH_SR_WRPERR_Msk
+#define FLASH_SR_PGAERR_Pos           (5U)
+#define FLASH_SR_PGAERR_Msk           (0x1U << FLASH_SR_PGAERR_Pos)            /*!< 0x00000020 */
+#define FLASH_SR_PGAERR               FLASH_SR_PGAERR_Msk
+#define FLASH_SR_PGPERR_Pos           (6U)
+#define FLASH_SR_PGPERR_Msk           (0x1U << FLASH_SR_PGPERR_Pos)            /*!< 0x00000040 */
+#define FLASH_SR_PGPERR               FLASH_SR_PGPERR_Msk
+#define FLASH_SR_ERSERR_Pos           (7U)
+#define FLASH_SR_ERSERR_Msk           (0x1U << FLASH_SR_ERSERR_Pos)            /*!< 0x00000080 */
+#define FLASH_SR_ERSERR               FLASH_SR_ERSERR_Msk
+#define FLASH_SR_BSY_Pos              (16U)
+#define FLASH_SR_BSY_Msk              (0x1U << FLASH_SR_BSY_Pos)               /*!< 0x00010000 */
+#define FLASH_SR_BSY                  FLASH_SR_BSY_Msk
+
+
+#define SECTOR_MASK               ((uint32_t)0xFFFFFF07)
+
+
 typedef uint32_t CHIP_WORD;
 
-struct STM32F7_Flash_Deployment {
+struct STM32F4_Flash_Deployment {
     uint32_t id;
     uint32_t address;
     uint32_t size;
 };
 
-//#define FLASH_CR_PSIZE_BITS FLASH_CR_PSIZE_0 // 16 bit programming
-#define FLASH_CR_PSIZE_BITS FLASH_CR_PSIZE_1 // 32 bit programming
-//#define FLASH_CR_PSIZE_BITS FLASH_CR_PSIZE_1 | FLASH_CR_PSIZE_0 // 64 bit programming
+#define FLASH_CR_PSIZE_BITS FLASH_CR_PSIZE_0 // 16 bit programming
 
 #if STM32F7_SUPPLY_VOLTAGE_MV < 2100
 #error 16 bit Flash programming not allowed for voltages below 2.1V
@@ -43,7 +81,7 @@ struct STM32F7_Flash_Deployment {
 
 TinyCLR_Result STM32F7_Flash_GetSectorSizeForAddress(const TinyCLR_Deployment_Provider* self, uint32_t address, int32_t& size);
 
-static const STM32F7_Flash_Deployment deploymentSectors[] = DEPLOYMENT_SECTORS;
+static const STM32F4_Flash_Deployment deploymentSectors[] = DEPLOYMENT_SECTORS;
 uint32_t deploymentSectorAddress[SIZEOF_ARRAY(deploymentSectors)];
 uint32_t deploymentSectorSize[SIZEOF_ARRAY(deploymentSectors)];
 
@@ -97,49 +135,69 @@ TinyCLR_Result __section("SectionForFlashOperations") STM32F7_Flash_Read(const T
     return TinyCLR_Result::Success;
 }
 
+volatile uint32_t debugflashstatus = 0;
+
 TinyCLR_Result __section("SectionForFlashOperations") STM32F7_Flash_Write(const TinyCLR_Deployment_Provider* self, uint32_t address, size_t length, const uint8_t* buffer) {
+    volatile int32_t timeout = 2000000; // 2 seconds
     int32_t bytePerSector = 0;
+
+    STM32F7_Startup_CacheDisable();
 
     if (buffer == nullptr) return TinyCLR_Result::ArgumentNull;
     if (STM32F7_Flash_GetSectorSizeForAddress(self, address, bytePerSector) != TinyCLR_Result::Success)
         return TinyCLR_Result::IndexOutOfRange;
 
-	// Need to disable cache to write flash sectors
-	SCB_DisableDCache();
+    STM32F7_FLASH->KEYR = STM32F7_FLASH_KEY1;
+    STM32F7_FLASH->KEYR = STM32F7_FLASH_KEY2;
 
-    if (STM32F7_FLASH->CR & FLASH_CR_LOCK) { // unlock
-        STM32F7_FLASH->KEYR = STM32F7_FLASH_KEY1;
-        STM32F7_FLASH->KEYR = STM32F7_FLASH_KEY2;
-    }
+    while (STM32F7_FLASH->SR & FLASH_SR_BSY);
+
+    STM32F7_FLASH->SR = (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_PGPERR | FLASH_SR_ERSERR);
 
     CHIP_WORD* ChipAddress = (CHIP_WORD *)address;
     CHIP_WORD* EndAddress = (CHIP_WORD *)(address + length);
     CHIP_WORD *pBuf = (CHIP_WORD *)buffer;
 
     // enable programming
-    STM32F7_FLASH->CR = FLASH_CR_PG | FLASH_CR_PSIZE_BITS;
-
     while (ChipAddress < EndAddress) {
         if (*ChipAddress != *pBuf) {
+
+            STM32F7_FLASH->CR &= CR_PSIZE_MASK;
+            STM32F7_FLASH->CR |= FLASH_PSIZE_WORD;
+            STM32F7_FLASH->CR |= FLASH_CR_EOPIE;
+            STM32F7_FLASH->CR |= FLASH_CR_PG;
+
             // write data
             *ChipAddress = *pBuf;
-			__DSB();
+
+            __DSB();
 
             // wait for completion
-            while (STM32F7_FLASH->SR & FLASH_SR_BSY);
-            // check
+            while (((STM32F7_FLASH->SR & FLASH_SR_EOP) == 0) || (STM32F7_FLASH->SR & FLASH_SR_BSY)) {
+                STM32F7_Time_Delay(nullptr, 1); // asure host recognizes reattach
+                timeout--;
+
+                if (timeout == 0)
+                    return TinyCLR_Result::InvalidOperation;
+            }
+
+            STM32F7_FLASH->SR |= FLASH_SR_EOP;
+
             if (*ChipAddress != *pBuf) {
                 return TinyCLR_Result::InvalidOperation;
             }
         }
+
         ChipAddress++;
         pBuf++;
     }
 
-    // reset & lock the controller
-    STM32F7_FLASH->CR = FLASH_CR_LOCK;
+    STM32F7_FLASH->CR &= (~FLASH_CR_PG);
 
-	SCB_EnableDCache();
+    // reset & lock the controller
+    STM32F7_FLASH->CR |= FLASH_CR_LOCK;
+
+    STM32F7_Startup_CacheEnable();
 
     return TinyCLR_Result::Success;
 }
@@ -147,8 +205,8 @@ TinyCLR_Result __section("SectionForFlashOperations") STM32F7_Flash_Write(const 
 TinyCLR_Result __section("SectionForFlashOperations") STM32F7_Flash_IsSectorErased(const TinyCLR_Deployment_Provider* self, uint32_t sector, bool &erased) {
     if (sector >= SIZEOF_ARRAY(deploymentSectors)) return TinyCLR_Result::IndexOutOfRange;
 
-    uint32_t address = deploymentSectors[sector].address;
-    size_t length = deploymentSectors[sector].size;
+    uint32_t address = deploymentSectorAddress[sector];
+    size_t length = deploymentSectorSize[sector];
 
     CHIP_WORD* ChipAddress = (CHIP_WORD *)address;
     CHIP_WORD* EndAddress = (CHIP_WORD *)(address + length);
@@ -168,33 +226,42 @@ TinyCLR_Result __section("SectionForFlashOperations") STM32F7_Flash_IsSectorEras
     return TinyCLR_Result::Success;
 }
 
+
+
 TinyCLR_Result __section("SectionForFlashOperations") STM32F7_Flash_EraseSector(const TinyCLR_Deployment_Provider* self, uint32_t sector) {
+    uint32_t cr, num;
+
     if (sector >= SIZEOF_ARRAY(deploymentSectors)) return TinyCLR_Result::IndexOutOfRange;
 
-    uint32_t num = deploymentSectors[sector].id;
+    num = deploymentSectors[sector].id;
 
-    if (num > 0xB)     
-		return TinyCLR_Result::ArgumentOutOfRange;
-	
+    if (num > 11) num += 4;
 
-    if (STM32F7_FLASH->CR & FLASH_CR_LOCK) { // unlock
-        STM32F7_FLASH->KEYR = STM32F7_FLASH_KEY1;
-        STM32F7_FLASH->KEYR = STM32F7_FLASH_KEY2;
-    }
+    STM32F7_Startup_CacheDisable();
 
-    // enable erasing
-    uint32_t cr = num * FLASH_CR_SNB_0 | FLASH_CR_SER | FLASH_CR_PSIZE_BITS;
-    STM32F7_FLASH->CR = cr;
-    // start erase
-    cr |= FLASH_CR_STRT;
-    STM32F7_FLASH->CR = cr;
-    // assure busy flag is set up (see errata?)
-    STM32F7_FLASH->CR = cr;
+    STM32F7_FLASH->KEYR = STM32F7_FLASH_KEY1;
+    STM32F7_FLASH->KEYR = STM32F7_FLASH_KEY2;
+
+    STM32F7_FLASH->SR = (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_PGPERR | FLASH_SR_ERSERR);
+
+    STM32F7_FLASH->CR = FLASH_PSIZE_WORD;
+    STM32F7_FLASH->CR |= FLASH_CR_EOPIE;
+    STM32F7_FLASH->CR |= (num << 3);
+    STM32F7_FLASH->CR |= FLASH_CR_SER;
+
+    STM32F7_FLASH->CR |= FLASH_CR_STRT;
+
+    __DSB();
     // wait for completion
-    while (STM32F7_FLASH->SR & FLASH_SR_BSY);
+    while (((STM32F7_FLASH->SR & FLASH_SR_EOP) == 0) || (STM32F7_FLASH->SR & FLASH_SR_BSY));
+
+    STM32F7_FLASH->CR &= (~FLASH_CR_SER);
+    STM32F7_FLASH->CR &= SECTOR_MASK;
 
     // reset & lock the controller
-    STM32F7_FLASH->CR = FLASH_CR_LOCK;
+    STM32F7_FLASH->CR |= FLASH_CR_LOCK;
+
+    STM32F7_Startup_CacheEnable();
 
     TinyCLR_Result::Success;
 }
@@ -212,13 +279,13 @@ TinyCLR_Result STM32F7_Flash_Release(const TinyCLR_Deployment_Provider* self) {
 
 
 TinyCLR_Result STM32F7_Flash_GetSectorSizeForAddress(const TinyCLR_Deployment_Provider* self, uint32_t address, int32_t& size) {
-    int32_t sectors = SIZEOF_ARRAY(deploymentSectors);
+    int32_t sectors = SIZEOF_ARRAY(deploymentSectorAddress);
 
     size = 0;
 
     for (int32_t i = 0; i < sectors; i++) {
-        if (address >= deploymentSectors[i].address && address < deploymentSectors[i].address + deploymentSectors[i].size) {
-            size = deploymentSectors[i].size;
+        if (address >= deploymentSectorAddress[i] && address < deploymentSectorAddress[i] + deploymentSectorSize[i]) {
+            size = deploymentSectorSize[i];
 
             break;
         }
@@ -234,3 +301,4 @@ TinyCLR_Result STM32F7_Flash_GetSectorMap(const TinyCLR_Deployment_Provider* sel
 
     return TinyCLR_Result::Success;
 }
+

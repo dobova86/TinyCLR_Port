@@ -59,10 +59,11 @@ enum class TinyCLR_Api_Type : uint32_t {
     InteropProvider = 2,
     MemoryProvider = 3,
     TaskProvider = 4,
+    SystemTimeProvider = 5,
     DeploymentProvider = 0 | 0x20000000,
     InterruptProvider = 1 | 0x20000000,
     PowerProvider = 2 | 0x20000000,
-    TimeProvider = 3 | 0x20000000,
+    NativeTimeProvider = 3 | 0x20000000,
     AdcProvider = 0 | 0x40000000,
     CanProvider = 1 | 0x40000000,
     DacProvider = 2 | 0x40000000,
@@ -70,10 +71,11 @@ enum class TinyCLR_Api_Type : uint32_t {
     GpioProvider = 4 | 0x40000000,
     I2cProvider = 5 | 0x40000000,
     PwmProvider = 6 | 0x40000000,
-    SpiProvider = 7 | 0x40000000,
-    UartProvider = 8 | 0x40000000,
-    UsbClientProvider = 9 | 0x40000000,
-    UsbHostProvider = 10 | 0x40000000,
+    RtcProvider = 7 | 0x40000000,
+    SpiProvider = 8 | 0x40000000,
+    UartProvider = 9 | 0x40000000,
+    UsbClientProvider = 10 | 0x40000000,
+    UsbHostProvider = 11 | 0x40000000,
     Custom = 0 | 0x80000000,
 };
 
@@ -241,6 +243,19 @@ struct TinyCLR_Task_Provider {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+//System Time
+////////////////////////////////////////////////////////////////////////////////
+struct TinyCLR_SystemTime_Provider {
+    const TinyCLR_Api_Info* Parent;
+    size_t Index;
+
+    TinyCLR_Result(*Acquire)(const TinyCLR_SystemTime_Provider* self);
+    TinyCLR_Result(*Release)(const TinyCLR_SystemTime_Provider* self);
+    TinyCLR_Result(*GetSystemTime)(const TinyCLR_SystemTime_Provider* self, uint64_t& utcTime, int32_t& timeZoneOffset);
+    TinyCLR_Result(*SetSystemTime)(const TinyCLR_SystemTime_Provider* self, uint64_t utcTime, int32_t timeZoneOffset);
+};
+
+////////////////////////////////////////////////////////////////////////////////
 //Deployment
 ////////////////////////////////////////////////////////////////////////////////
 struct TinyCLR_Deployment_Provider {
@@ -294,26 +309,22 @@ struct TinyCLR_Power_Provider {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-//Time
+//Native Time
 ////////////////////////////////////////////////////////////////////////////////
-struct TinyCLR_Time_Provider;
+typedef void(*TinyCLR_NativeTime_Callback)();
 
-typedef void(*TinyCLR_Time_TickCallback)();
-
-struct TinyCLR_Time_Provider {
+struct TinyCLR_NativeTime_Provider {
     const TinyCLR_Api_Info* Parent;
     size_t Index;
 
-    TinyCLR_Result(*Acquire)(const TinyCLR_Time_Provider* self);
-    TinyCLR_Result(*Release)(const TinyCLR_Time_Provider* self);
-    TinyCLR_Result(*GetInitialTime)(const TinyCLR_Time_Provider* self, int64_t& utcTime, int32_t& timeZoneOffsetMinutes);
-    uint64_t(*GetCurrentProcessorTicks)(const TinyCLR_Time_Provider* self);
-    uint64_t(*GetTimeForProcessorTicks)(const TinyCLR_Time_Provider* self, uint64_t ticks);
-    uint64_t(*GetProcessorTicksForTime)(const TinyCLR_Time_Provider* self, uint64_t time);
-    TinyCLR_Result(*SetTickCallback)(const TinyCLR_Time_Provider* self, TinyCLR_Time_TickCallback callback);
-    TinyCLR_Result(*SetNextTickCallbackTime)(const TinyCLR_Time_Provider* self, uint64_t processorTicks);
-    void(*Delay)(const TinyCLR_Time_Provider* self, uint64_t microseconds);
-    void(*DelayNoInterrupt)(const TinyCLR_Time_Provider* self, uint64_t microseconds);
+    TinyCLR_Result(*Acquire)(const TinyCLR_NativeTime_Provider* self);
+    TinyCLR_Result(*Release)(const TinyCLR_NativeTime_Provider* self);
+    uint64_t(*GetNativeTime)(const TinyCLR_NativeTime_Provider* self);
+    uint64_t(*ConvertNativeTimeToSystemTime)(const TinyCLR_NativeTime_Provider* self, uint64_t nativeTime);
+    uint64_t(*ConvertSystemTimeToNativeTime)(const TinyCLR_NativeTime_Provider* self, uint64_t systemTime);
+    TinyCLR_Result(*SetCallback)(const TinyCLR_NativeTime_Provider* self, TinyCLR_NativeTime_Callback callback);
+    TinyCLR_Result(*ScheduleCallback)(const TinyCLR_NativeTime_Provider* self, uint64_t nativeTime);
+    void(*WaitMicroseconds)(const TinyCLR_NativeTime_Provider* self, uint64_t amount);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -324,7 +335,7 @@ typedef void(*TinyCLR_Startup_SoftResetHandler)(const TinyCLR_Api_Provider* apiP
 TinyCLR_Result TinyCLR_Startup_AddHeapRegion(uint8_t* start, size_t length);
 TinyCLR_Result TinyCLR_Startup_SetDeviceInformation(const char* deviceName, const char* manufacturerName, uint64_t version);
 TinyCLR_Result TinyCLR_Startup_SetDebuggerTransportProvider(const TinyCLR_Api_Info* api, size_t index);
-TinyCLR_Result TinyCLR_Startup_SetRequiredProviders(const TinyCLR_Api_Info* deploymentApi, const TinyCLR_Api_Info* interruptApi, const TinyCLR_Api_Info* powerApi, const TinyCLR_Api_Info* timeApi);
+TinyCLR_Result TinyCLR_Startup_SetRequiredProviders(const TinyCLR_Api_Info* deploymentApi, const TinyCLR_Api_Info* interruptApi, const TinyCLR_Api_Info* powerApi, const TinyCLR_Api_Info* nativeTimeApi);
 TinyCLR_Result TinyCLR_Startup_Start(TinyCLR_Startup_SoftResetHandler handler, bool runManagedApplication);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -417,7 +428,6 @@ struct TinyCLR_Dac_Provider {
 ////////////////////////////////////////////////////////////////////////////////
 enum class TinyCLR_Display_DataFormat : uint32_t {
     Rgb565 = 0,
-	Rgb888 = 1
 };
 
 enum class TinyCLR_Display_InterfaceType : uint32_t {
@@ -506,7 +516,7 @@ struct TinyCLR_Gpio_Provider {
 ////////////////////////////////////////////////////////////////////////////////
 enum class TinyCLR_I2c_BusSpeed : uint32_t {
     StandardMode = 0,
-    FastMode = 1	
+    FastMode = 1,
 };
 
 enum class TinyCLR_I2c_TransferStatus : uint32_t {
@@ -547,6 +557,31 @@ struct TinyCLR_Pwm_Provider {
     double(*GetMinFrequency)(const TinyCLR_Pwm_Provider* self);
     double(*GetMaxFrequency)(const TinyCLR_Pwm_Provider* self);
     int32_t(*GetPinCount)(const TinyCLR_Pwm_Provider* self);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//RTC
+////////////////////////////////////////////////////////////////////////////////
+struct TinyCLR_Rtc_DateTime {
+    uint32_t Year;
+    uint32_t Month;
+    uint32_t DayOfYear;
+    uint32_t DayOfMonth;
+    uint32_t DayOfWeek;
+    uint32_t Hour;
+    uint32_t Minute;
+    uint32_t Second;
+    uint32_t Millisecond;
+};
+
+struct TinyCLR_Rtc_Provider {
+    const TinyCLR_Api_Info* Parent;
+    size_t Index;
+
+    TinyCLR_Result(*Acquire)(const TinyCLR_Rtc_Provider* self);
+    TinyCLR_Result(*Release)(const TinyCLR_Rtc_Provider* self);
+    TinyCLR_Result(*GetNow)(const TinyCLR_Rtc_Provider* self, TinyCLR_Rtc_DateTime& value);
+    TinyCLR_Result(*SetNow)(const TinyCLR_Rtc_Provider* self, TinyCLR_Rtc_DateTime value);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

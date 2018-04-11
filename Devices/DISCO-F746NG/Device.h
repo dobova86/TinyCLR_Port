@@ -23,12 +23,12 @@
 #define DEVICE_TARGET STM32F7
 #define DEVICE_NAME "DISCO-F746NG"
 #define DEVICE_MANUFACTURER "STM32F7 Disco by DB"
-#define DEVICE_VERSION ((0ULL << 48) | (9ULL << 32) | (0ULL << 16) | (0ULL << 0))
+#define DEVICE_VERSION ((0ULL << 48) | (10ULL << 32) | (0ULL << 16) | (0ULL << 0))
 
 #define USB_DEBUGGER_VENDOR_ID 0x1B9F
 #define USB_DEBUGGER_PRODUCT_ID 0x5000
 
-#define UART_DEBUGGER_INDEX 5
+#define UART_DEBUGGER_INDEX 0
 #define USB_DEBUGGER_INDEX 0
 
 //#define DEBUGGER_SELECTOR_PIN PIN(B, 13)
@@ -59,15 +59,7 @@
 				{ PIN(H, 3), AF(12) }, { PIN(H, 5), AF(12) },\
 			}
 
-#define DEPLOYMENT_SECTORS 	{ /* { 0x05, 0x08040000, 0x00040000 }, */  { 0x06, 0x08080000, 0x00040000 } , { 0x07, 0x080C0000, 0x00040000 } } //,
-
-//#define DEPLOYMENT_SECTORS { { 0x06, 0x08040000, 0x00020000 },\
-//							 { 0x07, 0x08060000, 0x00020000 },\
-//							 { 0x08, 0x08080000, 0x00020000 },\
-//							 { 0x09, 0x080A0000, 0x00020000 },\
-//							 { 0x0A, 0x080C0000, 0x00020000 },\
-//							 { 0x0B, 0x080E0000, 0x00020000 }\
-//							}
+#define DEPLOYMENT_SECTORS 	{ /* { 0x05, 0x08040000, 0x00040000 }, */ { 0x06, 0x08080000, 0x00040000 } , { 0x07, 0x080C0000, 0x00040000 } } //,
 
 
 #define STM32F7_SYSTEM_CLOCK_HZ 216000000	 // 168000000 // 180000000 // 216000000
@@ -137,7 +129,7 @@
 #define STM32F7_UART_RTS_PINS { { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE, AF_NONE } }
 
 #define INCLUDE_DISPLAY
-#define STM32F7_DISPLAY_CONTROLLERS_PINS {\
+#define STM32F7_DISPLAY_CONTROLLER_PINS {\
 				{ /* R */	PIN(I, 15), AF(14) }, { PIN(J,  0), AF(14) }, { PIN(J, 1), AF(14) }, { PIN(J, 2), AF(14) }, { PIN(J, 3), AF(14) }, { PIN(J, 4), AF(14) }, { PIN(J, 5), AF(14) }, { PIN(J, 6), AF(14) },\
 				{ /* G */	PIN(J,  7), AF(14) }, { PIN(J,  8), AF(14) }, { PIN(J, 9), AF(14) }, { PIN(J,10), AF(14) }, { PIN(J,11), AF(14) }, { PIN(K, 0), AF(14) }, { PIN(K, 1), AF(14) }, { PIN(K, 2), AF(14) },\
 				{ /* B */	PIN(E,  4), AF(14) }, { PIN(J, 13), AF(14) }, { PIN(J,14), AF(14) }, { PIN(J,15), AF(14) }, { PIN(G, 12), AF(9) }, { PIN(K, 4), AF(14) }, { PIN(K, 5), AF(14) }, { PIN(K, 6), AF(14) },\

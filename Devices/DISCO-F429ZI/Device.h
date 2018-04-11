@@ -21,7 +21,7 @@
 #define DEVICE_TARGET STM32F4
 #define DEVICE_NAME "DISCO-F429ZI"
 #define DEVICE_MANUFACTURER "ST Micro by DB"
-#define DEVICE_VERSION ((0ULL << 48) | (9ULL << 32) | (0ULL << 16) | (0ULL << 0))
+#define DEVICE_VERSION ((0ULL << 48) | (10ULL << 32) | (0ULL << 16) | (0ULL << 0))
 
 #define USB_DEBUGGER_VENDOR_ID 0x1B9F
 #define USB_DEBUGGER_PRODUCT_ID 0x5000
@@ -48,7 +48,9 @@
 #define DEPLOYMENT_SECTORS {/* NOTE: F429 is 2Mb flash with dual bank org. At the moment NOT ALL sectors are acivated. See text file F429_flash_mem_banks.MD  */\
 							 { 0x06, 0x08040000, 0x00020000 }, { 0x07, 0x08060000, 0x00020000 }, { 0x08, 0x08080000, 0x00020000 },\
 							 { 0x09, 0x080A0000, 0x00020000 }, { 0x0A, 0x080C0000, 0x00020000 }, { 0x0B, 0x080E0000, 0x00020000 },\
-							 { 0x10, 0x08110000, 0x00010000 }, { 0x10, 0x08120000, 0x00020000 }\
+							 { 0x10, 0x08110000, 0x00010000 }, { 0x11, 0x08120000, 0x00020000 }, { 0x12, 0x08140000, 0x00020000 },\
+							 { 0x13, 0x08160000, 0x00020000 }, { 0x14, 0x08180000, 0x00020000 }, { 0x15, 0x081A0000, 0x00020000 },\
+							 { 0x16, 0x081C0000, 0x00020000 }, { 0x17, 0x081E0000, 0x00020000 },\
 						 }
 
 
@@ -75,22 +77,22 @@
 
 #define INCLUDE_ADC
 
-#define INCLUDE_CAN
+//#define INCLUDE_CAN
 #define STM32F4_CAN_BUFFER_DEFAULT_SIZE { 128 , 128 }
 #define STM32F4_CAN_TX_PINS { { PIN(D, 1), AF(9) }, { PIN(B, 9), AF(9) } }
 #define STM32F4_CAN_RX_PINS { { PIN(D, 0), AF(9) }, { PIN(B, 8), AF(9) } }
 
-#define INCLUDE_DAC
+//#define INCLUDE_DAC
 
 #define INCLUDE_GPIO
 #define STM32F4_GPIO_PINS {/*      0          1          2          3          4          5          6          7          8          9          10         11         12         13         14         15      */\
-                           /*PAx*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(),\
-                           /*PBx*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(),\
+                           /*PAx*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), NO_INIT(), NO_INIT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(),\
+                           /*PBx*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), NO_INIT(), DEFAULT(), DEFAULT(),\
                            /*PCx*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(),\
                            /*PDx*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(),\
                            /*PEx*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(),\
                            /*PFx*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(),\
-                           /*PGx*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(),\
+                           /*PGx*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT()\
                           }
 
 #define INCLUDE_I2C

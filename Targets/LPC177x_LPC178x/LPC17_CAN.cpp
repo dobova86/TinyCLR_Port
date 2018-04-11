@@ -2023,6 +2023,7 @@ struct LPC17_Can_Controller {
 
     LPC17_Can_Filter canDataFilter;
 
+    bool isOpened;
 };
 
 static const LPC17_Gpio_Pin g_LPC17_Can_Tx_Pins[] = LPC17_CAN_TX_PINS;
@@ -2225,7 +2226,7 @@ const TinyCLR_Api_Info* LPC17_Can_GetApi() {
         canProvider[i]->Index = i;
         canProvider[i]->Acquire = &LPC17_Can_Acquire;
         canProvider[i]->Release = &LPC17_Can_Release;
-        canProvider[i]->Reset = &LPC17_Can_Reset;
+        canProvider[i]->Reset = &LPC17_Can_SoftReset;
         canProvider[i]->WriteMessage = &LPC17_Can_WriteMessage;
         canProvider[i]->ReadMessage = &LPC17_Can_ReadMessage;
         canProvider[i]->SetBitTiming = &LPC17_Can_SetBitTiming;
@@ -2256,7 +2257,7 @@ const TinyCLR_Api_Info* LPC17_Can_GetApi() {
 }
 
 uint32_t LPC17_Can_GetLocalTime() {
-    return LPC17_Time_GetTimeForProcessorTicks(nullptr, LPC17_Time_GetCurrentTicks(nullptr));
+    return LPC17_Time_GetTimeForProcessorTicks(nullptr, LPC17_Time_GetCurrentProcessorTicks(nullptr));
 }
 
 /******************************************************************************
@@ -2437,6 +2438,8 @@ TinyCLR_Result LPC17_Can_Acquire(const TinyCLR_Can_Provider* self) {
 
     CAN_SetACCF(ACCF_BYPASS);
 
+    canController[channel].isOpened = true;
+
     return TinyCLR_Result::Success;
 }
 
@@ -2448,20 +2451,6 @@ TinyCLR_Result LPC17_Can_Release(const TinyCLR_Can_Provider* self) {
 
     auto memoryProvider = (const TinyCLR_Memory_Provider*)apiProvider->FindDefault(apiProvider, TinyCLR_Api_Type::MemoryProvider);
 
-    TinyCLR_Result releasePin = LPC17_Gpio_ReleasePin(nullptr, g_LPC17_Can_Tx_Pins[channel].number);
-
-    if (releasePin != TinyCLR_Result::Success)
-        return releasePin;
-
-    releasePin = LPC17_Gpio_ReleasePin(nullptr, g_LPC17_Can_Rx_Pins[channel].number);
-
-    if (releasePin != TinyCLR_Result::Success)
-        return releasePin;
-
-    // free pin
-    LPC17_Gpio_ClosePin(g_LPC17_Can_Tx_Pins[channel].number);
-    LPC17_Gpio_ClosePin(g_LPC17_Can_Rx_Pins[channel].number);
-
     if (canController[channel].canRxMessagesFifo != nullptr) {
         memoryProvider->Free(memoryProvider, canController[channel].canRxMessagesFifo);
 
@@ -2471,10 +2460,17 @@ TinyCLR_Result LPC17_Can_Release(const TinyCLR_Can_Provider* self) {
     CAN_DisableExplicitFilters(channel);
     CAN_DisableGroupFilters(channel);
 
+    if (canController[channel].isOpened) {
+        LPC17_Gpio_ClosePin(g_LPC17_Can_Tx_Pins[channel].number);
+        LPC17_Gpio_ClosePin(g_LPC17_Can_Rx_Pins[channel].number);
+    }
+
+    canController[channel].isOpened = false;
+
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result LPC17_Can_Reset(const TinyCLR_Can_Provider* self) {
+TinyCLR_Result LPC17_Can_SoftReset(const TinyCLR_Can_Provider* self) {
     int32_t channel = self->Index;
 
     canController[channel].can_rx_count = 0;
@@ -2523,9 +2519,9 @@ TinyCLR_Result LPC17_Can_WriteMessage(const TinyCLR_Can_Provider* self, uint32_t
 
     uint32_t timeout = CAN_TRANSFER_TIMEOUT;
 
-    while (readyToSend == false && timeout > 0) {
+    while (readyToSend == false && timeout-- > 0) {
         LPC17_Can_IsWritingAllowed(self, readyToSend);
-        timeout--;
+        LPC17_Time_Delay(nullptr, 1);
     }
 
     if (timeout == 0)
@@ -2789,7 +2785,7 @@ TinyCLR_Result LPC17_Can_GetSourceClock(const TinyCLR_Can_Provider* self, uint32
 TinyCLR_Result LPC17_Can_GetReadBufferSize(const TinyCLR_Can_Provider* self, size_t& size) {
     int32_t channel = self->Index;
 
-    size = canController[channel].can_rxBufferSize;
+    size = canController[channel].can_rxBufferSize == 0 ? g_LPC17_Can_defaultBuffersSize[channel] : canController[channel].can_rxBufferSize;
 
     return TinyCLR_Result::Success;
 }
@@ -2808,9 +2804,7 @@ TinyCLR_Result LPC17_Can_SetReadBufferSize(const TinyCLR_Can_Provider* self, siz
 }
 
 TinyCLR_Result LPC17_Can_GetWriteBufferSize(const TinyCLR_Can_Provider* self, size_t& size) {
-    int32_t channel = self->Index;
-
-    size = canController[channel].can_txBufferSize;
+    size = 1;
 
     return TinyCLR_Result::Success;
 }
@@ -2821,5 +2815,15 @@ TinyCLR_Result LPC17_Can_SetWriteBufferSize(const TinyCLR_Can_Provider* self, si
     canController[channel].can_txBufferSize = 1;
 
     return size == 1 ? TinyCLR_Result::Success : TinyCLR_Result::NotSupported;
+}
+
+void LPC17_Can_Reset() {
+    for (int i = 0; i < TOTAL_CAN_CONTROLLERS; i++) {
+        canController[i].canRxMessagesFifo = nullptr;
+
+        LPC17_Can_Release(canProvider[i]);
+
+        canController[i].isOpened = false;
+    }
 }
 #endif // INCLUDE_CAN

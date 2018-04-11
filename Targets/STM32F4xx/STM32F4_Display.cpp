@@ -310,7 +310,7 @@ const uint8_t characters[129][5] = {
 0xff,0xff,0xff,0xff,0xff, /* 	 	0x80 */
 };
 #define VIDEO_RAM_SIZE (800*600*2) // Maximum LCD screen size times bytes per pixel
-#define UNCACHE_LCD_BUFFER_ADDRESS 0xD0000000
+#define UNCACHE_LCD_BUFFER_ADDRESS 0xC0E00000
 #define VIDEO_RAM_ADDRESS (UNCACHE_LCD_BUFFER_ADDRESS) // Maximum LCD screen size times bytes per pixel
 
 #define LCD_MAX_ROW	32
@@ -511,9 +511,9 @@ bool STM32F4_Display_Initialize() {
 
     STM32F4_Time_Delay(nullptr, 0x10000);
 
-    RCC->PLLSAICFGR = ((0x64) << 6) | ((0) << 16) | ((0x04) << 24) | ((0x2) << 28);
+    RCC->PLLSAICFGR = ((0xC0) << 6) | ((0) << 16) | ((0x4) << 24) | ((0x5) << 28);
 
-    MODIFY_REG(RCC->DCKCFGR, RCC_DCKCFGR_PLLSAIDIVR, (uint32_t)(0x00020000));
+    MODIFY_REG(RCC->DCKCFGR, RCC_DCKCFGR_PLLSAIDIVR, (uint32_t)(0x00010000));
 
     RCC->CR |= (RCC_CR_PLLSAION);
 
@@ -852,7 +852,7 @@ void STM32F4_Display_BitBltEx(int32_t x, int32_t y, int32_t width, int32_t heigh
     case STM32F4xx_LCD_Rotation::rotateNormal_0:
 
         if (xOffset == 0 && yOffset == 0 &&
-            width == screenWidth &&    height == screenHeight) {
+            width == screenWidth && height == screenHeight) {
             STM32F4_Display_MemCopy(to, from, (screenWidth*screenHeight * 2));
         }
         else {
@@ -1090,7 +1090,12 @@ const TinyCLR_Api_Info* STM32F4_Display_GetApi() {
 }
 
 void STM32F4_Display_Reset() {
-    STM32F4_Display_Uninitialize();
+    STM32F4_Display_Clear();
+
+    if (m_STM32F4_DisplayEnable)
+        STM32F4_Display_Uninitialize();
+
+    m_STM32F4_DisplayEnable = false;
 }
 
 #endif //INCLUDE_DISPLAY

@@ -57,20 +57,10 @@ TinyCLR_Result STM32F7_Interrupt_Acquire(TinyCLR_Interrupt_StartStopHandler onIn
     NVIC->ICER[0] = 0xFFFFFFFF;
     NVIC->ICER[1] = 0xFFFFFFFF;
     NVIC->ICER[2] = 0xFFFFFFFF;
-	//NVIC->ICER[3] = 0xFFFFFFFF;
-	//NVIC->ICER[4] = 0xFFFFFFFF;
-	//NVIC->ICER[5] = 0xFFFFFFFF;
-	//NVIC->ICER[6] = 0xFFFFFFFF;
-	//NVIC->ICER[7] = 0xFFFFFFFF;
-	// clear pending bits
+    // clear pending bits
     NVIC->ICPR[0] = 0xFFFFFFFF;
     NVIC->ICPR[1] = 0xFFFFFFFF;
     NVIC->ICPR[2] = 0xFFFFFFFF;
-	//NVIC->ICPR[3] = 0xFFFFFFFF;
-	//NVIC->ICPR[4] = 0xFFFFFFFF;
-	//NVIC->ICPR[5] = 0xFFFFFFFF;
-	//NVIC->ICPR[6] = 0xFFFFFFFF;
-	//NVIC->ICPR[7] = 0xFFFFFFFF;
 
     // force point to SysTick_Handler because GNU does not link to the function automatically
     irq_vectors[15] = (uint32_t)&SysTick_Handler;
@@ -94,7 +84,6 @@ TinyCLR_Result STM32F7_Interrupt_Release() {
     return TinyCLR_Result::Success;
 }
 
-
 bool STM32F7_InterruptInternal_Activate(uint32_t index, uint32_t *isr, void* isrParam) {
     int id = (int)index;
 
@@ -114,7 +103,7 @@ bool STM32F7_InterruptInternal_Deactivate(uint32_t index) {
     int id = (int)index;
 
     NVIC->ICER[id >> 5] = 1 << (id & 0x1F); // clear enable bit */
-	//NVIC->ISER[id >> 5] &= ~(1 << (id & 0x1F)); // disable enable bit
+
     return true;
 }
 STM32F7_InterruptStarted_RaiiHelper::STM32F7_InterruptStarted_RaiiHelper() { STM32F7_Interrupt_Started(); };

@@ -17,12 +17,42 @@
 #include "STM32F4.h"
 #include <stdio.h>
 
-#include "../../Drivers/SPIDisplay/SPIDisplay.h"
-
 extern void SDRAM_Init(void);
 
 void STM32F4_Startup_OnSoftReset(const TinyCLR_Api_Provider* apiProvider) {
-    apiProvider->Add(apiProvider, SPIDisplay_GetApi());
+
+
+#ifdef INCLUDE_ADC
+    STM32F4_Adc_Reset();
+#endif
+#ifdef INCLUDE_CAN
+    STM32F4_Can_Reset();
+#endif
+#ifdef INCLUDE_DAC
+    STM32F4_Dac_Reset();
+#endif
+#ifdef INCLUDE_DISPLAY
+    STM32F4_Display_Reset();
+#endif
+#ifdef INCLUDE_GPIO
+    STM32F4_Gpio_Reset();
+#endif
+#ifdef INCLUDE_I2C
+    STM32F4_I2c_Reset();
+#endif    
+#ifdef INCLUDE_PWM
+    STM32F4_Pwm_Reset();
+#endif
+#ifdef INCLUDE_SPI
+    STM32F4_Spi_Reset();
+#endif
+#ifdef INCLUDE_UART
+    STM32F4_Uart_Reset();
+#endif
+#ifdef INCLUDE_USBCLIENT 
+    //STM32F4_UsbClient_Reset();
+#endif
+
 }
 
 #ifndef FLASH
@@ -217,7 +247,6 @@ void STM32F4_Startup_OnSoftReset(const TinyCLR_Api_Provider* apiProvider) {
 
 extern "C" {
     void SystemInit() {
-		
         // enable FPU coprocessors (CP10, CP11)
         SCB->CPACR |= 0x3 << 2 * 10 | 0x3 << 2 * 11; // full access
 
@@ -313,10 +342,10 @@ extern "C" {
 #ifdef RCC_AHB1ENR_GPIOKEN
         RCC->AHB1ENR |= RCC_AHB1ENR_GPIOKEN;
 #endif
-
 #ifdef USE_SDRAM_HEAP
 		SDRAM_Init();
 #endif 
+
     }
 }
 

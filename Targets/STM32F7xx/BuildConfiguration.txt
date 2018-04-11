@@ -1,1 +1,2 @@
 TargetArchitecture:CortexM7
+AdditionalTargetDrivers:SPIDisplay

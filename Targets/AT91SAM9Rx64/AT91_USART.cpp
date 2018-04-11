@@ -89,8 +89,6 @@ const TinyCLR_Api_Info* AT91_Uart_GetApi() {
     uartApi.Count = TOTAL_UART_CONTROLLERS;
     uartApi.Implementation = uartProviders;
 
-    AT91_Uart_Reset();
-
     return &uartApi;
 }
 
@@ -132,7 +130,7 @@ AT91_Gpio_PeripheralSelection AT91_Uart_GetCtsAlternateFunction(int32_t portNum)
 }
 
 TinyCLR_Result AT91_Uart_GetReadBufferSize(const TinyCLR_Uart_Provider* self, size_t& size) {
-    size = g_UartController[self->Index].rxBufferSize;
+    size = g_UartController[self->Index].rxBufferSize == 0 ? g_AT91_Uart_RxDefaultBuffersSize[self->Index] : g_UartController[self->Index].rxBufferSize;
 
     return TinyCLR_Result::Success;
 }
@@ -161,7 +159,7 @@ TinyCLR_Result AT91_Uart_SetReadBufferSize(const TinyCLR_Uart_Provider* self, si
 }
 
 TinyCLR_Result AT91_Uart_GetWriteBufferSize(const TinyCLR_Uart_Provider* self, size_t& size) {
-    size = g_UartController[self->Index].txBufferSize;
+    size = g_UartController[self->Index].txBufferSize == 0 ? g_AT91_Uart_TxDefaultBuffersSize[self->Index] : g_UartController[self->Index].txBufferSize;
 
     return TinyCLR_Result::Success;
 }
@@ -357,8 +355,13 @@ TinyCLR_Result AT91_Uart_SetActiveSettings(const TinyCLR_Uart_Provider* self, ui
 
     // Define the baud rate divisor register
     {
-        uint64_t dwMasterClock = AT91_SYSTEM_PERIPHERAL_CLOCK_HZ;
-        uint32_t baud_value = ((dwMasterClock * 10) / (baudRate * 16));
+        uint64_t dwMasterClock = AT91_SYSTEM_PERIPHERAL_CLOCK_HZ * 10;
+        uint32_t baud_value = ((dwMasterClock) / (baudRate * 16));
+
+        while ((baud_value > 0) && (baud_value * (baudRate * 16) > dwMasterClock)) {
+            baud_value--;
+        }
+
         if ((baud_value % 10) >= 5)
             baud_value = (baud_value / 10) + 1;
         else
@@ -487,8 +490,9 @@ TinyCLR_Result AT91_Uart_Release(const TinyCLR_Uart_Provider* self) {
     int32_t uartId = AT91_Uart_GetPeripheralId(portNum);
 
     AT91_Interrupt_Disable(uartId);
-
-    AT91_Uart_PinConfiguration(portNum, false);
+    if (g_UartController[portNum].isOpened) {
+        AT91_Uart_PinConfiguration(portNum, false);
+    }
 
     pmc.DisablePeriphClock(uartId);
 
@@ -689,6 +693,8 @@ void AT91_Uart_Reset() {
         g_UartController[i].rxBufferSize = 0;
 
         AT91_Uart_Release(uartProviders[i]);
+
+        g_UartController[i].isOpened = false;
     }
 }
 

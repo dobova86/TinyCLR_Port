@@ -17,6 +17,38 @@
 #include "STM32F7.h"
 #include <stdio.h>
 
+void STM32F7_Startup_OnSoftReset(const TinyCLR_Api_Provider* apiProvider) {
+#ifdef INCLUDE_ADC
+    STM32F7_Adc_Reset();
+#endif
+#ifdef INCLUDE_CAN
+    STM32F7_Can_Reset();
+#endif
+#ifdef INCLUDE_DAC
+    STM32F7_Dac_Reset();
+#endif
+#ifdef INCLUDE_DISPLAY
+    STM32F7_Display_Reset();
+#endif
+#ifdef INCLUDE_GPIO
+    STM32F7_Gpio_Reset();
+#endif
+#ifdef INCLUDE_I2C
+    STM32F7_I2c_Reset();
+#endif
+#ifdef INCLUDE_PWM
+    STM32F7_Pwm_Reset();
+#endif
+#ifdef INCLUDE_SPI
+    STM32F7_Spi_Reset();
+#endif
+#ifdef INCLUDE_UART
+    STM32F7_Uart_Reset();
+#endif
+#ifdef INCLUDE_USBCLIENT
+    STM32F7_UsbClient_Reset();
+#endif
+}
 
 #ifndef FLASH
 #define FLASH               ((FLASH_TypeDef *) FLASH_R_BASE)
@@ -33,7 +65,12 @@
 #else
 #error "ERROR : SDRAM_32BIT,SDRAM_16BIT or SDRAM_8BIT (number of bit) for SDRAM data bus Must be defined in Device.h!"
 #endif
+extern void STM32F7_DebugLed(bool onoff);
+extern void SDRAM_Init(uint8_t databits);
+
 #endif
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #define ONE_MHZ                             1000000
@@ -53,11 +90,11 @@
 
 #if (STM32F7_SYSTEM_CLOCK_HZ * 2 >= 192000000)\
  && (STM32F7_SYSTEM_CLOCK_HZ * 2 <= 432000000)\
- && (STM32F7_SYSTEM_CLOCK_HZ * 2 % 48000000 == 0) // STM32F746 at 216mhz
+ && (STM32F7_SYSTEM_CLOCK_HZ * 2 % 48000000 == 0)
 #define RCC_PLLCFGR_PLLM_BITS (STM32F7_EXT_CRYSTAL_CLOCK_HZ / ONE_MHZ * RCC_PLLCFGR_PLLM_0)
 #define RCC_PLLCFGR_PLLN_BITS (STM32F7_SYSTEM_CLOCK_HZ * 2 / ONE_MHZ * RCC_PLLCFGR_PLLN_0)
 #define RCC_PLLCFGR_PLLP_BITS (0)  // P = 2
-#define RCC_PLLCFGR_PLLQ_BITS (STM32F7_SYSTEM_CLOCK_HZ * 2 / 48000000 * RCC_PLLCFGR_PLLQ_0) 
+#define RCC_PLLCFGR_PLLQ_BITS (STM32F7_SYSTEM_CLOCK_HZ * 2 / 48000000 * RCC_PLLCFGR_PLLQ_0)
 #elif (STM32F7_SYSTEM_CLOCK_HZ * 4 >= 192000000)\
    && (STM32F7_SYSTEM_CLOCK_HZ * 4 <= 432000000)\
    && (STM32F7_SYSTEM_CLOCK_HZ * 4 % 48000000 == 0)
@@ -220,24 +257,13 @@
 #endif
 #endif
 
-extern void STM32F7_DebugLed(bool onoff);
-extern void SDRAM_Init(uint8_t databits);
-
 #pragma arm section code = "SectionForBootstrapOperations"
-
-void STM32F7_Startup_OnSoftReset(const TinyCLR_Api_Provider* apiProvider) {
-	//apiProvider->Add(apiProvider, SPIDisplay_GetApi());
-}
-
-
 
 extern "C" {
     void __section("SectionForBootstrapOperations") SystemInit() {
+        // Enable cahce
+        STM32F7_Startup_CacheEnable();
 
-		//Enable I-Cache
-		SCB_EnableICache();
-		//Enable D-Cache
-		SCB_EnableDCache();
         // enable FPU coprocessors (CP10, CP11)
         SCB->CPACR |= 0x3 << 2 * 10 | 0x3 << 2 * 11; // full access
 
@@ -247,11 +273,7 @@ extern "C" {
 #endif
 
         // allow unaligned memory access and do not enforce 8 byte stack alignment
-        SCB->CCR &= ~(SCB_CCR_UNALIGN_TRP_Msk);
-
-		// added by db
-		//PWR->CR1 = (PWR->CR1 & ~PWR_CR1_VOS_Msk)
-		//	| PWR_CR1_VOS_1 | PWR_CR1_VOS_0;
+		SCB->CCR &= ~(SCB_CCR_UNALIGN_TRP_Msk);// | SCB_CCR_STKALIGN_Msk);
 
         // for clock configuration the cpu has to run on the internal 16MHz oscillator
         RCC->CR |= RCC_CR_HSION;
@@ -259,7 +281,6 @@ extern "C" {
 
         RCC->CFGR = RCC_CFGR_SW_HSI;         // sysclk = AHB = APB1 = APB2 = HSI (16MHz)
         RCC->CR &= ~(RCC_CR_PLLON | RCC_CR_PLLI2SON); // pll off
-
 
 #if RCC_PLLCFGR_PLLS_BITS == RCC_PLLCFGR_PLLSRC_HSE
 // turn HSE on
@@ -272,45 +293,49 @@ extern "C" {
         // Rev A cannot be read from revision field (another rev A error!).
         // The wrong device field (411=F2) must be used instead!
         if ((DBGMCU->IDCODE & 0xFF) == 0x11) {
-            FLASH->ACR |= FLASH_ACR_LATENCY_BITS;
+            FLASH->ACR |= FLASH_ACR_PRFTEN;
         }
-        else {
-            FLASH->ACR = FLASH_ACR_PRFTEN | FLASH_ACR_LATENCY_BITS | FLASH_ACR_ARTEN;
-        }
+		else {
+			FLASH->ACR |= FLASH_ACR_PRFTEN | FLASH_ACR_LATENCY_BITS | FLASH_ACR_ARTEN;
+		}
+
 
         // setup PLL
         RCC->PLLCFGR = RCC_PLLCFGR_PLL_BITS; // pll multipliers
         RCC->CR |= RCC_CR_PLLON;             // pll on
         while (!(RCC->CR & RCC_CR_PLLRDY));
-		//while ((PWR->CSR1 & PWR_CSR1_VOSRDY) == 0);
-        // final clock setup
+
 		RCC->CFGR = (RCC->CFGR & ~(RCC_CFGR_HPRE_Msk | RCC_CFGR_PPRE1_Msk | RCC_CFGR_PPRE2_Msk));
 
-        RCC->CFGR |= RCC_CFGR_SW_PLL          // sysclk = pll out (STM32F7_SYSTEM_CLOCK_HZ)
+
+        // final clock setup
+        RCC->CFGR = RCC_CFGR_SW_PLL          // sysclk = pll out (STM32F7_SYSTEM_CLOCK_HZ)
             | RCC_CFGR_HPRE_DIV_BITS   // AHB clock
             | RCC_CFGR_PPRE1_DIV_BITS  // APB1 clock
             | RCC_CFGR_PPRE2_DIV_BITS; // APB2 clock
 
-
 		while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);
 
     // minimal peripheral clocks
-//#ifdef RCC_AHB1ENR_DTCMRAMEN
-        RCC->AHB1ENR = RCC_AHB1ENR_DTCMRAMEN; // 64k RAM (DTCM)
+//#ifdef RCC_AHB1ENR_CCMDATARAMEN
+//        RCC->AHB1ENR |= RCC_AHB1ENR_CCMDATARAMEN; // 64k RAM (CCM)
 //#endif
+		RCC->AHB1ENR |= RCC_AHB1ENR_DTCMRAMEN;
 
 		RCC->AHB2ENR = 0;
 		RCC->AHB3ENR = 0;
-        RCC->APB1ENR = RCC_APB1ENR_PWREN;    // PWR clock used for sleep;
-        RCC->APB2ENR = RCC_APB2ENR_SYSCFGEN; // SYSCFG clock used for IO;
 
-    // stop HSI clock
+        RCC->APB1ENR |= RCC_APB1ENR_PWREN;    // PWR clock used for sleep;
+        RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN; // SYSCFG clock used for IO;
+
+        // stop HSI clock
 #if RCC_PLLCFGR_PLLS_BITS == RCC_PLLCFGR_PLLSRC_HSE
         RCC->CR &= ~RCC_CR_HSION;
 #endif
 
         // remove Flash remap to Boot area to avoid problems with Monitor_Execute
         //SYSCFG->MEMRMP = 1; // map System memory to Boot area
+
 
 #ifdef STM32F7_Enable_RTC
         STM32F7_RTC_Initialize(); // enable RTC
@@ -350,8 +375,8 @@ extern "C" {
 		// Note: SDRAM_DATABITS is set in device.h
 		SDRAM_Init(SDRAM_DATABITS); // Init MT48LC4M32 SDRAM for heap (Databits depend on hardware implementation)
 #endif
+
     }
-		//STM32F7_DebugLed(PIN(J,3), true);
 }
 
 extern "C" {
@@ -499,5 +524,21 @@ void STM32F7_Startup_GetRunApp(bool& runApp) {
 #else
     runApp = true;
 #endif
+}
+
+void STM32F7_Startup_CacheEnable(void) {
+    /* Enable I-Cache */
+    SCB_EnableICache();
+
+    /* Enable D-Cache */
+    SCB_EnableDCache();
+}
+
+void STM32F7_Startup_CacheDisable(void) {
+    /* Enable I-Cache */
+    SCB_DisableICache();
+
+    /* Enable D-Cache */
+    SCB_DisableDCache();
 }
 

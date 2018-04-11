@@ -16,6 +16,9 @@
 
 #include "STM32F7.h"
 
+#define PWR_MAINREGULATOR_ON                        ((uint32_t)0x00000000U)
+#define PWR_LOWPOWERREGULATOR_ON                    PWR_CR1_LPDS
+
 static TinyCLR_Power_Provider powerProvider;
 static TinyCLR_Api_Info powerApi;
 
@@ -38,42 +41,47 @@ const TinyCLR_Api_Info* STM32F7_Power_GetApi() {
 }
 
 void STM32F7_Power_Sleep(const TinyCLR_Power_Provider* self, TinyCLR_Power_SleepLevel level) {
+    uint32_t tmpreg = 0;
     switch (level) {
 
         case TinyCLR_Power_SleepLevel::Hibernate: // stop
+            /* Select the regulator state in Stop mode ---------------------------------*/
+            tmpreg = PWR->CR1;
+            /* Clear PDDS and LPDS bits */
+            tmpreg &= (uint32_t)~(PWR_CR1_PDDS | PWR_CR1_LPDS);
+
+            /* Set LPDS, MRLVDS and LPLVDS bits according to PWR_LOWPOWERREGULATOR_ON value */
+            tmpreg |= PWR_LOWPOWERREGULATOR_ON;
+
+            /* Store the new value */
+            PWR->CR1 = tmpreg;
+
+            /* Set SLEEPDEEP bit of Cortex System Control Register */
             SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
-            PWR->CR1 |= PWR_CR1_FPDS | PWR_CR1_LPDS; // low power deepsleep
-
-            __WFI(); // stop clocks and wait for external interrupt
-#if STM32F7_EXT_CRYSTAL_CLOCK_HZ != 0
-            RCC->CR |= RCC_CR_HSEON;             // HSE on
-#endif
-            SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;  // reset deepsleep
-
-            while (!(RCC->CR & RCC_CR_HSERDY));
-
-            RCC->CR |= RCC_CR_PLLON;             // pll on
-
-            while (!(RCC->CR & RCC_CR_PLLRDY));
-
-            RCC->CFGR |= RCC_CFGR_SW_PLL;        // sysclk = pll out
-#if STM32F7_EXT_CRYSTAL_CLOCK_HZ != 0
-            RCC->CR &= ~RCC_CR_HSION;            // HSI off
-#endif
+            
+            /* Request Wait For Interrupt */
+            __WFI();
 
             return;
 
         case TinyCLR_Power_SleepLevel::Off: // standby
-            SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
-            PWR->CR1 |= PWR_CR1_PDDS; // power down deepsleep
+            /* Select Standby mode */
+            PWR->CR1 |= PWR_CR1_PDDS;
 
-            __WFI(); // soft power off, never returns
+            /* Set SLEEPDEEP bit of Cortex System Control Register */
+            SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+
+            /* Request Wait For Interrupt */
+            __WFI();
+
             return;
 
         default: // sleep
-			uint32_t cr1 = PWR->CR1; // |= PWR_CR_CWUF;
+            CLEAR_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
 
-            __WFI(); // sleep and wait for interrupt
+            /* Request Wait For Interrupt */
+            __WFI();
+
             return;
     }
 }
