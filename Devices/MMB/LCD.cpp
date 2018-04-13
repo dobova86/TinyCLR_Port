@@ -55,11 +55,11 @@ void LCD_PinConfig(void)
 
 
 	// LED Green, Red, Blu
-	GPIOB->MODER = (GPIOB->MODER & 0xFFFFFC3F) | GPIO_MODER_MODE3_0 | GPIO_MODER_MODE4_0;
-	GPIOB->OSPEEDR = (GPIOB->OSPEEDR & 0xFFFFFC3F) | GPIO_OSPEEDER_OSPEEDR3_1 | GPIO_OSPEEDER_OSPEEDR4_1;
+	//GPIOB->MODER = (GPIOB->MODER & 0xFFFFFC3F) | GPIO_MODER_MODE3_0 | GPIO_MODER_MODE4_0;
+	//GPIOB->OSPEEDR = (GPIOB->OSPEEDR & 0xFFFFFC3F) | GPIO_OSPEEDER_OSPEEDR3_1 | GPIO_OSPEEDER_OSPEEDR4_1;
 
-	GPIOG->MODER = (GPIOG->MODER & 0x3FFFFFFF) | GPIO_MODER_MODE15_0;
-	GPIOG->OSPEEDR = (GPIOG->OSPEEDR & 0x3FFFFFFF) | GPIO_OSPEEDER_OSPEEDR15_1;
+	//GPIOG->MODER = (GPIOG->MODER & 0x3FFFFFFF) | GPIO_MODER_MODE15_0;
+	//GPIOG->OSPEEDR = (GPIOG->OSPEEDR & 0x3FFFFFFF) | GPIO_OSPEEDER_OSPEEDR15_1;
 
 
 	//GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3|GPIO_Pin_4; // Green LED and BLU
@@ -208,7 +208,7 @@ void LCD_Init()
 	LCD_MaxWidth = 480;
 	LCD_MaxHeight = 272;
 
-	STM32F4_GpioInternal_WritePin(PIN(B, 4), true);
+	//STM32F4_GpioInternal_WritePin(PIN(B, 4), true);
 
 }
 
@@ -293,7 +293,7 @@ void LCD_SetDrawingWindow(uint16_t x, uint16_t y, uint16_t width, uint16_t heigh
 	LCD_WriteData(((y + height - 1)>>8) & 0xff);
 	LCD_WriteData((y + height - 1) & 0xff);
 	//Set_Cs;
-	STM32F4_GpioInternal_WritePin(PIN(B, 3), true);
+	//STM32F4_GpioInternal_WritePin(PIN(B, 3), true);
 
 }
 
@@ -498,7 +498,7 @@ void LCD_Rectangle(uint16_t left, uint16_t top, uint16_t width, uint16_t height,
 	uint16_t  right, bottom;
 
 	//debug:
-	STM32F4_GpioInternal_WritePin(PIN(B, 3), false);
+	//STM32F4_GpioInternal_WritePin(PIN(B, 3), false);
 
 	if ( width < 1 ) width = 1;
 	if ( height < 1 ) height = 1;

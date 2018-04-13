@@ -65,7 +65,7 @@ void STM32F7_Startup_OnSoftReset(const TinyCLR_Api_Provider* apiProvider) {
 #else
 #error "ERROR : SDRAM_32BIT,SDRAM_16BIT or SDRAM_8BIT (number of bit) for SDRAM data bus Must be defined in Device.h!"
 #endif
-extern void STM32F7_DebugLed(bool onoff);
+extern void STM32F7_DebugLed(int pin, bool onoff);
 extern void SDRAM_Init(uint8_t databits);
 
 #endif

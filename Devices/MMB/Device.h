@@ -23,7 +23,7 @@
 #define DEVICE_TARGET STM32F4
 #define DEVICE_NAME "MMB"
 #define DEVICE_MANUFACTURER "MikroElektronika"
-#define DEVICE_VERSION ((0ULL << 48) | (9ULL << 32) | (0ULL << 16) | (0ULL << 0)) // 0.8.0.0
+#define DEVICE_VERSION ((0ULL << 48) | (10ULL << 32) | (0ULL << 16) | (0ULL << 0)) // 0.8.0.0
 
 #define USB_DEBUGGER_VENDOR_ID 0x1B9F
 #define USB_DEBUGGER_PRODUCT_ID 0x5000
@@ -94,8 +94,8 @@
 #define STM32F4_SPI_MOSI_PINS { { PIN(B, 5), AF(5) }, { PIN(B, 15), AF(5) } }
 
 #define INCLUDE_UART
-#define STM32F4_UART_DEFAULT_TX_BUFFER_SIZE  { 256, 256 } // new to 0.8.0
-#define STM32F4_UART_DEFAULT_RX_BUFFER_SIZE  { 512, 512 } // new to 0.8.0
+#define STM32F4_UART_DEFAULT_TX_BUFFER_SIZE  { 256, 256 } // new from 0.8.0
+#define STM32F4_UART_DEFAULT_RX_BUFFER_SIZE  { 512, 512 } // new from 0.8.0
 #define STM32F4_UART_TX_PINS  { { PIN(D, 5), AF(7)   }, { PIN(C, 6), AF(7) } }
 #define STM32F4_UART_RX_PINS  { { PIN(A, 3), AF(7)   }, { PIN(C, 7), AF(7) } }
 #define STM32F4_UART_CTS_PINS { { PIN_NONE  , AF_NONE }, { PIN_NONE  , AF_NONE } }
