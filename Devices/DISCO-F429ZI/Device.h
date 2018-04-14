@@ -117,7 +117,7 @@
                           /* TIM14 */ { { PIN(A,  7), AF(9)   }, { PIN_NONE  , AF_NONE }, { PIN_NONE  , AF_NONE }, { PIN_NONE  , AF_NONE } },\
                          }
 
-// NOTE: SPI5 is used for LCD IL9341 and MEMS Sensor
+// NOTE: SPI5 is used for LCD IL9341 and MEMS Sensor. See documentation for Disco Board
 #define INCLUDE_SPI				// SPI1					SPI2					SPI3					SPI4					SPI5
 #define STM32F4_SPI_SCLK_PINS { { PIN(B, 3), AF(5) }, { PIN(B, 10), AF(5) }, { PIN_NONE  , AF_NONE }, { PIN_NONE  , AF_NONE }, { PIN(F, 7), AF(5) } }
 #define STM32F4_SPI_MISO_PINS { { PIN(B, 4), AF(5) }, { PIN(C,  2), AF(5) }, { PIN_NONE  , AF_NONE }, { PIN_NONE  , AF_NONE }, { PIN(F, 8), AF(5) } }
