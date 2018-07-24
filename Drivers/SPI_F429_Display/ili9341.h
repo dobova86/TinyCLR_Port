@@ -45,7 +45,7 @@
 #endif 
 
 /* Includes ------------------------------------------------------------------*/
-#include "../Common/lcd.h"
+//#include "../Common/lcd.h"
 
 /** @addtogroup BSP
   * @{
@@ -215,7 +215,6 @@ uint16_t ili9341_GetLcdPixelWidth(void);
 uint16_t ili9341_GetLcdPixelHeight(void);
 
 /* LCD driver structure */
-extern LCD_DrvTypeDef   ili9341_drv;
 
 /* LCD IO functions */
 void     LCD_IO_Init(void);

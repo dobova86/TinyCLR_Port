@@ -82,7 +82,6 @@ static TinyCLR_Api_Info interruptApi;
 
 const TinyCLR_Api_Info* AT91_Interrupt_GetApi() {
     interruptProvider.Parent = &interruptApi;
-    interruptProvider.Index = 0;
     interruptProvider.Parent = &interruptApi;
     interruptProvider.Acquire = &AT91_Interrupt_Acquire;
     interruptProvider.Release = &AT91_Interrupt_Release;
@@ -97,7 +96,6 @@ const TinyCLR_Api_Info* AT91_Interrupt_GetApi() {
     interruptApi.Name = "GHIElectronics.TinyCLR.NativeApis.AT91.InterruptProvider";
     interruptApi.Type = TinyCLR_Api_Type::InterruptProvider;
     interruptApi.Version = 0;
-    interruptApi.Count = 1;
     interruptApi.Implementation = &interruptProvider;
 
     return &interruptApi;
@@ -281,7 +279,7 @@ AT91_SmartPtr_Interrupt::~AT91_SmartPtr_Interrupt() { AT91_Interrupt_Ended(); };
 AT91_SmartPtr_IRQ::AT91_SmartPtr_IRQ() { Disable(); }
 AT91_SmartPtr_IRQ::~AT91_SmartPtr_IRQ() { Restore(); }
 
-bool AT91_SmartPtr_IRQ::WasDisabled() {
+bool AT91_SmartPtr_IRQ::IsDisabled() {
     return (m_state & DISABLED_MASK) == DISABLED_MASK;
 }
 

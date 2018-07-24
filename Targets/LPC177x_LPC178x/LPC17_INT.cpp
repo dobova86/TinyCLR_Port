@@ -25,7 +25,6 @@ static TinyCLR_Api_Info interruptApi;
 
 const TinyCLR_Api_Info* LPC17_Interrupt_GetApi() {
     interruptProvider.Parent = &interruptApi;
-    interruptProvider.Index = 0;
     interruptProvider.Parent = &interruptApi;
     interruptProvider.Acquire = &LPC17_Interrupt_Acquire;
     interruptProvider.Release = &LPC17_Interrupt_Release;
@@ -39,7 +38,6 @@ const TinyCLR_Api_Info* LPC17_Interrupt_GetApi() {
     interruptApi.Name = "GHIElectronics.TinyCLR.NativeApis.LPC17.InterruptProvider";
     interruptApi.Type = TinyCLR_Api_Type::InterruptProvider;
     interruptApi.Version = 0;
-    interruptApi.Count = 1;
     interruptApi.Implementation = &interruptProvider;
 
     return &interruptApi;
@@ -137,7 +135,7 @@ bool LPC17_Interrupt_InterruptState(uint32_t Irq_Index) {
     return (NVIC->ISPR[id >> 5] >> (id & 0x1F)) & 1;
 }
 
-bool LPC17_SmartPtr_IRQ::WasDisabled() {
+bool LPC17_SmartPtr_IRQ::IsDisabled() {
     return (m_state & DISABLED_MASK) == DISABLED_MASK;
 }
 

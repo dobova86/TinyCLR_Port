@@ -123,7 +123,6 @@ static TinyCLR_Api_Info interruptApi;
 
 const TinyCLR_Api_Info* LPC24_Interrupt_GetApi() {
     interruptProvider.Parent = &interruptApi;
-    interruptProvider.Index = 0;
     interruptProvider.Parent = &interruptApi;
     interruptProvider.Acquire = &LPC24_Interrupt_Acquire;
     interruptProvider.Release = &LPC24_Interrupt_Release;
@@ -138,7 +137,6 @@ const TinyCLR_Api_Info* LPC24_Interrupt_GetApi() {
     interruptApi.Name = "GHIElectronics.TinyCLR.NativeApis.LPC24.InterruptProvider";
     interruptApi.Type = TinyCLR_Api_Type::InterruptProvider;
     interruptApi.Version = 0;
-    interruptApi.Count = 1;
     interruptApi.Implementation = &interruptProvider;
 
     return &interruptApi;
@@ -269,7 +267,7 @@ LPC24_SmartPtr_Interrupt::~LPC24_SmartPtr_Interrupt() { LPC24_Interrupt_Ended();
 LPC24_SmartPtr_IRQ::LPC24_SmartPtr_IRQ() { Disable(); }
 LPC24_SmartPtr_IRQ::~LPC24_SmartPtr_IRQ() { Restore(); }
 
-bool LPC24_SmartPtr_IRQ::WasDisabled() {
+bool LPC24_SmartPtr_IRQ::IsDisabled() {
     return (m_state & DISABLED_MASK) == DISABLED_MASK;
 }
 

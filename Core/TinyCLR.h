@@ -75,7 +75,7 @@ enum class TinyCLR_Api_Type : uint32_t {
     SpiProvider = 8 | 0x40000000,
     UartProvider = 9 | 0x40000000,
     UsbClientProvider = 10 | 0x40000000,
-    UsbHostProvider = 11 | 0x40000000,
+    SdCardProvider = 11 | 0x40000000,
     Custom = 0 | 0x80000000,
 };
 
@@ -85,13 +85,11 @@ struct TinyCLR_Api_Info {
     TinyCLR_Api_Type Type;
     void* State;
     uint64_t Version;
-    size_t Count;
     const void* Implementation;
 };
 
 struct TinyCLR_Api_Provider {
     const TinyCLR_Api_Info* Parent;
-    size_t Index;
 
     TinyCLR_Result(*Acquire)(const TinyCLR_Api_Provider* self);
     TinyCLR_Result(*Release)(const TinyCLR_Api_Provider* self);
@@ -110,7 +108,6 @@ struct TinyCLR_Api_Provider {
 ////////////////////////////////////////////////////////////////////////////////
 struct TinyCLR_Debugger_Provider {
     const TinyCLR_Api_Info* Parent;
-    size_t Index;
 
     TinyCLR_Result(*Acquire)(const TinyCLR_Debugger_Provider* self);
     TinyCLR_Result(*Release)(const TinyCLR_Debugger_Provider* self);
@@ -188,7 +185,6 @@ struct TinyCLR_Interop_ClrValue {
 
 struct TinyCLR_Interop_Provider {
     const TinyCLR_Api_Info* Parent;
-    size_t Index;
 
     TinyCLR_Result(*Acquire)(const TinyCLR_Interop_Provider* self);
     TinyCLR_Result(*Release)(const TinyCLR_Interop_Provider* self);
@@ -215,7 +211,6 @@ struct TinyCLR_Interop_Provider {
 ////////////////////////////////////////////////////////////////////////////////
 struct TinyCLR_Memory_Provider {
     const TinyCLR_Api_Info* Parent;
-    size_t Index;
 
     TinyCLR_Result(*Acquire)(const TinyCLR_Memory_Provider* self);
     TinyCLR_Result(*Release)(const TinyCLR_Memory_Provider* self);
@@ -233,7 +228,6 @@ typedef void(*TinyCLR_Task_Callback)(const TinyCLR_Task_Provider* self, const Ti
 
 struct TinyCLR_Task_Provider {
     const TinyCLR_Api_Info* Parent;
-    size_t Index;
 
     TinyCLR_Result(*Acquire)(const TinyCLR_Task_Provider* self);
     TinyCLR_Result(*Release)(const TinyCLR_Task_Provider* self);
@@ -247,7 +241,6 @@ struct TinyCLR_Task_Provider {
 ////////////////////////////////////////////////////////////////////////////////
 struct TinyCLR_SystemTime_Provider {
     const TinyCLR_Api_Info* Parent;
-    size_t Index;
 
     TinyCLR_Result(*Acquire)(const TinyCLR_SystemTime_Provider* self);
     TinyCLR_Result(*Release)(const TinyCLR_SystemTime_Provider* self);
@@ -260,7 +253,6 @@ struct TinyCLR_SystemTime_Provider {
 ////////////////////////////////////////////////////////////////////////////////
 struct TinyCLR_Deployment_Provider {
     const TinyCLR_Api_Info* Parent;
-    size_t Index;
 
     TinyCLR_Result(*Acquire)(const TinyCLR_Deployment_Provider* self, bool& supportsXip);
     TinyCLR_Result(*Release)(const TinyCLR_Deployment_Provider* self);
@@ -278,7 +270,6 @@ typedef void(*TinyCLR_Interrupt_StartStopHandler)();
 
 struct TinyCLR_Interrupt_Provider {
     const TinyCLR_Api_Info* Parent;
-    size_t Index;
 
     TinyCLR_Result(*Acquire)(TinyCLR_Interrupt_StartStopHandler onInterruptStart, TinyCLR_Interrupt_StartStopHandler onInterruptEnd);
     TinyCLR_Result(*Release)();
@@ -300,7 +291,6 @@ enum class TinyCLR_Power_SleepLevel : uint32_t {
 
 struct TinyCLR_Power_Provider {
     const TinyCLR_Api_Info* Parent;
-    size_t Index;
 
     TinyCLR_Result(*Acquire)(const TinyCLR_Power_Provider* self);
     TinyCLR_Result(*Release)(const TinyCLR_Power_Provider* self);
@@ -315,7 +305,6 @@ typedef void(*TinyCLR_NativeTime_Callback)();
 
 struct TinyCLR_NativeTime_Provider {
     const TinyCLR_Api_Info* Parent;
-    size_t Index;
 
     TinyCLR_Result(*Acquire)(const TinyCLR_NativeTime_Provider* self);
     TinyCLR_Result(*Release)(const TinyCLR_NativeTime_Provider* self);
@@ -332,9 +321,18 @@ struct TinyCLR_NativeTime_Provider {
 ////////////////////////////////////////////////////////////////////////////////
 typedef void(*TinyCLR_Startup_SoftResetHandler)(const TinyCLR_Api_Provider* apiProvider);
 
+struct TinyCLR_Startup_UsbDebuggerConfiguration {
+    uint16_t VendorId;
+    uint16_t ProductId;
+
+    const wchar_t* Manufacturer;
+    const wchar_t* Product;
+    const wchar_t* SerialNumber;
+};
+
 TinyCLR_Result TinyCLR_Startup_AddHeapRegion(uint8_t* start, size_t length);
 TinyCLR_Result TinyCLR_Startup_SetDeviceInformation(const char* deviceName, const char* manufacturerName, uint64_t version);
-TinyCLR_Result TinyCLR_Startup_SetDebuggerTransportProvider(const TinyCLR_Api_Info* api, size_t index);
+TinyCLR_Result TinyCLR_Startup_SetDebuggerTransportProvider(const TinyCLR_Api_Info* api, size_t index, const void* configuration);
 TinyCLR_Result TinyCLR_Startup_SetRequiredProviders(const TinyCLR_Api_Info* deploymentApi, const TinyCLR_Api_Info* interruptApi, const TinyCLR_Api_Info* powerApi, const TinyCLR_Api_Info* nativeTimeApi);
 TinyCLR_Result TinyCLR_Startup_Start(TinyCLR_Startup_SoftResetHandler handler, bool runManagedApplication);
 
@@ -348,20 +346,20 @@ enum class TinyCLR_Adc_ChannelMode : uint32_t {
 
 struct TinyCLR_Adc_Provider {
     const TinyCLR_Api_Info* Parent;
-    size_t Index;
 
-    TinyCLR_Result(*Acquire)(const TinyCLR_Adc_Provider* self);
-    TinyCLR_Result(*Release)(const TinyCLR_Adc_Provider* self);
-    TinyCLR_Result(*AcquireChannel)(const TinyCLR_Adc_Provider* self, int32_t channel);
-    TinyCLR_Result(*ReleaseChannel)(const TinyCLR_Adc_Provider* self, int32_t channel);
-    TinyCLR_Result(*ReadValue)(const TinyCLR_Adc_Provider* self, int32_t channel, int32_t& value);
-    TinyCLR_Result(*SetChannelMode)(const TinyCLR_Adc_Provider* self, TinyCLR_Adc_ChannelMode mode);
-    TinyCLR_Adc_ChannelMode(*GetChannelMode)(const TinyCLR_Adc_Provider* self);
-    bool(*IsChannelModeSupported)(const TinyCLR_Adc_Provider* self, TinyCLR_Adc_ChannelMode mode);
-    int32_t(*GetMinValue)(const TinyCLR_Adc_Provider* self);
-    int32_t(*GetMaxValue)(const TinyCLR_Adc_Provider* self);
-    int32_t(*GetResolutionInBits)(const TinyCLR_Adc_Provider* self);
-    int32_t(*GetChannelCount)(const TinyCLR_Adc_Provider* self);
+    TinyCLR_Result(*Acquire)(const TinyCLR_Adc_Provider* self, int32_t controller);
+    TinyCLR_Result(*Release)(const TinyCLR_Adc_Provider* self, int32_t controller);
+    TinyCLR_Result(*AcquireChannel)(const TinyCLR_Adc_Provider* self, int32_t controller, int32_t channel);
+    TinyCLR_Result(*ReleaseChannel)(const TinyCLR_Adc_Provider* self, int32_t controller, int32_t channel);
+    TinyCLR_Result(*ReadValue)(const TinyCLR_Adc_Provider* self, int32_t controller, int32_t channel, int32_t& value);
+    TinyCLR_Result(*SetChannelMode)(const TinyCLR_Adc_Provider* self, int32_t controller, TinyCLR_Adc_ChannelMode mode);
+    TinyCLR_Adc_ChannelMode(*GetChannelMode)(const TinyCLR_Adc_Provider* self, int32_t controller);
+    bool(*IsChannelModeSupported)(const TinyCLR_Adc_Provider* self, int32_t controller, TinyCLR_Adc_ChannelMode mode);
+    int32_t(*GetMinValue)(const TinyCLR_Adc_Provider* self, int32_t controller);
+    int32_t(*GetMaxValue)(const TinyCLR_Adc_Provider* self, int32_t controller);
+    int32_t(*GetResolutionInBits)(const TinyCLR_Adc_Provider* self, int32_t controller);
+    int32_t(*GetChannelCount)(const TinyCLR_Adc_Provider* self, int32_t controller);
+    TinyCLR_Result(*GetControllerCount)(const TinyCLR_Adc_Provider* self, int32_t& count);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -376,33 +374,35 @@ enum class TinyCLR_Can_Error : uint32_t {
     Passive = 3
 };
 
-typedef void(*TinyCLR_Can_MessageReceivedHandler)(const TinyCLR_Can_Provider* self, size_t count);
-typedef void(*TinyCLR_Can_ErrorReceivedHandler)(const TinyCLR_Can_Provider* self, TinyCLR_Can_Error error);
+typedef void(*TinyCLR_Can_MessageReceivedHandler)(const TinyCLR_Can_Provider* self, int32_t controller, size_t count);
+typedef void(*TinyCLR_Can_ErrorReceivedHandler)(const TinyCLR_Can_Provider* self, int32_t controller, TinyCLR_Can_Error error);
 
 struct TinyCLR_Can_Provider {
     const TinyCLR_Api_Info* Parent;
-    size_t Index;
 
-    TinyCLR_Result(*Acquire)(const TinyCLR_Can_Provider* self);
-    TinyCLR_Result(*Release)(const TinyCLR_Can_Provider* self);
-    TinyCLR_Result(*Reset)(const TinyCLR_Can_Provider* self);
-    TinyCLR_Result(*WriteMessage)(const TinyCLR_Can_Provider* self, uint32_t arbitrationId, bool isExtendedId, bool isRemoteTransmissionRequest, uint8_t* data, size_t length);
-    TinyCLR_Result(*ReadMessage)(const TinyCLR_Can_Provider* self, uint32_t& arbitrationId, bool& isExtendedId, bool& isRemoteTransmissionRequest, uint64_t& timestamp, uint8_t* data, size_t& length);
-    TinyCLR_Result(*SetBitTiming)(const TinyCLR_Can_Provider* self, int32_t propagation, int32_t phase1, int32_t phase2, int32_t baudratePrescaler, int32_t synchronizationJumpWidth, int8_t useMultiBitSampling);
-    TinyCLR_Result(*GetUnreadMessageCount)(const TinyCLR_Can_Provider* self, size_t& count);
-    TinyCLR_Result(*SetMessageReceivedHandler)(const TinyCLR_Can_Provider* self, TinyCLR_Can_MessageReceivedHandler handler);
-    TinyCLR_Result(*SetErrorReceivedHandler)(const TinyCLR_Can_Provider* self, TinyCLR_Can_ErrorReceivedHandler handler);
-    TinyCLR_Result(*SetExplicitFilters)(const TinyCLR_Can_Provider* self, uint8_t* filters, size_t length);
-    TinyCLR_Result(*SetGroupFilters)(const TinyCLR_Can_Provider* self, uint8_t* lowerBounds, uint8_t* upperBounds, size_t length);
-    TinyCLR_Result(*ClearReadBuffer)(const TinyCLR_Can_Provider* self);
-    TinyCLR_Result(*IsWritingAllowed)(const TinyCLR_Can_Provider* self, bool& allowed);
-    TinyCLR_Result(*GetWriteErrorCount)(const TinyCLR_Can_Provider* self, size_t& count);
-    TinyCLR_Result(*GetReadErrorCount)(const TinyCLR_Can_Provider* self, size_t& count);
-    TinyCLR_Result(*GetSourceClock)(const TinyCLR_Can_Provider* self, uint32_t& sourceClock);
-    TinyCLR_Result(*GetReadBufferSize)(const TinyCLR_Can_Provider* self, size_t& size);
-    TinyCLR_Result(*SetReadBufferSize)(const TinyCLR_Can_Provider* self, size_t size);
-    TinyCLR_Result(*GetWriteBufferSize)(const TinyCLR_Can_Provider* self, size_t& size);
-    TinyCLR_Result(*SetWriteBufferSize)(const TinyCLR_Can_Provider* self, size_t size);
+    TinyCLR_Result(*Acquire)(const TinyCLR_Can_Provider* self, int32_t controller);
+    TinyCLR_Result(*Release)(const TinyCLR_Can_Provider* self, int32_t controller);
+    TinyCLR_Result(*Reset)(const TinyCLR_Can_Provider* self, int32_t controller);
+    TinyCLR_Result(*WriteMessage)(const TinyCLR_Can_Provider* self, int32_t controller, uint32_t arbitrationId, bool isExtendedId, bool isRemoteTransmissionRequest, uint8_t* data, size_t length);
+    TinyCLR_Result(*ReadMessage)(const TinyCLR_Can_Provider* self, int32_t controller, uint32_t& arbitrationId, bool& isExtendedId, bool& isRemoteTransmissionRequest, uint64_t& timestamp, uint8_t* data, size_t& length);
+    TinyCLR_Result(*SetBitTiming)(const TinyCLR_Can_Provider* self, int32_t controller, int32_t propagation, int32_t phase1, int32_t phase2, int32_t baudratePrescaler, int32_t synchronizationJumpWidth, int8_t useMultiBitSampling);
+    TinyCLR_Result(*GetUnreadMessageCount)(const TinyCLR_Can_Provider* self, int32_t controller, size_t& count);
+    TinyCLR_Result(*GetUnwrittenMessageCount)(const TinyCLR_Can_Provider* self, int32_t controller, size_t& count);
+    TinyCLR_Result(*SetMessageReceivedHandler)(const TinyCLR_Can_Provider* self, int32_t controller, TinyCLR_Can_MessageReceivedHandler handler);
+    TinyCLR_Result(*SetErrorReceivedHandler)(const TinyCLR_Can_Provider* self, int32_t controller, TinyCLR_Can_ErrorReceivedHandler handler);
+    TinyCLR_Result(*SetExplicitFilters)(const TinyCLR_Can_Provider* self, int32_t controller, uint8_t* filters, size_t length);
+    TinyCLR_Result(*SetGroupFilters)(const TinyCLR_Can_Provider* self, int32_t controller, uint8_t* lowerBounds, uint8_t* upperBounds, size_t length);
+    TinyCLR_Result(*ClearReadBuffer)(const TinyCLR_Can_Provider* self, int32_t controller);
+    TinyCLR_Result(*ClearWriteBuffer)(const TinyCLR_Can_Provider* self, int32_t controller);
+    TinyCLR_Result(*IsWritingAllowed)(const TinyCLR_Can_Provider* self, int32_t controller, bool& allowed);
+    TinyCLR_Result(*GetWriteErrorCount)(const TinyCLR_Can_Provider* self, int32_t controller, size_t& count);
+    TinyCLR_Result(*GetReadErrorCount)(const TinyCLR_Can_Provider* self, int32_t controller, size_t& count);
+    TinyCLR_Result(*GetSourceClock)(const TinyCLR_Can_Provider* self, int32_t controller, uint32_t& sourceClock);
+    TinyCLR_Result(*GetReadBufferSize)(const TinyCLR_Can_Provider* self, int32_t controller, size_t& size);
+    TinyCLR_Result(*SetReadBufferSize)(const TinyCLR_Can_Provider* self, int32_t controller, size_t size);
+    TinyCLR_Result(*GetWriteBufferSize)(const TinyCLR_Can_Provider* self, int32_t controller, size_t& size);
+    TinyCLR_Result(*SetWriteBufferSize)(const TinyCLR_Can_Provider* self, int32_t controller, size_t size);
+    TinyCLR_Result(*GetControllerCount)(const TinyCLR_Can_Provider* self, int32_t& count);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -410,17 +410,17 @@ struct TinyCLR_Can_Provider {
 ////////////////////////////////////////////////////////////////////////////////
 struct TinyCLR_Dac_Provider {
     const TinyCLR_Api_Info* Parent;
-    size_t Index;
 
-    TinyCLR_Result(*Acquire)(const TinyCLR_Dac_Provider* self);
-    TinyCLR_Result(*Release)(const TinyCLR_Dac_Provider* self);
-    TinyCLR_Result(*AcquireChannel)(const TinyCLR_Dac_Provider* self, int32_t channel);
-    TinyCLR_Result(*ReleaseChannel)(const TinyCLR_Dac_Provider* self, int32_t channel);
-    TinyCLR_Result(*WriteValue)(const TinyCLR_Dac_Provider* self, int32_t channel, int32_t value);
-    int32_t(*GetMinValue)(const TinyCLR_Dac_Provider* self);
-    int32_t(*GetMaxValue)(const TinyCLR_Dac_Provider* self);
-    int32_t(*GetResolutionInBits)(const TinyCLR_Dac_Provider* self);
-    int32_t(*GetChannelCount)(const TinyCLR_Dac_Provider* self);
+    TinyCLR_Result(*Acquire)(const TinyCLR_Dac_Provider* self, int32_t controller);
+    TinyCLR_Result(*Release)(const TinyCLR_Dac_Provider* self, int32_t controller);
+    TinyCLR_Result(*AcquireChannel)(const TinyCLR_Dac_Provider* self, int32_t controller, int32_t channel);
+    TinyCLR_Result(*ReleaseChannel)(const TinyCLR_Dac_Provider* self, int32_t controller, int32_t channel);
+    TinyCLR_Result(*WriteValue)(const TinyCLR_Dac_Provider* self, int32_t controller, int32_t channel, int32_t value);
+    int32_t(*GetMinValue)(const TinyCLR_Dac_Provider* self, int32_t controller);
+    int32_t(*GetMaxValue)(const TinyCLR_Dac_Provider* self, int32_t controller);
+    int32_t(*GetResolutionInBits)(const TinyCLR_Dac_Provider* self, int32_t controller);
+    int32_t(*GetChannelCount)(const TinyCLR_Dac_Provider* self, int32_t controller);
+    TinyCLR_Result(*GetControllerCount)(const TinyCLR_Dac_Provider* self, int32_t& count);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -456,17 +456,17 @@ struct TinyCLR_Display_SpiConfiguration {
 
 struct TinyCLR_Display_Provider {
     const TinyCLR_Api_Info* Parent;
-    size_t Index;
 
-    TinyCLR_Result(*Acquire)(const TinyCLR_Display_Provider* self);
-    TinyCLR_Result(*Release)(const TinyCLR_Display_Provider* self);
-    TinyCLR_Result(*GetCapabilities)(const TinyCLR_Display_Provider* self, TinyCLR_Display_InterfaceType& type, const TinyCLR_Display_DataFormat*& supportedDataFormats, size_t& supportedDataFormatCount);
-    TinyCLR_Result(*GetConfiguration)(const TinyCLR_Display_Provider* self, TinyCLR_Display_DataFormat& dataFormat, uint32_t& width, uint32_t& height, void* configuration);
-    TinyCLR_Result(*SetConfiguration)(const TinyCLR_Display_Provider* self, TinyCLR_Display_DataFormat dataFormat, uint32_t width, uint32_t height, const void* configuration);
-    TinyCLR_Result(*DrawBuffer)(const TinyCLR_Display_Provider* self, int32_t x, int32_t y, int32_t width, int32_t height, const uint8_t* data);
-    TinyCLR_Result(*WriteString)(const TinyCLR_Display_Provider* self, const char* data, size_t length);
-    TinyCLR_Result(*Enable)(const TinyCLR_Display_Provider* self);
-    TinyCLR_Result(*Disable)(const TinyCLR_Display_Provider* self);
+    TinyCLR_Result(*Acquire)(const TinyCLR_Display_Provider* self, int32_t controller);
+    TinyCLR_Result(*Release)(const TinyCLR_Display_Provider* self, int32_t controller);
+    TinyCLR_Result(*GetCapabilities)(const TinyCLR_Display_Provider* self, int32_t controller, TinyCLR_Display_InterfaceType& type, const TinyCLR_Display_DataFormat*& supportedDataFormats, size_t& supportedDataFormatCount);
+    TinyCLR_Result(*GetConfiguration)(const TinyCLR_Display_Provider* self, int32_t controller, TinyCLR_Display_DataFormat& dataFormat, uint32_t& width, uint32_t& height, void* configuration);
+    TinyCLR_Result(*SetConfiguration)(const TinyCLR_Display_Provider* self, int32_t controller, TinyCLR_Display_DataFormat dataFormat, uint32_t width, uint32_t height, const void* configuration);
+    TinyCLR_Result(*DrawBuffer)(const TinyCLR_Display_Provider* self, int32_t controller, int32_t x, int32_t y, int32_t width, int32_t height, const uint8_t* data);
+    TinyCLR_Result(*WriteString)(const TinyCLR_Display_Provider* self, int32_t controller, const char* data, size_t length);
+    TinyCLR_Result(*Enable)(const TinyCLR_Display_Provider* self, int32_t controller);
+    TinyCLR_Result(*Disable)(const TinyCLR_Display_Provider* self, int32_t controller);
+    TinyCLR_Result(*GetControllerCount)(const TinyCLR_Display_Provider* self, int32_t& count);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -490,25 +490,25 @@ enum class TinyCLR_Gpio_PinValue : uint32_t {
 
 struct TinyCLR_Gpio_Provider;
 
-typedef void(*TinyCLR_Gpio_ValueChangedHandler)(const TinyCLR_Gpio_Provider* self, int32_t pin, TinyCLR_Gpio_PinValue value);
+typedef void(*TinyCLR_Gpio_ValueChangedHandler)(const TinyCLR_Gpio_Provider* self, int32_t controller, int32_t pin, TinyCLR_Gpio_PinValue value);
 
 struct TinyCLR_Gpio_Provider {
     const TinyCLR_Api_Info* Parent;
-    size_t Index;
 
-    TinyCLR_Result(*Acquire)(const TinyCLR_Gpio_Provider* self);
-    TinyCLR_Result(*Release)(const TinyCLR_Gpio_Provider* self);
-    TinyCLR_Result(*AcquirePin)(const TinyCLR_Gpio_Provider* self, int32_t pin);
-    TinyCLR_Result(*ReleasePin)(const TinyCLR_Gpio_Provider* self, int32_t pin);
-    TinyCLR_Result(*Read)(const TinyCLR_Gpio_Provider* self, int32_t pin, TinyCLR_Gpio_PinValue& value);
-    TinyCLR_Result(*Write)(const TinyCLR_Gpio_Provider* self, int32_t pin, TinyCLR_Gpio_PinValue value);
-    bool(*IsDriveModeSupported)(const TinyCLR_Gpio_Provider* self, int32_t pin, TinyCLR_Gpio_PinDriveMode mode);
-    TinyCLR_Gpio_PinDriveMode(*GetDriveMode)(const TinyCLR_Gpio_Provider* self, int32_t pin);
-    TinyCLR_Result(*SetDriveMode)(const TinyCLR_Gpio_Provider* self, int32_t pin, TinyCLR_Gpio_PinDriveMode mode);
-    int32_t(*GetDebounceTimeout)(const TinyCLR_Gpio_Provider* self, int32_t pin);
-    TinyCLR_Result(*SetDebounceTimeout)(const TinyCLR_Gpio_Provider* self, int32_t pin, int32_t debounceMilliseconds);
-    TinyCLR_Result(*SetValueChangedHandler)(const TinyCLR_Gpio_Provider* self, int32_t pin, TinyCLR_Gpio_ValueChangedHandler handler);
-    int32_t(*GetPinCount)(const TinyCLR_Gpio_Provider* self);
+    TinyCLR_Result(*Acquire)(const TinyCLR_Gpio_Provider* self, int32_t controller);
+    TinyCLR_Result(*Release)(const TinyCLR_Gpio_Provider* self, int32_t controller);
+    TinyCLR_Result(*AcquirePin)(const TinyCLR_Gpio_Provider* self, int32_t controller, int32_t pin);
+    TinyCLR_Result(*ReleasePin)(const TinyCLR_Gpio_Provider* self, int32_t controller, int32_t pin);
+    TinyCLR_Result(*Read)(const TinyCLR_Gpio_Provider* self, int32_t controller, int32_t pin, TinyCLR_Gpio_PinValue& value);
+    TinyCLR_Result(*Write)(const TinyCLR_Gpio_Provider* self, int32_t controller, int32_t pin, TinyCLR_Gpio_PinValue value);
+    bool(*IsDriveModeSupported)(const TinyCLR_Gpio_Provider* self, int32_t controller, int32_t pin, TinyCLR_Gpio_PinDriveMode mode);
+    TinyCLR_Gpio_PinDriveMode(*GetDriveMode)(const TinyCLR_Gpio_Provider* self, int32_t controller, int32_t pin);
+    TinyCLR_Result(*SetDriveMode)(const TinyCLR_Gpio_Provider* self, int32_t controller, int32_t pin, TinyCLR_Gpio_PinDriveMode mode);
+    uint64_t(*GetDebounceTimeout)(const TinyCLR_Gpio_Provider* self, int32_t controller, int32_t pin);
+    TinyCLR_Result(*SetDebounceTimeout)(const TinyCLR_Gpio_Provider* self, int32_t controller, int32_t pin, uint64_t debounceTicks);
+    TinyCLR_Result(*SetValueChangedHandler)(const TinyCLR_Gpio_Provider* self, int32_t controller, int32_t pin, TinyCLR_Gpio_ValueChangedHandler handler);
+    int32_t(*GetPinCount)(const TinyCLR_Gpio_Provider* self, int32_t controller);
+    TinyCLR_Result(*GetControllerCount)(const TinyCLR_Gpio_Provider* self, int32_t& count);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -529,14 +529,14 @@ enum class TinyCLR_I2c_TransferStatus : uint32_t {
 
 struct TinyCLR_I2c_Provider {
     const TinyCLR_Api_Info* Parent;
-    size_t Index;
 
-    TinyCLR_Result(*Acquire)(const TinyCLR_I2c_Provider* self);
-    TinyCLR_Result(*Release)(const TinyCLR_I2c_Provider* self);
-    TinyCLR_Result(*SetActiveSettings)(const TinyCLR_I2c_Provider* self, int32_t slaveAddress, TinyCLR_I2c_BusSpeed busSpeed);
-    TinyCLR_Result(*Read)(const TinyCLR_I2c_Provider* self, uint8_t* buffer, size_t& length, TinyCLR_I2c_TransferStatus& result);
-    TinyCLR_Result(*Write)(const TinyCLR_I2c_Provider* self, const uint8_t* buffer, size_t& length, TinyCLR_I2c_TransferStatus& result);
-    TinyCLR_Result(*WriteRead)(const TinyCLR_I2c_Provider* self, const uint8_t* writeBuffer, size_t& writeLength, uint8_t* readBuffer, size_t& readLength, TinyCLR_I2c_TransferStatus& result);
+    TinyCLR_Result(*Acquire)(const TinyCLR_I2c_Provider* self, int32_t controller);
+    TinyCLR_Result(*Release)(const TinyCLR_I2c_Provider* self, int32_t controller);
+    TinyCLR_Result(*SetActiveSettings)(const TinyCLR_I2c_Provider* self, int32_t controller, int32_t slaveAddress, TinyCLR_I2c_BusSpeed busSpeed);
+    TinyCLR_Result(*Read)(const TinyCLR_I2c_Provider* self, int32_t controller, uint8_t* buffer, size_t& length, TinyCLR_I2c_TransferStatus& result);
+    TinyCLR_Result(*Write)(const TinyCLR_I2c_Provider* self, int32_t controller, const uint8_t* buffer, size_t& length, TinyCLR_I2c_TransferStatus& result);
+    TinyCLR_Result(*WriteRead)(const TinyCLR_I2c_Provider* self, int32_t controller, const uint8_t* writeBuffer, size_t& writeLength, uint8_t* readBuffer, size_t& readLength, TinyCLR_I2c_TransferStatus& result);
+    TinyCLR_Result(*GetControllerCount)(const TinyCLR_I2c_Provider* self, int32_t& count);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -544,19 +544,19 @@ struct TinyCLR_I2c_Provider {
 ////////////////////////////////////////////////////////////////////////////////
 struct TinyCLR_Pwm_Provider {
     const TinyCLR_Api_Info* Parent;
-    size_t Index;
 
-    TinyCLR_Result(*Acquire)(const TinyCLR_Pwm_Provider* self);
-    TinyCLR_Result(*Release)(const TinyCLR_Pwm_Provider* self);
-    TinyCLR_Result(*AcquirePin)(const TinyCLR_Pwm_Provider* self, int32_t pin);
-    TinyCLR_Result(*ReleasePin)(const TinyCLR_Pwm_Provider* self, int32_t pin);
-    TinyCLR_Result(*EnablePin)(const TinyCLR_Pwm_Provider* self, int32_t pin);
-    TinyCLR_Result(*DisablePin)(const TinyCLR_Pwm_Provider* self, int32_t pin);
-    TinyCLR_Result(*SetPulseParameters)(const TinyCLR_Pwm_Provider* self, int32_t pin, double dutyCycle, bool invertPolarity);
-    TinyCLR_Result(*SetDesiredFrequency)(const TinyCLR_Pwm_Provider* self, double& frequency);
-    double(*GetMinFrequency)(const TinyCLR_Pwm_Provider* self);
-    double(*GetMaxFrequency)(const TinyCLR_Pwm_Provider* self);
-    int32_t(*GetPinCount)(const TinyCLR_Pwm_Provider* self);
+    TinyCLR_Result(*Acquire)(const TinyCLR_Pwm_Provider* self, int32_t controller);
+    TinyCLR_Result(*Release)(const TinyCLR_Pwm_Provider* self, int32_t controller);
+    TinyCLR_Result(*AcquirePin)(const TinyCLR_Pwm_Provider* self, int32_t controller, int32_t pin);
+    TinyCLR_Result(*ReleasePin)(const TinyCLR_Pwm_Provider* self, int32_t controller, int32_t pin);
+    TinyCLR_Result(*EnablePin)(const TinyCLR_Pwm_Provider* self, int32_t controller, int32_t pin);
+    TinyCLR_Result(*DisablePin)(const TinyCLR_Pwm_Provider* self, int32_t controller, int32_t pin);
+    TinyCLR_Result(*SetPulseParameters)(const TinyCLR_Pwm_Provider* self, int32_t controller, int32_t pin, double dutyCycle, bool invertPolarity);
+    TinyCLR_Result(*SetDesiredFrequency)(const TinyCLR_Pwm_Provider* self, int32_t controller, double& frequency);
+    double(*GetMinFrequency)(const TinyCLR_Pwm_Provider* self, int32_t controller);
+    double(*GetMaxFrequency)(const TinyCLR_Pwm_Provider* self, int32_t controller);
+    int32_t(*GetPinCount)(const TinyCLR_Pwm_Provider* self, int32_t controller);
+    TinyCLR_Result(*GetControllerCount)(const TinyCLR_Pwm_Provider* self, int32_t& count);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -576,12 +576,27 @@ struct TinyCLR_Rtc_DateTime {
 
 struct TinyCLR_Rtc_Provider {
     const TinyCLR_Api_Info* Parent;
-    size_t Index;
 
     TinyCLR_Result(*Acquire)(const TinyCLR_Rtc_Provider* self);
     TinyCLR_Result(*Release)(const TinyCLR_Rtc_Provider* self);
     TinyCLR_Result(*GetNow)(const TinyCLR_Rtc_Provider* self, TinyCLR_Rtc_DateTime& value);
     TinyCLR_Result(*SetNow)(const TinyCLR_Rtc_Provider* self, TinyCLR_Rtc_DateTime value);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//SD Card
+////////////////////////////////////////////////////////////////////////////////
+struct TinyCLR_SdCard_Provider {
+    const TinyCLR_Api_Info* Parent;
+
+    TinyCLR_Result(*Acquire)(const TinyCLR_SdCard_Provider* self, int32_t controller);
+    TinyCLR_Result(*Release)(const TinyCLR_SdCard_Provider* self, int32_t controller);
+    TinyCLR_Result(*GetControllerCount)(const TinyCLR_SdCard_Provider* self, int32_t& count);
+    TinyCLR_Result(*ReadSectors)(const TinyCLR_SdCard_Provider* self, int32_t controller, uint64_t sector, size_t& count, uint8_t* data, int32_t timeout);
+    TinyCLR_Result(*WriteSectors)(const TinyCLR_SdCard_Provider* self, int32_t controller, uint64_t sector, size_t& count, const uint8_t* data, int32_t timeout);
+    TinyCLR_Result(*EraseSectors)(const TinyCLR_SdCard_Provider* self, int32_t controller, uint64_t sector, size_t& count, int32_t timeout);
+    TinyCLR_Result(*IsSectorErased)(const TinyCLR_SdCard_Provider* self, int32_t controller, uint64_t sector, bool& erased);
+    TinyCLR_Result(*GetSectorMap)(const TinyCLR_SdCard_Provider* self, int32_t controller, const size_t*& sizes, size_t& count, bool& isUniform);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -596,19 +611,19 @@ enum class TinyCLR_Spi_Mode : uint32_t {
 
 struct TinyCLR_Spi_Provider {
     const TinyCLR_Api_Info* Parent;
-    size_t Index;
 
-    TinyCLR_Result(*Acquire)(const TinyCLR_Spi_Provider* self);
-    TinyCLR_Result(*Release)(const TinyCLR_Spi_Provider* self);
-    TinyCLR_Result(*SetActiveSettings)(const TinyCLR_Spi_Provider* self, int32_t chipSelectLine, int32_t clockFrequency, int32_t dataBitLength, TinyCLR_Spi_Mode mode);
-    TinyCLR_Result(*Read)(const TinyCLR_Spi_Provider* self, uint8_t* buffer, size_t& length);
-    TinyCLR_Result(*Write)(const TinyCLR_Spi_Provider* self, const uint8_t* buffer, size_t& length);
-    TinyCLR_Result(*TransferFullDuplex)(const TinyCLR_Spi_Provider* self, const uint8_t* writeBuffer, size_t& writeLength, uint8_t* readBuffer, size_t& readLength);
-    TinyCLR_Result(*TransferSequential)(const TinyCLR_Spi_Provider* self, const uint8_t* writeBuffer, size_t& writeLength, uint8_t* readBuffer, size_t& readLength);
-    int32_t(*GetChipSelectLineCount)(const TinyCLR_Spi_Provider* self);
-    int32_t(*GetMinClockFrequency)(const TinyCLR_Spi_Provider* self);
-    int32_t(*GetMaxClockFrequency)(const TinyCLR_Spi_Provider* self);
-    TinyCLR_Result(*GetSupportedDataBitLengths)(const TinyCLR_Spi_Provider* self, int32_t* dataBitLengths, size_t& dataBitLengthsCount);
+    TinyCLR_Result(*Acquire)(const TinyCLR_Spi_Provider* self, int32_t controller);
+    TinyCLR_Result(*Release)(const TinyCLR_Spi_Provider* self, int32_t controller);
+    TinyCLR_Result(*SetActiveSettings)(const TinyCLR_Spi_Provider* self, int32_t controller, int32_t chipSelectLine, int32_t clockFrequency, int32_t dataBitLength, TinyCLR_Spi_Mode mode);
+    TinyCLR_Result(*Read)(const TinyCLR_Spi_Provider* self, int32_t controller, uint8_t* buffer, size_t& length);
+    TinyCLR_Result(*Write)(const TinyCLR_Spi_Provider* self, int32_t controller, const uint8_t* buffer, size_t& length);
+    TinyCLR_Result(*TransferFullDuplex)(const TinyCLR_Spi_Provider* self, int32_t controller, const uint8_t* writeBuffer, size_t& writeLength, uint8_t* readBuffer, size_t& readLength);
+    TinyCLR_Result(*TransferSequential)(const TinyCLR_Spi_Provider* self, int32_t controller, const uint8_t* writeBuffer, size_t& writeLength, uint8_t* readBuffer, size_t& readLength);
+    int32_t(*GetChipSelectLineCount)(const TinyCLR_Spi_Provider* self, int32_t controller);
+    int32_t(*GetMinClockFrequency)(const TinyCLR_Spi_Provider* self, int32_t controller);
+    int32_t(*GetMaxClockFrequency)(const TinyCLR_Spi_Provider* self, int32_t controller);
+    TinyCLR_Result(*GetSupportedDataBitLengths)(const TinyCLR_Spi_Provider* self, int32_t controller, int32_t* dataBitLengths, size_t& dataBitLengthsCount);
+    TinyCLR_Result(*GetControllerCount)(const TinyCLR_Spi_Provider* self, int32_t& count);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -653,89 +668,145 @@ enum class TinyCLR_Uart_Error : uint32_t {
 
 struct TinyCLR_Uart_Provider;
 
-typedef void(*TinyCLR_Uart_PinChangedHandler)(const TinyCLR_Uart_Provider* self, TinyCLR_Uart_PinChange pinChange);
-typedef void(*TinyCLR_Uart_ErrorReceivedHandler)(const TinyCLR_Uart_Provider* self, TinyCLR_Uart_Error error);
-typedef void(*TinyCLR_Uart_DataReceivedHandler)(const TinyCLR_Uart_Provider* self, size_t count);
+typedef void(*TinyCLR_Uart_PinChangedHandler)(const TinyCLR_Uart_Provider* self, int32_t controller, TinyCLR_Uart_PinChange pinChange);
+typedef void(*TinyCLR_Uart_ErrorReceivedHandler)(const TinyCLR_Uart_Provider* self, int32_t controller, TinyCLR_Uart_Error error);
+typedef void(*TinyCLR_Uart_DataReceivedHandler)(const TinyCLR_Uart_Provider* self, int32_t controller, size_t count);
 
 struct TinyCLR_Uart_Provider {
     const TinyCLR_Api_Info* Parent;
     size_t Index;
 
-    TinyCLR_Result(*Acquire)(const TinyCLR_Uart_Provider* self);
-    TinyCLR_Result(*Release)(const TinyCLR_Uart_Provider* self);
-    TinyCLR_Result(*SetActiveSettings)(const TinyCLR_Uart_Provider* self, uint32_t baudRate, uint32_t dataBits, TinyCLR_Uart_Parity parity, TinyCLR_Uart_StopBitCount stopBits, TinyCLR_Uart_Handshake handshaking);
-    TinyCLR_Result(*Flush)(const TinyCLR_Uart_Provider* self);
-    TinyCLR_Result(*Read)(const TinyCLR_Uart_Provider* self, uint8_t* buffer, size_t& length);
-    TinyCLR_Result(*Write)(const TinyCLR_Uart_Provider* self, const uint8_t* buffer, size_t& length);
-    TinyCLR_Result(*SetPinChangedHandler)(const TinyCLR_Uart_Provider* self, TinyCLR_Uart_PinChangedHandler handler);
-    TinyCLR_Result(*SetErrorReceivedHandler)(const TinyCLR_Uart_Provider* self, TinyCLR_Uart_ErrorReceivedHandler handler);
-    TinyCLR_Result(*SetDataReceivedHandler)(const TinyCLR_Uart_Provider* self, TinyCLR_Uart_DataReceivedHandler handler);
-    TinyCLR_Result(*GetBreakSignalState)(const TinyCLR_Uart_Provider* self, bool& state);
-    TinyCLR_Result(*SetBreakSignalState)(const TinyCLR_Uart_Provider* self, bool state);
-    TinyCLR_Result(*GetCarrierDetectState)(const TinyCLR_Uart_Provider* self, bool& state);
-    TinyCLR_Result(*GetClearToSendState)(const TinyCLR_Uart_Provider* self, bool& state);
-    TinyCLR_Result(*GetDataReadyState)(const TinyCLR_Uart_Provider* self, bool& state);
-    TinyCLR_Result(*GetIsDataTerminalReadyEnabled)(const TinyCLR_Uart_Provider* self, bool& state);
-    TinyCLR_Result(*SetIsDataTerminalReadyEnabled)(const TinyCLR_Uart_Provider* self, bool state);
-    TinyCLR_Result(*GetIsRequestToSendEnabled)(const TinyCLR_Uart_Provider* self, bool& state);
-    TinyCLR_Result(*SetIsRequestToSendEnabled)(const TinyCLR_Uart_Provider* self, bool state);
-    TinyCLR_Result(*GetReadBufferSize)(const TinyCLR_Uart_Provider* self, size_t& size);
-    TinyCLR_Result(*SetReadBufferSize)(const TinyCLR_Uart_Provider* self, size_t size);
-    TinyCLR_Result(*GetWriteBufferSize)(const TinyCLR_Uart_Provider* self, size_t& size);
-    TinyCLR_Result(*SetWriteBufferSize)(const TinyCLR_Uart_Provider* self, size_t size);
+    TinyCLR_Result(*Acquire)(const TinyCLR_Uart_Provider* self, int32_t controller);
+    TinyCLR_Result(*Release)(const TinyCLR_Uart_Provider* self, int32_t controller);
+    TinyCLR_Result(*SetActiveSettings)(const TinyCLR_Uart_Provider* self, int32_t controller, uint32_t baudRate, uint32_t dataBits, TinyCLR_Uart_Parity parity, TinyCLR_Uart_StopBitCount stopBits, TinyCLR_Uart_Handshake handshaking);
+    TinyCLR_Result(*Flush)(const TinyCLR_Uart_Provider* self, int32_t controller);
+    TinyCLR_Result(*Read)(const TinyCLR_Uart_Provider* self, int32_t controller, uint8_t* buffer, size_t& length);
+    TinyCLR_Result(*Write)(const TinyCLR_Uart_Provider* self, int32_t controller, const uint8_t* buffer, size_t& length);
+    TinyCLR_Result(*SetPinChangedHandler)(const TinyCLR_Uart_Provider* self, int32_t controller, TinyCLR_Uart_PinChangedHandler handler);
+    TinyCLR_Result(*SetErrorReceivedHandler)(const TinyCLR_Uart_Provider* self, int32_t controller, TinyCLR_Uart_ErrorReceivedHandler handler);
+    TinyCLR_Result(*SetDataReceivedHandler)(const TinyCLR_Uart_Provider* self, int32_t controller, TinyCLR_Uart_DataReceivedHandler handler);
+    TinyCLR_Result(*GetBreakSignalState)(const TinyCLR_Uart_Provider* self, int32_t controller, bool& state);
+    TinyCLR_Result(*SetBreakSignalState)(const TinyCLR_Uart_Provider* self, int32_t controller, bool state);
+    TinyCLR_Result(*GetCarrierDetectState)(const TinyCLR_Uart_Provider* self, int32_t controller, bool& state);
+    TinyCLR_Result(*GetClearToSendState)(const TinyCLR_Uart_Provider* self, int32_t controller, bool& state);
+    TinyCLR_Result(*GetDataReadyState)(const TinyCLR_Uart_Provider* self, int32_t controller, bool& state);
+    TinyCLR_Result(*GetIsDataTerminalReadyEnabled)(const TinyCLR_Uart_Provider* self, int32_t controller, bool& state);
+    TinyCLR_Result(*SetIsDataTerminalReadyEnabled)(const TinyCLR_Uart_Provider* self, int32_t controller, bool state);
+    TinyCLR_Result(*GetIsRequestToSendEnabled)(const TinyCLR_Uart_Provider* self, int32_t controller, bool& state);
+    TinyCLR_Result(*SetIsRequestToSendEnabled)(const TinyCLR_Uart_Provider* self, int32_t controller, bool state);
+    TinyCLR_Result(*GetReadBufferSize)(const TinyCLR_Uart_Provider* self, int32_t controller, size_t& size);
+    TinyCLR_Result(*SetReadBufferSize)(const TinyCLR_Uart_Provider* self, int32_t controller, size_t size);
+    TinyCLR_Result(*GetWriteBufferSize)(const TinyCLR_Uart_Provider* self, int32_t controller, size_t& size);
+    TinyCLR_Result(*SetWriteBufferSize)(const TinyCLR_Uart_Provider* self, int32_t controller, size_t size);
+    TinyCLR_Result(*GetUnreadCount)(const TinyCLR_Uart_Provider* self, int32_t controller, size_t& count);
+    TinyCLR_Result(*GetUnwrittenCount)(const TinyCLR_Uart_Provider* self, int32_t controller, size_t& count);
+    TinyCLR_Result(*ClearReadBuffer)(const TinyCLR_Uart_Provider* self, int32_t controller);
+    TinyCLR_Result(*ClearWriteBuffer)(const TinyCLR_Uart_Provider* self, int32_t controller);
+    TinyCLR_Result(*GetControllerCount)(const TinyCLR_Uart_Provider* self, int32_t& count);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 //USB Client
 ////////////////////////////////////////////////////////////////////////////////
 struct TinyCLR_UsbClient_Provider;
+struct TinyCLR_UsbClient_ConfigurationDescriptor;
+struct TinyCLR_UsbClient_InterfaceDescriptor;
+struct TinyCLR_UsbClient_EndpointDescriptor;
+struct TinyCLR_UsbClient_StringDescriptor;
 
-enum class TinyCLR_UsbClient_PipeMode : uint32_t {
-    In = 0,
-    Out = 1,
-    InOut = 2,
+struct TinyCLR_UsbClient_VendorClassDescriptor {
+    uint8_t Length;
+    uint8_t Type;
+    const uint8_t* Payload;
 };
 
-enum class TinyCLR_UsbClient_EndpointAttribute : uint32_t {
-    Isochronous = 0,
-    Bulk = 1,
-    Interrupt = 2,
+struct TinyCLR_UsbClient_DeviceDescriptor {
+    uint16_t UsbVersion;
+    uint8_t ClassCode;
+    uint8_t SubClassCode;
+    uint8_t ProtocolCode;
+    uint8_t MaxPacketSizeEp0;
+    uint16_t VendorId;
+    uint16_t ProductId;
+    uint16_t DeviceVersion;
+    uint8_t ManufacturerNameIndex;
+    uint8_t ProductNameIndex;
+    uint8_t SerialNumberIndex;
+    uint8_t ConfigurationCount;
+    uint8_t StringCount;
+
+    const TinyCLR_UsbClient_ConfigurationDescriptor* Configurations;
+    const TinyCLR_UsbClient_StringDescriptor* Strings;
 };
 
-enum class TinyCLR_UsbClient_StringDescriptorType : uint32_t {
-    ManufacturerName = 0,
-    ProductName = 1,
-    DisplayName = 2,
-    FriendlyName = 3,
+struct TinyCLR_UsbClient_ConfigurationDescriptor {
+    uint16_t TotalLength;
+    uint8_t InterfaceCount;
+    uint8_t ConfigurationValue;
+    uint8_t DescriptionIndex;
+    uint8_t Attributes;
+    uint8_t MaxPower;
+    uint8_t VendorClassDescriptorCount;
+
+    const TinyCLR_UsbClient_InterfaceDescriptor* Interfaces;
+    const TinyCLR_UsbClient_VendorClassDescriptor* VendorClassDescriptors;
 };
 
-typedef void(*TinyCLR_UsbClient_DataReceivedHandler)(const TinyCLR_UsbClient_Provider* self);
-typedef void(*TinyCLR_UsbClient_OsExtendedPropertyHandler)(const TinyCLR_UsbClient_Provider* self, uint8_t*& osString, uint8_t*& osXCompatibleId, uint8_t*& osXPropertiesWinUsb);
+struct TinyCLR_UsbClient_InterfaceDescriptor {
+    uint8_t InterfaceNumber;
+    uint8_t AlternateSetting;
+    uint8_t EndpointCount;
+    uint8_t ClassCode;
+    uint8_t SubClassCode;
+    uint8_t ProtocolCode;
+    uint8_t DescriptionIndex;
+    uint8_t VendorClassDescriptorCount;
+
+    const TinyCLR_UsbClient_EndpointDescriptor* Endpoints;
+    const TinyCLR_UsbClient_VendorClassDescriptor* VendorClassDescriptors;
+};
+
+struct TinyCLR_UsbClient_EndpointDescriptor {
+    uint8_t Address;
+    uint8_t Attributes;
+    uint16_t MaxPacketSize;
+    uint8_t Interval;
+    uint8_t VendorClassDescriptorCount;
+
+    const TinyCLR_UsbClient_VendorClassDescriptor* VendorClassDescriptors;
+};
+
+struct TinyCLR_UsbClient_StringDescriptor {
+    uint8_t Length;
+    uint8_t Index;
+
+    const wchar_t* Data;
+};
+
+struct TinyCLR_UsbClient_SetupPacket {
+    uint8_t RequestType;
+    uint8_t Request;
+    uint16_t Value;
+    uint16_t Index;
+    uint16_t Length;
+};
+
+typedef void(*TinyCLR_UsbClient_DataReceivedHandler)(const TinyCLR_UsbClient_Provider* self, int32_t controller);
+typedef TinyCLR_Result(*TinyCLR_UsbClient_RequestHandler)(const TinyCLR_UsbClient_Provider* self, int32_t controller, const TinyCLR_UsbClient_SetupPacket* setupPacket, const uint8_t*& responsePayload, size_t& responsePayloadLength);
 
 struct TinyCLR_UsbClient_Provider {
     const TinyCLR_Api_Info* Parent;
-    size_t Index;
 
-    TinyCLR_Result(*Acquire)(const TinyCLR_UsbClient_Provider* self);
-    TinyCLR_Result(*Release)(const TinyCLR_UsbClient_Provider* self);
-    TinyCLR_Result(*Open)(const TinyCLR_UsbClient_Provider* self, int32_t& pipe, TinyCLR_UsbClient_PipeMode mode);
-    TinyCLR_Result(*Close)(const TinyCLR_UsbClient_Provider* self, int32_t pipe);
-    TinyCLR_Result(*Write)(const TinyCLR_UsbClient_Provider* self, int32_t pipe, const uint8_t* data, size_t& length);
-    TinyCLR_Result(*Read)(const TinyCLR_UsbClient_Provider* self, int32_t pipe, uint8_t* data, size_t& length);
-    TinyCLR_Result(*Flush)(const TinyCLR_UsbClient_Provider* self, int32_t pipe);
-    TinyCLR_Result(*SetDeviceDescriptor)(const TinyCLR_UsbClient_Provider* self, const void* descriptor, int32_t length);
-    TinyCLR_Result(*SetConfigDescriptor)(const TinyCLR_UsbClient_Provider* self, const void* descriptor, int32_t length);
-    TinyCLR_Result(*SetStringDescriptor)(const TinyCLR_UsbClient_Provider* self, TinyCLR_UsbClient_StringDescriptorType type, const wchar_t* value);
-    TinyCLR_Result(*SetDataReceivedHandler)(const TinyCLR_UsbClient_Provider* self, TinyCLR_UsbClient_DataReceivedHandler handler);
-    TinyCLR_Result(*SetOsExtendedPropertyHandler)(const TinyCLR_UsbClient_Provider* self, TinyCLR_UsbClient_OsExtendedPropertyHandler handler);
-};
-
-////////////////////////////////////////////////////////////////////////////////
-//USB Host
-////////////////////////////////////////////////////////////////////////////////
-struct TinyCLR_UsbHost_Provider {
-    const TinyCLR_Api_Info* Parent;
-    size_t Index;
-
-    //TODO
+    TinyCLR_Result(*Acquire)(const TinyCLR_UsbClient_Provider* self, int32_t controller);
+    TinyCLR_Result(*Release)(const TinyCLR_UsbClient_Provider* self, int32_t controller);
+    TinyCLR_Result(*Open)(const TinyCLR_UsbClient_Provider* self, int32_t controller, int32_t& pipe, uint8_t writeEndpoint, uint8_t readEndpoint);
+    TinyCLR_Result(*Close)(const TinyCLR_UsbClient_Provider* self, int32_t controller, int32_t pipe);
+    TinyCLR_Result(*Write)(const TinyCLR_UsbClient_Provider* self, int32_t controller, int32_t pipe, const uint8_t* data, size_t& length);
+    TinyCLR_Result(*Read)(const TinyCLR_UsbClient_Provider* self, int32_t controller, int32_t pipe, uint8_t* data, size_t& length);
+    TinyCLR_Result(*Flush)(const TinyCLR_UsbClient_Provider* self, int32_t controller, int32_t pipe);
+    TinyCLR_Result(*SetDeviceDescriptor)(const TinyCLR_UsbClient_Provider* self, int32_t controller, const TinyCLR_UsbClient_DeviceDescriptor* descriptor);
+    TinyCLR_Result(*SetGetDescriptorHandler)(const TinyCLR_UsbClient_Provider* self, int32_t controller, TinyCLR_UsbClient_RequestHandler handler);
+    TinyCLR_Result(*SetVendorClassRequestHandler)(const TinyCLR_UsbClient_Provider* self, int32_t controller, TinyCLR_UsbClient_RequestHandler handler);
+    TinyCLR_Result(*SetDataReceivedHandler)(const TinyCLR_UsbClient_Provider* self, int32_t controller, TinyCLR_UsbClient_DataReceivedHandler handler);
+    TinyCLR_Result(*GetControllerCount)(const TinyCLR_UsbClient_Provider* self, int32_t& count);
 };

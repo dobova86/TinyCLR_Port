@@ -17,7 +17,7 @@
 #define DEVICE_TARGET LPC24
 #define DEVICE_NAME "EMX"
 #define DEVICE_MANUFACTURER "GHI Electronics, LLC"
-#define DEVICE_VERSION ((0ULL << 48) | (10ULL << 32) | (0ULL << 16) | (0ULL << 0))
+#define DEVICE_VERSION ((0ULL << 48) | (12ULL << 32) | (0ULL << 16) | (0ULL << 0))
 
 #define USB_DEBUGGER_VENDOR_ID 0x1B9F
 #define USB_DEBUGGER_PRODUCT_ID 0x5004
@@ -41,7 +41,7 @@
 
 #define INCLUDE_GPIO
 #define LPC24_GPIO_PINS {/*      0          1          2          3          4          5          6          7          8          9          10         11         12         13         14         15         16         17         18         19         20         21         22         23         24         25         26         27         28         29         30         31      */\
-                         /*P0x*/ DEFAULT(), DEFAULT(), NO_INIT(), NO_INIT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), NO_INIT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), NO_INIT(),\
+                         /*P0x*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(),\
                          /*P1x*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(),\
                          /*P2x*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), NO_INIT(), NO_INIT(), NO_INIT(), DEFAULT(), NO_INIT(), DEFAULT(), DEFAULT(), DEFAULT(), NO_INIT(), DEFAULT(), DEFAULT(), DEFAULT(), NO_INIT(), NO_INIT(), DEFAULT(), DEFAULT(),\
                          /*P3x*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(),\
@@ -74,11 +74,22 @@
 
 #define INCLUDE_RTC
 
+#define INCLUDE_SD
+#define LPC24_SD_DATA0_PINS { { PIN(1, 6), PF(2) } }
+#define LPC24_SD_DATA1_PINS { { PIN(1, 7), PF(2) } }
+#define LPC24_SD_DATA2_PINS { { PIN(1, 11), PF(2) } }
+#define LPC24_SD_DATA3_PINS { { PIN(1, 12), PF(2) } }
+#define LPC24_SD_CLK_PINS { { PIN(1, 2), PF(2) } }
+#define LPC24_SD_CMD_PINS { { PIN(1, 3), PF(2) } }
+#define LPC24_SD_PWR_PINS  { { PIN(1, 5), PF(0) } }
+
 #define INCLUDE_SPI
 #define TOTAL_SPI_CONTROLLERS 2
 #define LPC24_SPI_SCLK_PINS { { PIN(0, 15), PF(2) }, { PIN(0,  7), PF(2) } }
 #define LPC24_SPI_MISO_PINS { { PIN(0, 17), PF(2) }, { PIN(0,  8), PF(2) } }
 #define LPC24_SPI_MOSI_PINS { { PIN(0, 18), PF(2) }, { PIN(0,  9), PF(2) } }
+
+#define LPC24_TIME_DEFAULT_CONTROLLER_ID 0
 
 #define INCLUDE_UART
 #define TOTAL_UART_CONTROLLERS 4
@@ -90,9 +101,12 @@
 #define LPC24_UART_CTS_PINS             { { PIN_NONE , PF_NONE }, { PIN(3, 18), PF(3) }, { PIN_NONE  , PF_NONE }, { PIN_NONE  , PF_NONE } }
 
 #define INCLUDE_USBCLIENT
-#define TOTAL_USB_CONTROLLER            1
-#define LPC24_USB_QUEUE_SIZE 16
-#define LPC24_USB_FIFO_BUFFER_SIZE 64
+#define LPC24_TOTAL_USB_CONTROLLERS 1
+#define LPC24_USB_PACKET_FIFO_COUNT 64
+#define LPC24_USB_ENDPOINT_SIZE 64
+#define LPC24_USB_ENDPOINT0_SIZE 64
+#define LPC24_USB_ENDPOINT_COUNT 16
+#define LPC24_USB_PIPE_COUNT 16
 
 #define INCLUDE_DISPLAY
 #define LPC24_DISPLAY_CONTROLLER_PINS { { PIN(1, 20), PF(1) }, { PIN(1, 21), PF(1) }, { PIN(1, 22), PF(1) }, { PIN(1, 23), PF(1) }, { PIN(1, 24), PF(1) }, { PIN(1, 25), PF(1) }, { PIN(1, 26), PF(1) }, { PIN(1, 27), PF(1) }, { PIN(1, 28), PF(1)}, { PIN(1, 29), PF(1) }, { PIN(2, 2), PF(3) }, { PIN(2, 3), PF(3) }, { PIN(2, 5), PF(3) }, { PIN(2, 6), PF(3) }, { PIN(2, 7), PF(3) }, { PIN(2, 8), PF(3) }, { PIN(2, 9), PF(3) }, { PIN(2, 12), PF(1) }, { PIN(2, 13), PF(1) } }

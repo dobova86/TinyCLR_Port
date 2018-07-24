@@ -17,7 +17,23 @@
 #include "STM32F7.h"
 #include <stdio.h>
 
-void STM32F7_Startup_OnSoftReset(const TinyCLR_Api_Provider* apiProvider) {
+#ifdef USE_SDRAM_HEAP // use EXTERNAL SDRAM
+#if defined(SDRAM_32BIT)
+#define SDRAM_DATABITS	32 //FMC_SDCR1_MWID_1
+#elif defined(SDRAM_16BIT)
+#define SDRAM_DATABITS	16 //FMC_SDCR1_MWID_0
+#elif defined(SDRAM_8BIT)
+#define SDRAM_DATABITS	8
+#else
+#error "ERROR : SDRAM_32BIT,SDRAM_16BIT or SDRAM_8BIT (number of bit) for SDRAM data bus Must be defined in Device.h!"
+#endif
+extern void SDRAM_Init(uint8_t databits);
+
+#endif //USE_SDRAM_HEAP
+
+
+void STM32F7_Startup_OnSoftReset(const TinyCLR_Api_Provider* apiProvider, const TinyCLR_Interop_Provider* interopProvider) {
+
 #ifdef INCLUDE_ADC
     STM32F7_Adc_Reset();
 #endif
@@ -39,6 +55,9 @@ void STM32F7_Startup_OnSoftReset(const TinyCLR_Api_Provider* apiProvider) {
 #ifdef INCLUDE_PWM
     STM32F7_Pwm_Reset();
 #endif
+#ifdef INCLUDE_SD
+    STM32F7_SdCard_Reset();
+#endif
 #ifdef INCLUDE_SPI
     STM32F7_Spi_Reset();
 #endif
@@ -48,27 +67,16 @@ void STM32F7_Startup_OnSoftReset(const TinyCLR_Api_Provider* apiProvider) {
 #ifdef INCLUDE_USBCLIENT
     STM32F7_UsbClient_Reset();
 #endif
+
 }
 
 #ifndef FLASH
 #define FLASH               ((FLASH_TypeDef *) FLASH_R_BASE)
 #endif
 
-// SDRAM databus
-#ifdef USE_SDRAM_HEAP // use EXTERNAL SDRAM
-#if defined(SDRAM_32BIT)
-#define SDRAM_DATABITS	32 //FMC_SDCR1_MWID_1
-#elif defined(SDRAM_16BIT)
-#define SDRAM_DATABITS	16 //FMC_SDCR1_MWID_0
-#elif defined(SDRAM_8BIT)
-#define SDRAM_DATABITS	8
-#else
-#error "ERROR : SDRAM_32BIT,SDRAM_16BIT or SDRAM_8BIT (number of bit) for SDRAM data bus Must be defined in Device.h!"
-#endif
-extern void STM32F7_DebugLed(int pin, bool onoff);
-extern void SDRAM_Init(uint8_t databits);
 
-#endif
+void STM32F7_DebugLed(uint16_t pin, bool onoff);
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -273,8 +281,8 @@ extern "C" {
 #endif
 
         // allow unaligned memory access and do not enforce 8 byte stack alignment
+        //SCB->CCR &= ~(SCB_CCR_UNALIGN_TRP_Msk | SCB_CCR_STKALIGN_Msk);
 		SCB->CCR &= ~(SCB_CCR_UNALIGN_TRP_Msk);// | SCB_CCR_STKALIGN_Msk);
-
         // for clock configuration the cpu has to run on the internal 16MHz oscillator
         RCC->CR |= RCC_CR_HSION;
         while (!(RCC->CR & RCC_CR_HSIRDY));
@@ -292,21 +300,20 @@ extern "C" {
         // The prefetch buffer must not be enabled on rev A devices.
         // Rev A cannot be read from revision field (another rev A error!).
         // The wrong device field (411=F2) must be used instead!
-        if ((DBGMCU->IDCODE & 0xFF) == 0x11) {
-            FLASH->ACR |= FLASH_ACR_PRFTEN;
+        if ((DBGMCU->IDCODE & 0xFF) != 0x11) {
+            FLASH->ACR |= FLASH_ACR_PRFTEN | FLASH_ACR_LATENCY_BITS | FLASH_ACR_ARTEN;
         }
-		else {
-			FLASH->ACR |= FLASH_ACR_PRFTEN | FLASH_ACR_LATENCY_BITS | FLASH_ACR_ARTEN;
-		}
-
+		//else {
+		//	FLASH->ACR |= FLASH_ACR_PRFTEN;
+		//}
 
         // setup PLL
         RCC->PLLCFGR = RCC_PLLCFGR_PLL_BITS; // pll multipliers
         RCC->CR |= RCC_CR_PLLON;             // pll on
         while (!(RCC->CR & RCC_CR_PLLRDY));
 
+		// added by dom
 		RCC->CFGR = (RCC->CFGR & ~(RCC_CFGR_HPRE_Msk | RCC_CFGR_PPRE1_Msk | RCC_CFGR_PPRE2_Msk));
-
 
         // final clock setup
         RCC->CFGR = RCC_CFGR_SW_PLL          // sysclk = pll out (STM32F7_SYSTEM_CLOCK_HZ)
@@ -314,34 +321,31 @@ extern "C" {
             | RCC_CFGR_PPRE1_DIV_BITS  // APB1 clock
             | RCC_CFGR_PPRE2_DIV_BITS; // APB2 clock
 
-		while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);
+        // wait for PLL ready
+        while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);
 
-    // minimal peripheral clocks
-//#ifdef RCC_AHB1ENR_CCMDATARAMEN
-//        RCC->AHB1ENR |= RCC_AHB1ENR_CCMDATARAMEN; // 64k RAM (CCM)
-//#endif
-		RCC->AHB1ENR |= RCC_AHB1ENR_DTCMRAMEN;
 
+        // minimal peripheral clocks
+#ifdef RCC_AHB1ENR_DTCMRAMEN
+        RCC->AHB1ENR |= RCC_AHB1ENR_DTCMRAMEN; // 64k RAM (CCM)
+#endif
 		RCC->AHB2ENR = 0;
 		RCC->AHB3ENR = 0;
 
         RCC->APB1ENR |= RCC_APB1ENR_PWREN;    // PWR clock used for sleep;
         RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN; // SYSCFG clock used for IO;
 
+
         // stop HSI clock
 #if RCC_PLLCFGR_PLLS_BITS == RCC_PLLCFGR_PLLSRC_HSE
         RCC->CR &= ~RCC_CR_HSION;
 #endif
 
-        // remove Flash remap to Boot area to avoid problems with Monitor_Execute
-        //SYSCFG->MEMRMP = 1; // map System memory to Boot area
 
+		// remove Flash remap to Boot area to avoid problems with Monitor_Execute
+        SYSCFG->MEMRMP = 1; // map System memory to Boot area
 
-#ifdef STM32F7_Enable_RTC
-        STM32F7_RTC_Initialize(); // enable RTC
-#endif
-
-    // GPIO port A to D is always present
+        // GPIO port A to D is always present
         RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN | RCC_AHB1ENR_GPIOCEN | RCC_AHB1ENR_GPIODEN;
 
 #ifdef RCC_AHB1ENR_GPIOEEN
@@ -371,11 +375,13 @@ extern "C" {
 #ifdef RCC_AHB1ENR_GPIOKEN
         RCC->AHB1ENR |= RCC_AHB1ENR_GPIOKEN;
 #endif
+
 #ifdef USE_SDRAM_HEAP
 		// Note: SDRAM_DATABITS is set in device.h
-		SDRAM_Init(SDRAM_DATABITS); // Init MT48LC4M32 SDRAM for heap (Databits depend on hardware implementation)
+		//SDRAM_Init(SDRAM_DATABITS); // Init MT48LC4M32 SDRAM for heap (Databits depend on hardware implementation)
 #endif
 
+		//STM32F7_DebugLed(PIN(A, 12), true);
     }
 }
 
@@ -483,19 +489,31 @@ void STM32F7_Startup_Initialize() {
 
 }
 
-void STM32F7_Startup_GetDebuggerTransportProvider(const TinyCLR_Api_Info*& api, size_t& index) {
+const TinyCLR_Startup_UsbDebuggerConfiguration STM32F7_Startup_UsbDebuggerConfiguration = {
+    USB_DEBUGGER_VENDOR_ID,
+    USB_DEBUGGER_PRODUCT_ID,
+    CONCAT(L,DEVICE_MANUFACTURER),
+    CONCAT(L,DEVICE_NAME),
+    0
+};
+
+void STM32F7_Startup_GetDebuggerTransportProvider(const TinyCLR_Api_Info*& api, size_t& index, const void*& configuration) {
 #if defined(DEBUGGER_SELECTOR_PIN) && defined(DEBUGGER_SELECTOR_PULL) && defined(DEBUGGER_SELECTOR_USB_STATE)
     TinyCLR_Gpio_PinValue value;
-    auto controller = static_cast<const TinyCLR_Gpio_Provider*>(STM32F7_Gpio_GetApi()->Implementation);
 
-    controller->AcquirePin(controller, DEBUGGER_SELECTOR_PIN);
-    controller->SetDriveMode(controller, DEBUGGER_SELECTOR_PIN, DEBUGGER_SELECTOR_PULL);
-    controller->Read(controller, DEBUGGER_SELECTOR_PIN, value);
-    controller->ReleasePin(controller, DEBUGGER_SELECTOR_PIN);
+    auto provider = static_cast<const TinyCLR_Gpio_Provider*>(STM32F7_Gpio_GetApi()->Implementation);
+
+    auto gpioController = 0; //TODO Temporary set to 0
+
+    provider->AcquirePin(provider, gpioController, DEBUGGER_SELECTOR_PIN);
+    provider->SetDriveMode(provider, gpioController, DEBUGGER_SELECTOR_PIN, DEBUGGER_SELECTOR_PULL);
+    provider->Read(provider, gpioController, DEBUGGER_SELECTOR_PIN, value);
+    provider->ReleasePin(provider, gpioController, DEBUGGER_SELECTOR_PIN);
 
     if (value == DEBUGGER_SELECTOR_USB_STATE) {
         api = STM32F7_UsbClient_GetApi();
         index = USB_DEBUGGER_INDEX;
+        configuration = (const void*)&STM32F7_Startup_UsbDebuggerConfiguration;
     }
     else {
         api = STM32F7_Uart_GetApi();
@@ -512,11 +530,14 @@ void STM32F7_Startup_GetDebuggerTransportProvider(const TinyCLR_Api_Info*& api, 
 void STM32F7_Startup_GetRunApp(bool& runApp) {
 #if defined(RUN_APP_PIN) && defined(RUN_APP_PULL) && defined(RUN_APP_STATE)
     TinyCLR_Gpio_PinValue value;
-    auto controller = static_cast<const TinyCLR_Gpio_Provider*>(STM32F7_Gpio_GetApi()->Implementation);
-    controller->AcquirePin(controller, RUN_APP_PIN);
-    controller->SetDriveMode(controller, RUN_APP_PIN, RUN_APP_PULL);
-    controller->Read(controller, RUN_APP_PIN, value);
-    controller->ReleasePin(controller, RUN_APP_PIN);
+    auto provider = static_cast<const TinyCLR_Gpio_Provider*>(STM32F7_Gpio_GetApi()->Implementation);
+
+    auto gpioController = 0; //TODO Temporary set to 0
+
+    provider->AcquirePin(provider, gpioController, RUN_APP_PIN);
+    provider->SetDriveMode(provider, gpioController, RUN_APP_PIN, RUN_APP_PULL);
+    provider->Read(provider, gpioController, RUN_APP_PIN, value);
+    provider->ReleasePin(provider, gpioController, RUN_APP_PIN);
 
     runApp = value == RUN_APP_STATE;
 #elif defined(RUN_APP_FORCE_STATE)
@@ -541,4 +562,13 @@ void STM32F7_Startup_CacheDisable(void) {
     /* Enable D-Cache */
     SCB_DisableDCache();
 }
+
+void STM32F7_DebugLed(uint16_t pin, bool onoff)
+{
+	STM32F7_GpioInternal_ConfigurePin(pin, STM32F7_Gpio_PortMode::GeneralPurposeOutput, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
+	STM32F7_GpioInternal_OpenPin(pin);
+	STM32F7_GpioInternal_WritePin(pin, onoff);
+	//STM32F7_GpioInternal_ClosePin(pin);
+}
+
 

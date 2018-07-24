@@ -10,7 +10,7 @@ const TinyCLR_Api_Info* Mikroe_TinyCLR_MMB_GetApi()
 	ApiInfo.Name = "Mikroe_MMB_LCD";
 	ApiInfo.Type = TinyCLR_Api_Type::Custom;
 	ApiInfo.Version = 0;
-	ApiInfo.Count = 1;
+	//ApiInfo.Count = 1;
 	ApiInfo.Implementation = &Interop_Mikroe_MMB_LCD;
 
 	return &ApiInfo;
