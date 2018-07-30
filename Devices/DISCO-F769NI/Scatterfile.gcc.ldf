@@ -81,8 +81,10 @@ SECTIONS
 	}>IRAM
 	************************************************************************************/
 		
-	/***********************External SDRAM Allocation ***********************************/
-	ER_HEAP_BEGIN 0x60400000 :
+	/***********************External SDRAM Allocation ***********************************
+	** NOTE: first 392K (unitl addr 0x6005DFFF) of SDRAM is used for video memory
+	*************************************************************************************/
+	ER_HEAP_BEGIN 0x60060000 :
 	{
 		* (SectionForHeapBegin)
 	}>SDRAM

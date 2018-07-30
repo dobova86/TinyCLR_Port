@@ -319,20 +319,22 @@ enum STM32F7xx_LCD_Rotation {
     rotateCCW_90,
 };
 
-uint32_t m_STM32F7_DisplayWidth = 0;
-uint32_t m_STM32F7_DisplayHeight = 0;
-uint32_t m_STM32F7_DisplayPixelClockRateKHz = 0;
-uint32_t m_STM32F7_DisplayHorizontalSyncPulseWidth = 0;
-uint32_t m_STM32F7_DisplayHorizontalFrontPorch = 0;
-uint32_t m_STM32F7_DisplayHorizontalBackPorch = 0;
-uint32_t m_STM32F7_DisplayVerticalSyncPulseWidth = 0;
-uint32_t m_STM32F7_DisplayVerticalFrontPorch = 0;
-uint32_t m_STM32F7_DisplayVerticalBackPorch = 0;
+// default to RK043
+uint32_t m_STM32F7_DisplayWidth = 480;		// default to Discovery STM32F746
+uint32_t m_STM32F7_DisplayHeight = 372;
+uint32_t m_STM32F7_DisplayPixelClockRateKHz = 9600;
+uint32_t m_STM32F7_DisplayHorizontalSyncPulseWidth = 41;
+uint32_t m_STM32F7_DisplayHorizontalFrontPorch = 32;
+uint32_t m_STM32F7_DisplayHorizontalBackPorch = 13;
+uint32_t m_STM32F7_DisplayVerticalSyncPulseWidth = 10;
+uint32_t m_STM32F7_DisplayVerticalFrontPorch = 2;
+uint32_t m_STM32F7_DisplayVerticalBackPorch = 2;
 uint32_t m_STM32F7_Display_TextRow = 0;
 uint32_t m_STM32F7_Display_TextColumn = 0;
 
-bool m_STM32F7_DisplayOutputEnableIsFixed = false;
-bool m_STM32F7_DisplayOutputEnablePolarity = false;
+
+bool m_STM32F7_DisplayOutputEnableIsFixed = true;
+bool m_STM32F7_DisplayOutputEnablePolarity = true;
 bool m_STM32F7_DisplayPixelPolarity = false;
 bool m_STM32F7_DisplayHorizontalSyncPolarity = false;
 bool m_STM32F7_DisplayVerticalSyncPolarity = false;
@@ -818,9 +820,9 @@ bool STM32F7_Display_SetPinConfiguration(bool enable) {
             STM32F7_GpioInternal_ConfigurePin(g_Display_ControllerPins[i].number, STM32F7_Gpio_PortMode::AlternateFunction, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::High, STM32F7_Gpio_PullDirection::None, g_Display_ControllerPins[i].alternateFunction);
         }
 
-        if (!STM32F7_GpioInternal_OpenPin(g_Display_EnablePin.number)) {
-            return false;
-        }
+        //if (!STM32F7_GpioInternal_OpenPin(g_Display_EnablePin.number)) {
+        //    return false;
+        //}
 
         if (m_STM32F7_DisplayOutputEnableIsFixed) {
             STM32F7_GpioInternal_ConfigurePin(g_Display_EnablePin.number, STM32F7_Gpio_PortMode::GeneralPurposeOutput, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::High, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
