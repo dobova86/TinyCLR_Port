@@ -21,7 +21,7 @@
 #define DEVICE_TARGET STM32F4
 #define DEVICE_NAME "DISCO-F429ZI"
 #define DEVICE_MANUFACTURER "ST Micro by DB"
-#define DEVICE_VERSION ((0ULL << 48) | (10ULL << 32) | (0ULL << 16) | (0ULL << 0))
+#define DEVICE_VERSION ((0ULL << 48) | (12ULL << 32) | (0ULL << 16) | (0ULL << 0))
 
 #define USB_DEBUGGER_VENDOR_ID 0x1B9F
 #define USB_DEBUGGER_PRODUCT_ID 0x5000
@@ -45,7 +45,7 @@
 //#define BOOTLOADER_HOLD_ADDRESS 0x2002FFF8
 //#define BOOTLOADER_HOLD_VALUE 0x37D56D4A
 
-#define DEPLOYMENT_SECTORS {/* NOTE: F429 is 2Mb flash with dual bank org. At the moment NOT ALL sectors are acivated. See text file F429_flash_mem_banks.MD  */\
+#define DEPLOYMENT_SECTORS {/* NOTE: F429 is 2Mb flash with dual bank org. At the moment NOT ALL sectors are activated. See text file F429_flash_mem_banks.MD  */\
 							 { 0x06, 0x08040000, 0x00020000 }, { 0x07, 0x08060000, 0x00020000 }, { 0x08, 0x08080000, 0x00020000 },\
 							 { 0x09, 0x080A0000, 0x00020000 }, { 0x0A, 0x080C0000, 0x00020000 }, { 0x0B, 0x080E0000, 0x00020000 },\
 							 { 0x10, 0x08110000, 0x00010000 }, { 0x11, 0x08120000, 0x00020000 }, { 0x12, 0x08140000, 0x00020000 },\
@@ -54,8 +54,8 @@
 						 }
 
 
-
-#define USE_SDRAM_HEAP
+#define SDRAM_DATABITS 16 
+//#define USE_SDRAM_HEAP
 #define SDRAM_PINS {\
 				{ PIN(C, 0), AF(12) },\
 				{ PIN(D, 0), AF(12) }, { PIN(D, 1), AF(12) }, { PIN(D, 8), AF(12) }, { PIN(D, 9), AF(12) }, { PIN(D,10), AF(12) }, { PIN(D,14), AF(12) }, { PIN(D,15), AF(12) },\
@@ -68,10 +68,10 @@
 			}
 
 
-#define STM32F4_SYSTEM_CLOCK_HZ 180000000	 // 168000000 // 180000000
-#define STM32F4_AHB_CLOCK_HZ	180000000	 // 168000000 // 180000000
-#define STM32F4_APB1_CLOCK_HZ	45000000	 // 42000000  // 45000000
-#define STM32F4_APB2_CLOCK_HZ	90000000	 // 84000000  // 90000000
+#define STM32F4_SYSTEM_CLOCK_HZ 168000000	 // 168000000 // 180000000
+#define STM32F4_AHB_CLOCK_HZ	168000000	 // 168000000 // 180000000
+#define STM32F4_APB1_CLOCK_HZ	42000000	 // 42000000  // 45000000
+#define STM32F4_APB2_CLOCK_HZ	84000000	 // 84000000  // 90000000
 #define STM32F4_EXT_CRYSTAL_CLOCK_HZ 8000000
 #define STM32F4_SUPPLY_VOLTAGE_MV 3300
 
@@ -86,13 +86,13 @@
 
 #define INCLUDE_GPIO
 #define STM32F4_GPIO_PINS {/*      0          1          2          3          4          5          6          7          8          9          10         11         12         13         14         15      */\
-                           /*PAx*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), NO_INIT(), NO_INIT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(),\
-                           /*PBx*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), NO_INIT(), DEFAULT(), DEFAULT(),\
-                           /*PCx*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(),\
-                           /*PDx*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(),\
-                           /*PEx*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(),\
-                           /*PFx*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(),\
-                           /*PGx*/ DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT(), DEFAULT()\
+                           /*PAx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
+                           /*PBx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
+                           /*PCx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
+                           /*PDx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
+                           /*PEx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
+                           /*PFx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
+                           /*PGx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT()\
                           }
 
 #define INCLUDE_I2C
@@ -131,6 +131,8 @@
 #define STM32F4_UART_CTS_PINS { { PIN_NONE , AF_NONE }, { PIN(D, 3), AF(7) }, { PIN(D, 11), AF(7) }, { PIN_NONE , AF_NONE } }
 #define STM32F4_UART_RTS_PINS { { PIN_NONE , AF_NONE }, { PIN(D, 4), AF(7) }, { PIN(D, 12), AF(7) }, { PIN_NONE , AF_NONE } }
 
+#define INCLUDE_RTC
+
 //#define INCLUDE_DISPLAY
 //#define STM32F4_DISPLAY_CONTROLLER_PINS { \
 //				{ PIN(C, 10), AF(14) }, { PIN(B,  0), AF(14) }, { PIN(A, 11), AF(14) }, { PIN(A, 12), AF(14) },\
@@ -139,12 +141,16 @@
 //				{ PIN(D,  6), AF(14) }, { PIN(G, 11), AF(14) }, { PIN(G, 12), AF(14) }, { PIN(A,  3), AF(14) },\
 //				{ PIN(B,  8), AF(14) }, { PIN(B,  9), AF(14) } }
 //
-//#define STM32F4_DISPLAY_BACKLIGHT_PIN	{ PIN_NONE, AF_NONE }
-//#define STM32F4_DISPLAY_ENABLE_PIN		{ PIN(F, 10), AF_NONE }
+#define STM32F4_DISPLAY_BACKLIGHT_PIN	{ PIN_NONE, AF_NONE }
+#define STM32F4_DISPLAY_ENABLE_PIN	{ PIN(F, 10), AF_NONE }
 
 #define INCLUDE_USBCLIENT
-#define STM32F4_USB_QUEUE_SIZE 16
-#define STM32F4_USB_FIFO_BUFFER_SIZE 32
+#define STM32F4_TOTAL_USB_CONTROLLERS	1
+#define STM32F4_USB_PACKET_FIFO_COUNT	64
+#define STM32F4_USB_ENDPOINT_SIZE		64
+#define STM32F4_USB_ENDPOINT0_SIZE		8
+#define STM32F4_USB_ENDPOINT_COUNT		4
+#define STM32F4_USB_PIPE_COUNT			4
 #define OTG_USE_HS
 
 #ifdef OTG_USE_HS

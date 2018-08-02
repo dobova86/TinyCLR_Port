@@ -18,8 +18,17 @@
 #include "STM32F4.h"
 #include "../../Drivers/USBClient/USBClient.h"
 
-#define OTG_FS_BASE           (0x50000000)
+//#define OTG_FS_BASE           (0x50000000)
+//#define OTG_FS                ((OTG_TypeDef *) OTG_FS_BASE)
+
+#ifdef OTG_USE_HS
+#pragma message "Using OTG_HS port!"
+#define OTG_FS_BASE			  (USB_OTG_HS_PERIPH_BASE)
+#else
+#define OTG_FS_BASE           (USB_OTG_FS_PERIPH_BASE)
+#endif
 #define OTG_FS                ((OTG_TypeDef *) OTG_FS_BASE)
+
 
 #define OTG_GUSBCFG_PHYSEL    (1<<6)
 #define OTG_GUSBCFG_PHYLPCS   (1<<15)
@@ -297,7 +306,13 @@ bool STM32F4_UsbClient_Initialize(USB_CONTROLLER_STATE* usbState) {
 
     // Enable USB clock
     // FS on AHB2
+#ifdef OTG_USE_HS
+	RCC->AHB1ENR |= RCC_AHB1ENR_OTGHSEN;
+	RCC->AHB1LPENR &= ~RCC_AHB1LPENR_OTGHSULPILPEN;
+	RCC->AHB1LPENR |= RCC_AHB1LPENR_OTGHSLPEN;
+#else
     RCC->AHB2ENR |= RCC_AHB2ENR_OTGFSEN;
+#endif
 
     OTG_TypeDef* OTG = OTG_FS;
 
@@ -307,10 +322,18 @@ bool STM32F4_UsbClient_Initialize(USB_CONTROLLER_STATE* usbState) {
     OTG->DCTL = OTG_DCTL_SDIS; // soft disconnect
 
     OTG->GAHBCFG = OTG_GAHBCFG_TXFELVL;     // int32_t on TxFifo completely empty, int32_t off
+
+#ifdef OTG_USE_HS
+	OTG->GUSBCFG = OTG_GUSBCFG_FDMOD        // force device mode
+		| STM32F4_USB_TRDT << 10   // turnaround time min 0x0A (default value)
+		| OTG_GUSBCFG_PHYSEL		// internal PHY
+		| OTG_GUSBCFG_PHYLPCS;
+#else
+
     OTG->GUSBCFG = OTG_GUSBCFG_FDMOD        // force device mode
         | STM32F4_USB_TRDT << 10   // turnaround time
         | OTG_GUSBCFG_PHYSEL;      // internal PHY
-
+#endif
     OTG->GCCFG = OTG_GCCFG_VBUSBSEN       // B device Vbus sensing
         | OTG_GCCFG_PWRDWN;        // transceiver enabled
 
@@ -325,9 +348,14 @@ bool STM32F4_UsbClient_Initialize(USB_CONTROLLER_STATE* usbState) {
     // setup hardware
     STM32F4_UsbClient_ProtectPins(controller, true);
 
+#ifdef OTG_USE_HS
+	STM32F4_InterruptInternal_Activate(OTG_HS_IRQn, (uint32_t*)&STM32F4_UsbClient_Interrupt, 0);
+	STM32F4_InterruptInternal_Activate(OTG_HS_WKUP_IRQn, (uint32_t*)&STM32F4_UsbClient_Interrupt, 0);
+#else
+
     STM32F4_InterruptInternal_Activate(OTG_FS_IRQn, (uint32_t*)&STM32F4_UsbClient_Interrupt, 0);
     STM32F4_InterruptInternal_Activate(OTG_FS_WKUP_IRQn, (uint32_t*)&STM32F4_UsbClient_Interrupt, 0);
-
+#endif
     // allow interrupts
     OTG->GINTSTS = 0xFFFFFFFF;           // clear all interrupts
     OTG->GINTMSK = OTG_GINTMSK_USBRST;   // enable reset only
@@ -342,11 +370,17 @@ bool STM32F4_UsbClient_Initialize(USB_CONTROLLER_STATE* usbState) {
 }
 
 bool STM32F4_UsbClient_Uninitialize(USB_CONTROLLER_STATE* usbState) {
+
+#ifdef OTG_USE_HS
+	STM32F4_InterruptInternal_Deactivate(OTG_HS_WKUP_IRQn);
+	STM32F4_InterruptInternal_Deactivate(OTG_HS_IRQn);
+	RCC->AHB1ENR &= ~RCC_AHB1ENR_OTGHSEN;
+#else
+
     STM32F4_InterruptInternal_Deactivate(OTG_FS_WKUP_IRQn);
     STM32F4_InterruptInternal_Deactivate(OTG_FS_IRQn);
-
     RCC->AHB2ENR &= ~RCC_AHB2ENR_OTGFSEN;
-
+#endif
     if (usbState != nullptr) {
         STM32F4_UsbClient_ProtectPins(usbState->controllerNum, false);
         usbState->currentState = USB_DEVICE_STATE_UNINITIALIZED;

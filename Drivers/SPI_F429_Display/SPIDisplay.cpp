@@ -20,7 +20,6 @@ static const TinyCLR_Spi_Provider* spiDisplayBus;
 
 const TinyCLR_Api_Info* SPIDisplay_GetApi() {
     spiDisplayProvider.Parent = &spiDisplayApi;
-    spiDisplayProvider.Index = 0;
     spiDisplayProvider.Acquire = &SPIDisplay_Acquire;
     spiDisplayProvider.Release = &SPIDisplay_Release;
     spiDisplayProvider.Enable = &SPIDisplay_Enable;
@@ -35,7 +34,7 @@ const TinyCLR_Api_Info* SPIDisplay_GetApi() {
     spiDisplayApi.Name = "GHIElectronics.TinyCLR.NativeApis.Drivers.SPIDisplay";
     spiDisplayApi.Type = TinyCLR_Api_Type::DisplayProvider;
     spiDisplayApi.Version = 0;
-    spiDisplayApi.Count = 1;
+    //spiDisplayApi.Count = 1;
     spiDisplayApi.Implementation = &spiDisplayProvider;
 
     return &spiDisplayApi;
@@ -55,11 +54,11 @@ void SPIDisplay_Initialize()
 	ili9341_Init();
 }
 
-TinyCLR_Result SPIDisplay_Acquire(const TinyCLR_Display_Provider* self) {
+TinyCLR_Result SPIDisplay_Acquire(const TinyCLR_Display_Provider* self, int32_t controller) {
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result SPIDisplay_Release(const TinyCLR_Display_Provider* self) {
+TinyCLR_Result SPIDisplay_Release(const TinyCLR_Display_Provider* self, int32_t controller) {
     return TinyCLR_Result::Success;
 }
 
@@ -92,7 +91,7 @@ TinyCLR_Result SPIDisplay_GetCapabilities(const TinyCLR_Display_Provider* self, 
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result SPIDisplay_GetConfiguration(const TinyCLR_Display_Provider* self, TinyCLR_Display_DataFormat& dataFormat, uint32_t& width, uint32_t& height, void* configuration) {
+TinyCLR_Result SPIDisplay_GetConfiguration(const TinyCLR_Display_Provider* self, TinyCLR_Display_DataFormat& dataFormat, int32_t& width, int32_t& height, void* configuration) {
     dataFormat = TinyCLR_Display_DataFormat::Rgb565;
     width = spiDisplayWidth;
     height = spiDisplayHeight;
@@ -103,7 +102,7 @@ TinyCLR_Result SPIDisplay_GetConfiguration(const TinyCLR_Display_Provider* self,
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result SPIDisplay_SetConfiguration(const TinyCLR_Display_Provider* self, TinyCLR_Display_DataFormat dataFormat, uint32_t width, uint32_t height, const void* configuration) {
+TinyCLR_Result SPIDisplay_SetConfiguration(const TinyCLR_Display_Provider* self, TinyCLR_Display_DataFormat dataFormat, int32_t width, int32_t height, const void* configuration) {
     if (dataFormat != TinyCLR_Display_DataFormat::Rgb565) return TinyCLR_Result::NotSupported;
 
 
@@ -124,7 +123,7 @@ static void Swap(uint8_t* a, uint8_t* b) {
     *b = temp;
 }
 
-TinyCLR_Result SPIDisplay_DrawBuffer(const TinyCLR_Display_Provider* self, int32_t x, int32_t y, int32_t width, int32_t height, const uint8_t* data) {
+TinyCLR_Result SPIDisplay_DrawBuffer(const TinyCLR_Display_Provider* self, int32_t controller, int32_t x, int32_t y, int32_t width, int32_t height, const uint8_t* data) {
     auto d = const_cast<uint8_t*>(data);
 
     for (auto i = 0; i < spiDisplayWidth * spiDisplayHeight * 2; i += 2)
