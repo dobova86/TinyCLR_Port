@@ -14,25 +14,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "STM32F7.h"
+#include "STM32H7.h"
 
 #define DISABLED_MASK  0x00000001
 
-TinyCLR_Interrupt_StartStopHandler STM32F7_Interrupt_Started;
-TinyCLR_Interrupt_StartStopHandler STM32F7_Interrupt_Ended;
+TinyCLR_Interrupt_StartStopHandler STM32H7_Interrupt_Started;
+TinyCLR_Interrupt_StartStopHandler STM32H7_Interrupt_Ended;
 
 static TinyCLR_Interrupt_Provider interruptProvider;
 static TinyCLR_Api_Info interruptApi;
 
-const TinyCLR_Api_Info* STM32F7_Interrupt_GetApi() {
+const TinyCLR_Api_Info* STM32H7_Interrupt_GetApi() {
     interruptProvider.Parent = &interruptApi;
-    interruptProvider.Acquire = &STM32F7_Interrupt_Acquire;
-    interruptProvider.Release = &STM32F7_Interrupt_Release;
-    interruptProvider.Enable = &STM32F7_Interrupt_Enable;
-    interruptProvider.Disable = &STM32F7_Interrupt_Disable;
-    interruptProvider.WaitForInterrupt = &STM32F7_Interrupt_WaitForInterrupt;
-    interruptProvider.IsDisabled = &STM32F7_Interrupt_IsDisabled;
-    interruptProvider.Restore = &STM32F7_Interrupt_Restore;
+    interruptProvider.Acquire = &STM32H7_Interrupt_Acquire;
+    interruptProvider.Release = &STM32H7_Interrupt_Release;
+    interruptProvider.Enable = &STM32H7_Interrupt_Enable;
+    interruptProvider.Disable = &STM32H7_Interrupt_Disable;
+    interruptProvider.WaitForInterrupt = &STM32H7_Interrupt_WaitForInterrupt;
+    interruptProvider.IsDisabled = &STM32H7_Interrupt_IsDisabled;
+    interruptProvider.Restore = &STM32H7_Interrupt_Restore;
 
     interruptApi.Author = "GHI Electronics, LLC";
     interruptApi.Name = "GHIElectronics.TinyCLR.NativeApis.STM32F7.InterruptProvider";
@@ -48,7 +48,7 @@ extern "C" {
     extern uint32_t __Vectors;
 }
 
-TinyCLR_Result STM32F7_Interrupt_Acquire(TinyCLR_Interrupt_StartStopHandler onInterruptStart, TinyCLR_Interrupt_StartStopHandler onInterruptEnd) {
+TinyCLR_Result STM32H7_Interrupt_Acquire(TinyCLR_Interrupt_StartStopHandler onInterruptStart, TinyCLR_Interrupt_StartStopHandler onInterruptEnd) {
     uint32_t *irq_vectors = (uint32_t*)&__Vectors;
 
     // disable all interrupts
@@ -72,17 +72,17 @@ TinyCLR_Result STM32F7_Interrupt_Acquire(TinyCLR_Interrupt_StartStopHandler onIn
         | SCB_SHCSR_BUSFAULTENA_Msk
         | SCB_SHCSR_MEMFAULTENA_Msk;
 
-    STM32F7_Interrupt_Started = onInterruptStart;
-    STM32F7_Interrupt_Ended = onInterruptEnd;
+    STM32H7_Interrupt_Started = onInterruptStart;
+    STM32H7_Interrupt_Ended = onInterruptEnd;
 
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Interrupt_Release() {
+TinyCLR_Result STM32H7_Interrupt_Release() {
     return TinyCLR_Result::Success;
 }
 
-bool STM32F7_InterruptInternal_Activate(uint32_t index, uint32_t *isr, void* isrParam) {
+bool STM32H7_InterruptInternal_Activate(uint32_t index, uint32_t *isr, void* isrParam) {
     int id = (int)index;
 
     uint32_t *irq_vectors = (uint32_t*)&__Vectors;
@@ -97,22 +97,22 @@ bool STM32F7_InterruptInternal_Activate(uint32_t index, uint32_t *isr, void* isr
     return true;
 }
 
-bool STM32F7_InterruptInternal_Deactivate(uint32_t index) {
+bool STM32H7_InterruptInternal_Deactivate(uint32_t index) {
     int id = (int)index;
 
     NVIC->ICER[id >> 5] = 1 << (id & 0x1F); // clear enable bit */
 
     return true;
 }
-STM32F7_InterruptStarted_RaiiHelper::STM32F7_InterruptStarted_RaiiHelper() { STM32F7_Interrupt_Started(); };
-STM32F7_InterruptStarted_RaiiHelper::~STM32F7_InterruptStarted_RaiiHelper() { STM32F7_Interrupt_Ended(); };
+STM32H7_InterruptStarted_RaiiHelper::STM32H7_InterruptStarted_RaiiHelper() { STM32H7_Interrupt_Started(); };
+STM32H7_InterruptStarted_RaiiHelper::~STM32H7_InterruptStarted_RaiiHelper() { STM32H7_Interrupt_Ended(); };
 
-STM32F7_DisableInterrupts_RaiiHelper::STM32F7_DisableInterrupts_RaiiHelper() {
+STM32H7_DisableInterrupts_RaiiHelper::STM32H7_DisableInterrupts_RaiiHelper() {
     state = __get_PRIMASK();
 
     __disable_irq();
 }
-STM32F7_DisableInterrupts_RaiiHelper::~STM32F7_DisableInterrupts_RaiiHelper() {
+STM32H7_DisableInterrupts_RaiiHelper::~STM32H7_DisableInterrupts_RaiiHelper() {
     uint32_t Cp = state;
 
     if ((Cp & DISABLED_MASK) == 0) {
@@ -120,11 +120,11 @@ STM32F7_DisableInterrupts_RaiiHelper::~STM32F7_DisableInterrupts_RaiiHelper() {
     }
 }
 
-bool STM32F7_DisableInterrupts_RaiiHelper::IsDisabled() {
+bool STM32H7_DisableInterrupts_RaiiHelper::IsDisabled() {
     return (state & DISABLED_MASK) == DISABLED_MASK;
 }
 
-void STM32F7_DisableInterrupts_RaiiHelper::Acquire() {
+void STM32H7_DisableInterrupts_RaiiHelper::Acquire() {
     uint32_t Cp = state;
 
     if ((Cp & DISABLED_MASK) == DISABLED_MASK) {
@@ -134,7 +134,7 @@ void STM32F7_DisableInterrupts_RaiiHelper::Acquire() {
     }
 }
 
-void STM32F7_DisableInterrupts_RaiiHelper::Release() {
+void STM32H7_DisableInterrupts_RaiiHelper::Release() {
     uint32_t Cp = state;
 
     if ((Cp & DISABLED_MASK) == 0) {
@@ -146,18 +146,18 @@ void STM32F7_DisableInterrupts_RaiiHelper::Release() {
 //////////////////////////////////////////////////////////////////////////////
 //Global Interrupt - Use in System Cote
 //////////////////////////////////////////////////////////////////////////////
-bool STM32F7_Interrupt_IsDisabled() {
+bool STM32H7_Interrupt_IsDisabled() {
     return (__get_PRIMASK() & DISABLED_MASK) == DISABLED_MASK;
 }
 
-bool STM32F7_Interrupt_Enable(bool force) {
+bool STM32H7_Interrupt_Enable(bool force) {
     __enable_irq();
 
     return true;
 }
 
-bool STM32F7_Interrupt_Disable(bool force) {
-    bool wasDisable = STM32F7_Interrupt_IsDisabled();
+bool STM32H7_Interrupt_Disable(bool force) {
+    bool wasDisable = STM32H7_Interrupt_IsDisabled();
 
     __disable_irq();
 
@@ -165,7 +165,7 @@ bool STM32F7_Interrupt_Disable(bool force) {
 }
 
 
-void STM32F7_Interrupt_WaitForInterrupt() {
+void STM32H7_Interrupt_WaitForInterrupt() {
     register uint32_t state = __get_PRIMASK();
 
     __enable_irq();
@@ -177,6 +177,6 @@ void STM32F7_Interrupt_WaitForInterrupt() {
     __set_PRIMASK(state);
 }
 
-void STM32F7_Interrupt_Restore() {
+void STM32H7_Interrupt_Restore() {
     __enable_irq();
 }

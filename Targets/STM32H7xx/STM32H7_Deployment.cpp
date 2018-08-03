@@ -19,11 +19,11 @@
 #pragma GCC optimize 0
 #endif
 
-#include "STM32F7.h"
+#include "STM32H7.h"
 #include <stdio.h>
 
-#ifndef STM32F7_FLASH
-#define STM32F7_FLASH               ((FLASH_TypeDef *) FLASH_R_BASE)
+#ifndef STM32H7_FLASH
+#define STM32H7_FLASH               ((FLASH_TypeDef *) FLASH_R_BASE)
 #endif
 
 /** @defgroup FLASH_Program_Parallelism FLASH Program Parallelism
@@ -72,34 +72,34 @@ struct STM32F4_Flash_Deployment {
 
 #define FLASH_CR_PSIZE_BITS FLASH_CR_PSIZE_0 // 16 bit programming
 
-#if STM32F7_SUPPLY_VOLTAGE_MV < 2100
+#if STM32H7_SUPPLY_VOLTAGE_MV < 2100
 #error 16 bit Flash programming not allowed for voltages below 2.1V
 #endif
-#if STM32F7_AHB_CLOCK_HZ < 1000000
+#if STM32H7_AHB_CLOCK_HZ < 1000000
 #error Flash programming not allowed for HCLK below 1MHz
 #endif
 
-TinyCLR_Result STM32F7_Flash_GetSectorSizeForAddress(const TinyCLR_Deployment_Provider* self, uint32_t address, int32_t& size);
+TinyCLR_Result STM32H7_Flash_GetSectorSizeForAddress(const TinyCLR_Deployment_Provider* self, uint32_t address, int32_t& size);
 
 static const STM32F4_Flash_Deployment deploymentSectors[] = DEPLOYMENT_SECTORS;
 uint32_t deploymentSectorAddress[SIZEOF_ARRAY(deploymentSectors)];
 uint32_t deploymentSectorSize[SIZEOF_ARRAY(deploymentSectors)];
 
-static const uint32_t STM32F7_FLASH_KEY1 = 0x45670123;
-static const uint32_t STM32F7_FLASH_KEY2 = 0xcdef89ab;
+static const uint32_t STM32H7_FLASH_KEY1 = 0x45670123;
+static const uint32_t STM32H7_FLASH_KEY2 = 0xcdef89ab;
 
 static TinyCLR_Deployment_Provider deploymentProvider;
 static TinyCLR_Api_Info deploymentApi;
 
-const TinyCLR_Api_Info* STM32F7_Deployment_GetApi() {
+const TinyCLR_Api_Info* STM32H7_Deployment_GetApi() {
     deploymentProvider.Parent = &deploymentApi;
-    deploymentProvider.Acquire = &STM32F7_Flash_Acquire;
-    deploymentProvider.Release = &STM32F7_Flash_Release;
-    deploymentProvider.Read = &STM32F7_Flash_Read;
-    deploymentProvider.Write = &STM32F7_Flash_Write;
-    deploymentProvider.EraseSector = &STM32F7_Flash_EraseSector;
-    deploymentProvider.IsSectorErased = &STM32F7_Flash_IsSectorErased;
-    deploymentProvider.GetSectorMap = &STM32F7_Flash_GetSectorMap;
+    deploymentProvider.Acquire = &STM32H7_Flash_Acquire;
+    deploymentProvider.Release = &STM32H7_Flash_Release;
+    deploymentProvider.Read = &STM32H7_Flash_Read;
+    deploymentProvider.Write = &STM32H7_Flash_Write;
+    deploymentProvider.EraseSector = &STM32H7_Flash_EraseSector;
+    deploymentProvider.IsSectorErased = &STM32H7_Flash_IsSectorErased;
+    deploymentProvider.GetSectorMap = &STM32H7_Flash_GetSectorMap;
 
     deploymentApi.Author = "GHI Electronics, LLC";
     deploymentApi.Name = "GHIElectronics.TinyCLR.NativeApis.STM32F7.DeploymentProvider";
@@ -115,11 +115,11 @@ const TinyCLR_Api_Info* STM32F7_Deployment_GetApi() {
     return &deploymentApi;
 }
 
-TinyCLR_Result __section("SectionForFlashOperations") STM32F7_Flash_Read(const TinyCLR_Deployment_Provider* self, uint32_t address, size_t length, uint8_t* buffer) {
+TinyCLR_Result __section("SectionForFlashOperations") STM32H7_Flash_Read(const TinyCLR_Deployment_Provider* self, uint32_t address, size_t length, uint8_t* buffer) {
     int32_t bytePerSector = 0;
 
     if (buffer == nullptr) return TinyCLR_Result::ArgumentNull;
-    if (STM32F7_Flash_GetSectorSizeForAddress(self, address, bytePerSector) != TinyCLR_Result::Success)
+    if (STM32H7_Flash_GetSectorSizeForAddress(self, address, bytePerSector) != TinyCLR_Result::Success)
         return TinyCLR_Result::IndexOutOfRange;
 
     CHIP_WORD* ChipAddress = (CHIP_WORD *)address;
@@ -135,22 +135,22 @@ TinyCLR_Result __section("SectionForFlashOperations") STM32F7_Flash_Read(const T
 
 volatile uint32_t debugflashstatus = 0;
 
-TinyCLR_Result __section("SectionForFlashOperations") STM32F7_Flash_Write(const TinyCLR_Deployment_Provider* self, uint32_t address, size_t length, const uint8_t* buffer) {
+TinyCLR_Result __section("SectionForFlashOperations") STM32H7_Flash_Write(const TinyCLR_Deployment_Provider* self, uint32_t address, size_t length, const uint8_t* buffer) {
     volatile int32_t timeout = 2000000; // 2 seconds
     int32_t bytePerSector = 0;
 
-    STM32F7_Startup_CacheDisable();
+    STM32H7_Startup_CacheDisable();
 
     if (buffer == nullptr) return TinyCLR_Result::ArgumentNull;
-    if (STM32F7_Flash_GetSectorSizeForAddress(self, address, bytePerSector) != TinyCLR_Result::Success)
+    if (STM32H7_Flash_GetSectorSizeForAddress(self, address, bytePerSector) != TinyCLR_Result::Success)
         return TinyCLR_Result::IndexOutOfRange;
 
-    STM32F7_FLASH->KEYR = STM32F7_FLASH_KEY1;
-    STM32F7_FLASH->KEYR = STM32F7_FLASH_KEY2;
+    STM32H7_FLASH->KEYR = STM32H7_FLASH_KEY1;
+    STM32H7_FLASH->KEYR = STM32H7_FLASH_KEY2;
 
-    while (STM32F7_FLASH->SR & FLASH_SR_BSY);
+    while (STM32H7_FLASH->SR & FLASH_SR_BSY);
 
-    STM32F7_FLASH->SR = (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_PGPERR | FLASH_SR_ERSERR);
+    STM32H7_FLASH->SR = (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_PGPERR | FLASH_SR_ERSERR);
 
     CHIP_WORD* ChipAddress = (CHIP_WORD *)address;
     CHIP_WORD* EndAddress = (CHIP_WORD *)(address + length);
@@ -160,10 +160,10 @@ TinyCLR_Result __section("SectionForFlashOperations") STM32F7_Flash_Write(const 
     while (ChipAddress < EndAddress) {
         if (*ChipAddress != *pBuf) {
 
-            STM32F7_FLASH->CR &= CR_PSIZE_MASK;
-            STM32F7_FLASH->CR |= FLASH_PSIZE_WORD;
-            STM32F7_FLASH->CR |= FLASH_CR_EOPIE;
-            STM32F7_FLASH->CR |= FLASH_CR_PG;
+            STM32H7_FLASH->CR &= CR_PSIZE_MASK;
+            STM32H7_FLASH->CR |= FLASH_PSIZE_WORD;
+            STM32H7_FLASH->CR |= FLASH_CR_EOPIE;
+            STM32H7_FLASH->CR |= FLASH_CR_PG;
 
             // write data
             *ChipAddress = *pBuf;
@@ -171,15 +171,15 @@ TinyCLR_Result __section("SectionForFlashOperations") STM32F7_Flash_Write(const 
             __DSB();
 
             // wait for completion
-            while (((STM32F7_FLASH->SR & FLASH_SR_EOP) == 0) || (STM32F7_FLASH->SR & FLASH_SR_BSY)) {
-                STM32F7_Time_Delay(nullptr, 1); // asure host recognizes reattach
+            while (((STM32H7_FLASH->SR & FLASH_SR_EOP) == 0) || (STM32H7_FLASH->SR & FLASH_SR_BSY)) {
+                STM32H7_Time_Delay(nullptr, 1); // asure host recognizes reattach
                 timeout--;
 
                 if (timeout == 0)
                     return TinyCLR_Result::InvalidOperation;
             }
 
-            STM32F7_FLASH->SR |= FLASH_SR_EOP;
+            STM32H7_FLASH->SR |= FLASH_SR_EOP;
 
             if (*ChipAddress != *pBuf) {
                 return TinyCLR_Result::InvalidOperation;
@@ -190,17 +190,17 @@ TinyCLR_Result __section("SectionForFlashOperations") STM32F7_Flash_Write(const 
         pBuf++;
     }
 
-    STM32F7_FLASH->CR &= (~FLASH_CR_PG);
+    STM32H7_FLASH->CR &= (~FLASH_CR_PG);
 
     // reset & lock the controller
-    STM32F7_FLASH->CR |= FLASH_CR_LOCK;
+    STM32H7_FLASH->CR |= FLASH_CR_LOCK;
 
-    STM32F7_Startup_CacheEnable();
+    STM32H7_Startup_CacheEnable();
 
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result __section("SectionForFlashOperations") STM32F7_Flash_IsSectorErased(const TinyCLR_Deployment_Provider* self, uint32_t sector, bool &erased) {
+TinyCLR_Result __section("SectionForFlashOperations") STM32H7_Flash_IsSectorErased(const TinyCLR_Deployment_Provider* self, uint32_t sector, bool &erased) {
     if (sector >= SIZEOF_ARRAY(deploymentSectors)) return TinyCLR_Result::IndexOutOfRange;
 
     uint32_t address = deploymentSectorAddress[sector];
@@ -226,7 +226,7 @@ TinyCLR_Result __section("SectionForFlashOperations") STM32F7_Flash_IsSectorEras
 
 
 
-TinyCLR_Result __section("SectionForFlashOperations") STM32F7_Flash_EraseSector(const TinyCLR_Deployment_Provider* self, uint32_t sector) {
+TinyCLR_Result __section("SectionForFlashOperations") STM32H7_Flash_EraseSector(const TinyCLR_Deployment_Provider* self, uint32_t sector) {
     uint32_t cr, num;
 
     if (sector >= SIZEOF_ARRAY(deploymentSectors)) return TinyCLR_Result::IndexOutOfRange;
@@ -235,48 +235,48 @@ TinyCLR_Result __section("SectionForFlashOperations") STM32F7_Flash_EraseSector(
 
     if (num > 11) num += 4;
 
-    STM32F7_Startup_CacheDisable();
+    STM32H7_Startup_CacheDisable();
 
-    STM32F7_FLASH->KEYR = STM32F7_FLASH_KEY1;
-    STM32F7_FLASH->KEYR = STM32F7_FLASH_KEY2;
+    STM32H7_FLASH->KEYR = STM32H7_FLASH_KEY1;
+    STM32H7_FLASH->KEYR = STM32H7_FLASH_KEY2;
 
-    STM32F7_FLASH->SR = (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_PGPERR | FLASH_SR_ERSERR);
+    STM32H7_FLASH->SR = (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_PGPERR | FLASH_SR_ERSERR);
 
-    STM32F7_FLASH->CR = FLASH_PSIZE_WORD;
-    STM32F7_FLASH->CR |= FLASH_CR_EOPIE;
-    STM32F7_FLASH->CR |= (num << 3);
-    STM32F7_FLASH->CR |= FLASH_CR_SER;
+    STM32H7_FLASH->CR = FLASH_PSIZE_WORD;
+    STM32H7_FLASH->CR |= FLASH_CR_EOPIE;
+    STM32H7_FLASH->CR |= (num << 3);
+    STM32H7_FLASH->CR |= FLASH_CR_SER;
 
-    STM32F7_FLASH->CR |= FLASH_CR_STRT;
+    STM32H7_FLASH->CR |= FLASH_CR_STRT;
 
     __DSB();
     // wait for completion
-    while (((STM32F7_FLASH->SR & FLASH_SR_EOP) == 0) || (STM32F7_FLASH->SR & FLASH_SR_BSY));
+    while (((STM32H7_FLASH->SR & FLASH_SR_EOP) == 0) || (STM32H7_FLASH->SR & FLASH_SR_BSY));
 
-    STM32F7_FLASH->CR &= (~FLASH_CR_SER);
-    STM32F7_FLASH->CR &= SECTOR_MASK;
+    STM32H7_FLASH->CR &= (~FLASH_CR_SER);
+    STM32H7_FLASH->CR &= SECTOR_MASK;
 
     // reset & lock the controller
-    STM32F7_FLASH->CR |= FLASH_CR_LOCK;
+    STM32H7_FLASH->CR |= FLASH_CR_LOCK;
 
-    STM32F7_Startup_CacheEnable();
+    STM32H7_Startup_CacheEnable();
 
     TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Flash_Acquire(const TinyCLR_Deployment_Provider* self, bool& supportsXip) {
+TinyCLR_Result STM32H7_Flash_Acquire(const TinyCLR_Deployment_Provider* self, bool& supportsXip) {
     supportsXip = true;
 
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Flash_Release(const TinyCLR_Deployment_Provider* self) {
+TinyCLR_Result STM32H7_Flash_Release(const TinyCLR_Deployment_Provider* self) {
     // UnInitialize Flash can be here
     return TinyCLR_Result::Success;
 }
 
 
-TinyCLR_Result STM32F7_Flash_GetSectorSizeForAddress(const TinyCLR_Deployment_Provider* self, uint32_t address, int32_t& size) {
+TinyCLR_Result STM32H7_Flash_GetSectorSizeForAddress(const TinyCLR_Deployment_Provider* self, uint32_t address, int32_t& size) {
     int32_t sectors = SIZEOF_ARRAY(deploymentSectorAddress);
 
     size = 0;
@@ -292,7 +292,7 @@ TinyCLR_Result STM32F7_Flash_GetSectorSizeForAddress(const TinyCLR_Deployment_Pr
     return size > 0 ? TinyCLR_Result::Success : TinyCLR_Result::ArgumentInvalid;
 }
 
-TinyCLR_Result STM32F7_Flash_GetSectorMap(const TinyCLR_Deployment_Provider* self, const uint32_t*& addresses, const uint32_t*& sizes, size_t& count) {
+TinyCLR_Result STM32H7_Flash_GetSectorMap(const TinyCLR_Deployment_Provider* self, const uint32_t*& addresses, const uint32_t*& sizes, size_t& count) {
     addresses = deploymentSectorAddress;
     sizes = deploymentSectorSize;
     count = SIZEOF_ARRAY(deploymentSectorAddress);

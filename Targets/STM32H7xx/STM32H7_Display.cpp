@@ -15,7 +15,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "STM32F7.h"
+#include "STM32H7.h"
 
 #define MAX_LAYER  2
 
@@ -320,59 +320,59 @@ enum STM32F7xx_LCD_Rotation {
 };
 
 // default to RK043
-uint32_t m_STM32F7_DisplayWidth = 480;		// default to Discovery STM32F746
-uint32_t m_STM32F7_DisplayHeight = 372;
-uint32_t m_STM32F7_DisplayPixelClockRateKHz = 9600;
-uint32_t m_STM32F7_DisplayHorizontalSyncPulseWidth = 41;
-uint32_t m_STM32F7_DisplayHorizontalFrontPorch = 32;
-uint32_t m_STM32F7_DisplayHorizontalBackPorch = 13;
-uint32_t m_STM32F7_DisplayVerticalSyncPulseWidth = 10;
-uint32_t m_STM32F7_DisplayVerticalFrontPorch = 2;
-uint32_t m_STM32F7_DisplayVerticalBackPorch = 2;
-uint32_t m_STM32F7_Display_TextRow = 0;
-uint32_t m_STM32F7_Display_TextColumn = 0;
+uint32_t m_STM32H7_DisplayWidth = 480;		// default to Discovery STM32F746
+uint32_t m_STM32H7_DisplayHeight = 372;
+uint32_t m_STM32H7_DisplayPixelClockRateKHz = 9600;
+uint32_t m_STM32H7_DisplayHorizontalSyncPulseWidth = 41;
+uint32_t m_STM32H7_DisplayHorizontalFrontPorch = 32;
+uint32_t m_STM32H7_DisplayHorizontalBackPorch = 13;
+uint32_t m_STM32H7_DisplayVerticalSyncPulseWidth = 10;
+uint32_t m_STM32H7_DisplayVerticalFrontPorch = 2;
+uint32_t m_STM32H7_DisplayVerticalBackPorch = 2;
+uint32_t m_STM32H7_Display_TextRow = 0;
+uint32_t m_STM32H7_Display_TextColumn = 0;
 
 
-bool m_STM32F7_DisplayOutputEnableIsFixed = true;
-bool m_STM32F7_DisplayOutputEnablePolarity = true;
-bool m_STM32F7_DisplayPixelPolarity = false;
-bool m_STM32F7_DisplayHorizontalSyncPolarity = false;
-bool m_STM32F7_DisplayVerticalSyncPolarity = false;
-bool m_STM32F7_DisplayEnable = false;
+bool m_STM32H7_DisplayOutputEnableIsFixed = true;
+bool m_STM32H7_DisplayOutputEnablePolarity = true;
+bool m_STM32H7_DisplayPixelPolarity = false;
+bool m_STM32H7_DisplayHorizontalSyncPolarity = false;
+bool m_STM32H7_DisplayVerticalSyncPolarity = false;
+bool m_STM32H7_DisplayEnable = false;
 
-uint16_t* m_STM32F7_Display_VituralRam = nullptr;
-size_t m_STM32F7_DisplayBufferSize = 0;
+uint16_t* m_STM32H7_Display_VituralRam = nullptr;
+size_t m_STM32H7_DisplayBufferSize = 0;
 
-uint8_t m_STM32F7_Display_TextBuffer[LCD_MAX_COLUMN][LCD_MAX_ROW];
+uint8_t m_STM32H7_Display_TextBuffer[LCD_MAX_COLUMN][LCD_MAX_ROW];
 
-STM32F7xx_LCD_Rotation m_STM32F7_Display_CurrentRotation = STM32F7xx_LCD_Rotation::rotateNormal_0;
+STM32F7xx_LCD_Rotation m_STM32H7_Display_CurrentRotation = STM32F7xx_LCD_Rotation::rotateNormal_0;
 
-bool STM32F7_Display_Initialize();
-bool STM32F7_Display_Uninitialize();
-bool STM32F7_Display_SetPinConfiguration(bool enable);
+bool STM32H7_Display_Initialize();
+bool STM32H7_Display_Uninitialize();
+bool STM32H7_Display_SetPinConfiguration(bool enable);
 
-void STM32F7_Display_WriteFormattedChar(uint8_t c);
-void STM32F7_Display_WriteChar(uint8_t c, int32_t row, int32_t col);
-void STM32F7_Display_BitBltEx(int32_t x, int32_t y, int32_t width, int32_t height, uint32_t data[]);
-void STM32F7_Display_PaintPixel(uint32_t x, uint32_t y, uint8_t c);
-void STM32F7_Display_Paint8HorizontalPixels(uint32_t x, uint32_t y, uint8_t p);
-void STM32F7_Display_TextEnterClearMode();
-void STM32F7_Display_PrintChracter(uint32_t x, uint32_t y, uint8_t c);
-void STM32F7_Display_TextShiftColUp();
-void STM32F7_Display_Clear();
-void STM32F7_Display_GetRotatedDimensions(int32_t *screenWidth, int32_t *screenHeight);
+void STM32H7_Display_WriteFormattedChar(uint8_t c);
+void STM32H7_Display_WriteChar(uint8_t c, int32_t row, int32_t col);
+void STM32H7_Display_BitBltEx(int32_t x, int32_t y, int32_t width, int32_t height, uint32_t data[]);
+void STM32H7_Display_PaintPixel(uint32_t x, uint32_t y, uint8_t c);
+void STM32H7_Display_Paint8HorizontalPixels(uint32_t x, uint32_t y, uint8_t p);
+void STM32H7_Display_TextEnterClearMode();
+void STM32H7_Display_PrintChracter(uint32_t x, uint32_t y, uint8_t c);
+void STM32H7_Display_TextShiftColUp();
+void STM32H7_Display_Clear();
+void STM32H7_Display_GetRotatedDimensions(int32_t *screenWidth, int32_t *screenHeight);
 
-int32_t STM32F7_Display_GetWidth();
-int32_t STM32F7_Display_GetHeight();
-int32_t STM32F7_Display_BitPerPixel();
-uint32_t STM32F7_Display_GetPixelClockDivider();
-int32_t STM32F7_Display_GetOrientation();
-uint32_t* STM32F7_Display_GetFrameBuffer();
+int32_t STM32H7_Display_GetWidth();
+int32_t STM32H7_Display_GetHeight();
+int32_t STM32H7_Display_BitPerPixel();
+uint32_t STM32H7_Display_GetPixelClockDivider();
+int32_t STM32H7_Display_GetOrientation();
+uint32_t* STM32H7_Display_GetFrameBuffer();
 
 static TinyCLR_Display_Provider displayProvider;
 static TinyCLR_Api_Info displayApi;
 
-bool STM32F7_Ltdc_Initialize(LTDC_HandleTypeDef *hltdc) {
+bool STM32H7_Ltdc_Initialize(LTDC_HandleTypeDef *hltdc) {
     uint32_t tmp = 0, tmp1 = 0;
 
     /* Check the LTDC peripheral state */
@@ -423,7 +423,7 @@ bool STM32F7_Ltdc_Initialize(LTDC_HandleTypeDef *hltdc) {
     return true;
 }
 
-void STM32F7_Ltdc_SetConfiguration(LTDC_HandleTypeDef *hltdc, LTDC_LayerCfgTypeDef *pLayerCfg, uint32_t LayerIdx) {
+void STM32H7_Ltdc_SetConfiguration(LTDC_HandleTypeDef *hltdc, LTDC_LayerCfgTypeDef *pLayerCfg, uint32_t LayerIdx) {
     uint32_t tmp = 0;
     uint32_t tmp1 = 0;
     uint32_t tmp2 = 0;
@@ -490,24 +490,24 @@ void STM32F7_Ltdc_SetConfiguration(LTDC_HandleTypeDef *hltdc, LTDC_LayerCfgTypeD
 }
 
 
-void STM32F7_Ltdc_LayerConfiguration(LTDC_HandleTypeDef *hltdc, LTDC_LayerCfgTypeDef *pLayerCfg, uint32_t LayerIdx) {
+void STM32H7_Ltdc_LayerConfiguration(LTDC_HandleTypeDef *hltdc, LTDC_LayerCfgTypeDef *pLayerCfg, uint32_t LayerIdx) {
     /* Copy new layer configuration into handle structure */
     hltdc->LayerCfg[LayerIdx] = *pLayerCfg;
 
     /* Configure the LTDC Layer */
-    STM32F7_Ltdc_SetConfiguration(hltdc, pLayerCfg, LayerIdx);
+    STM32H7_Ltdc_SetConfiguration(hltdc, pLayerCfg, LayerIdx);
 
     /* Sets the Reload type */
     hltdc->Instance->SRCR = LTDC_SRCR_IMR;
 
 }
 
-bool STM32F7_Display_Initialize() {
+bool STM32H7_Display_Initialize() {
     // InitializeConfiguration
     static LTDC_HandleTypeDef hltdc_F;
     LTDC_LayerCfgTypeDef      pLayerCfg;
 
-    const uint32_t STM32F7_DISPLAY_CLOCKDIVS[4] = { 2, 4, 8, 16 };
+    const uint32_t STM32H7_DISPLAY_CLOCKDIVS[4] = { 2, 4, 8, 16 };
 
     uint32_t pll_saiIn;
     uint32_t pll_saiQ;
@@ -526,12 +526,12 @@ bool STM32F7_Display_Initialize() {
 
     div = 0;
 
-    pll_saiIn = STM32F7_SYSTEM_CLOCK_HZ / 1000000; // In MHz
+    pll_saiIn = STM32H7_SYSTEM_CLOCK_HZ / 1000000; // In MHz
 
     while (true) {
-        clockMHz = (pll_saiIn / pll_saiR) / STM32F7_DISPLAY_CLOCKDIVS[div];
+        clockMHz = (pll_saiIn / pll_saiR) / STM32H7_DISPLAY_CLOCKDIVS[div];
 
-        if (clockMHz > (STM32F7_Display_GetPixelClockDivider() / 1000)) {
+        if (clockMHz > (STM32H7_Display_GetPixelClockDivider() / 1000)) {
             pll_saiR++;
 
             if (pll_saiR > 7) {
@@ -541,7 +541,7 @@ bool STM32F7_Display_Initialize() {
 
             if (div > 3) {
                 // clk is not in range, set default
-                // 216 / 5 / STM32F7_DISPLAY_CLOCKDIVS[div] = 216 / 5 / 4 = 10.8MHz
+                // 216 / 5 / STM32H7_DISPLAY_CLOCKDIVS[div] = 216 / 5 / 4 = 10.8MHz
                 div = 1;
                 pll_saiR = 5;
                 break;
@@ -553,7 +553,7 @@ bool STM32F7_Display_Initialize() {
         }
     }
 
-    STM32F7_Time_Delay(nullptr, 0x10000);
+    STM32H7_Time_Delay(nullptr, 0x10000);
 
     RCC->PLLSAICFGR = ((pll_saiIn) << 6) | ((pll_saiP) << 16) | ((pll_saiQ) << 24) | ((pll_saiR) << 28);
 
@@ -561,29 +561,29 @@ bool STM32F7_Display_Initialize() {
 
     RCC->CR |= (RCC_CR_PLLSAION);
 
-    STM32F7_Time_Delay(nullptr, 0x10000);
+    STM32H7_Time_Delay(nullptr, 0x10000);
 
     RCC->APB2ENR |= RCC_APB2ENR_LTDCEN;
 
     //HorizontalSyncPolarity
-    if (m_STM32F7_DisplayHorizontalSyncPolarity == false)
+    if (m_STM32H7_DisplayHorizontalSyncPolarity == false)
         hltdc_F.Init.HSPolarity = LTDC_HSPOLARITY_AL;
     else
         hltdc_F.Init.HSPolarity = LTDC_HSPOLARITY_AH;
     //VerticalSyncPolarity
-    if (m_STM32F7_DisplayVerticalSyncPolarity == false)
+    if (m_STM32H7_DisplayVerticalSyncPolarity == false)
         hltdc_F.Init.VSPolarity = LTDC_VSPOLARITY_AL;
     else
         hltdc_F.Init.VSPolarity = LTDC_VSPOLARITY_AH;
 
     //OutputEnablePolarity
-    if (m_STM32F7_DisplayOutputEnablePolarity == false)
+    if (m_STM32H7_DisplayOutputEnablePolarity == false)
         hltdc_F.Init.DEPolarity = LTDC_DEPOLARITY_AL;
     else
         hltdc_F.Init.DEPolarity = LTDC_DEPOLARITY_AH;
 
     //OutputEnablePolarity
-    if (m_STM32F7_DisplayPixelPolarity == false)
+    if (m_STM32H7_DisplayPixelPolarity == false)
         hltdc_F.Init.PCPolarity = LTDC_PCPOLARITY_IPC;
     else
         hltdc_F.Init.PCPolarity = LTDC_GCR_PCPOL;
@@ -597,14 +597,14 @@ bool STM32F7_Display_Initialize() {
 
     /* The RK043FN48H LCD 480x272 is selected */
     /* Timing Configuration */
-    hltdc_F.Init.HorizontalSync = (m_STM32F7_DisplayHorizontalSyncPulseWidth - 1);
-    hltdc_F.Init.VerticalSync = (m_STM32F7_DisplayVerticalSyncPulseWidth - 1);
-    hltdc_F.Init.AccumulatedHBP = (m_STM32F7_DisplayHorizontalSyncPulseWidth + m_STM32F7_DisplayHorizontalBackPorch - 1);
-    hltdc_F.Init.AccumulatedVBP = (m_STM32F7_DisplayVerticalSyncPulseWidth + m_STM32F7_DisplayVerticalBackPorch - 1);
-    hltdc_F.Init.AccumulatedActiveH = (m_STM32F7_DisplayHeight + m_STM32F7_DisplayVerticalSyncPulseWidth + m_STM32F7_DisplayVerticalBackPorch - 1);
-    hltdc_F.Init.AccumulatedActiveW = (m_STM32F7_DisplayWidth + m_STM32F7_DisplayHorizontalSyncPulseWidth + m_STM32F7_DisplayHorizontalBackPorch - 1);
-    hltdc_F.Init.TotalHeigh = (m_STM32F7_DisplayHeight + m_STM32F7_DisplayVerticalSyncPulseWidth + m_STM32F7_DisplayVerticalBackPorch + m_STM32F7_DisplayVerticalFrontPorch - 1);
-    hltdc_F.Init.TotalWidth = (m_STM32F7_DisplayWidth + m_STM32F7_DisplayHorizontalSyncPulseWidth + m_STM32F7_DisplayHorizontalBackPorch + m_STM32F7_DisplayHorizontalFrontPorch - 1);
+    hltdc_F.Init.HorizontalSync = (m_STM32H7_DisplayHorizontalSyncPulseWidth - 1);
+    hltdc_F.Init.VerticalSync = (m_STM32H7_DisplayVerticalSyncPulseWidth - 1);
+    hltdc_F.Init.AccumulatedHBP = (m_STM32H7_DisplayHorizontalSyncPulseWidth + m_STM32H7_DisplayHorizontalBackPorch - 1);
+    hltdc_F.Init.AccumulatedVBP = (m_STM32H7_DisplayVerticalSyncPulseWidth + m_STM32H7_DisplayVerticalBackPorch - 1);
+    hltdc_F.Init.AccumulatedActiveH = (m_STM32H7_DisplayHeight + m_STM32H7_DisplayVerticalSyncPulseWidth + m_STM32H7_DisplayVerticalBackPorch - 1);
+    hltdc_F.Init.AccumulatedActiveW = (m_STM32H7_DisplayWidth + m_STM32H7_DisplayHorizontalSyncPulseWidth + m_STM32H7_DisplayHorizontalBackPorch - 1);
+    hltdc_F.Init.TotalHeigh = (m_STM32H7_DisplayHeight + m_STM32H7_DisplayVerticalSyncPulseWidth + m_STM32H7_DisplayVerticalBackPorch + m_STM32H7_DisplayVerticalFrontPorch - 1);
+    hltdc_F.Init.TotalWidth = (m_STM32H7_DisplayWidth + m_STM32H7_DisplayHorizontalSyncPulseWidth + m_STM32H7_DisplayHorizontalBackPorch + m_STM32H7_DisplayHorizontalFrontPorch - 1);
     /* Layer1 Configuration ------------------------------------------------------*/
 
     /* Windowing configuration */
@@ -614,9 +614,9 @@ bool STM32F7_Display_Initialize() {
      Horizontal stop = Horizontal start + window width -1 = 43 + 480 -1
      Vertical stop   = Vertical start + window height -1  = 12 + 272 -1      */
     pLayerCfg.WindowX0 = 0;
-    pLayerCfg.WindowX1 = m_STM32F7_DisplayWidth;
+    pLayerCfg.WindowX1 = m_STM32H7_DisplayWidth;
     pLayerCfg.WindowY0 = 0;
-    pLayerCfg.WindowY1 = m_STM32F7_DisplayHeight;
+    pLayerCfg.WindowY1 = m_STM32H7_DisplayHeight;
 
     /* Configure R,G,B component values for LCD background color : all black background */
     hltdc_F.Init.Backcolor.Blue = 0;
@@ -629,10 +629,10 @@ bool STM32F7_Display_Initialize() {
     pLayerCfg.PixelFormat = LTDC_PIXEL_FORMAT_RGB565;
 
     /* Start Address configuration : frame buffer is located at FLASH memory */
-    if (m_STM32F7_Display_VituralRam == nullptr)
+    if (m_STM32H7_Display_VituralRam == nullptr)
         return false;
 
-    pLayerCfg.FBStartAdress = (uint32_t)m_STM32F7_Display_VituralRam;
+    pLayerCfg.FBStartAdress = (uint32_t)m_STM32H7_Display_VituralRam;
 
     /* Alpha constant (255 == totally opaque) */
     pLayerCfg.Alpha = 255;
@@ -652,86 +652,86 @@ bool STM32F7_Display_Initialize() {
     pLayerCfg.ImageHeight = pLayerCfg.WindowY1;
 
     /* Configure the LTDC */
-    if (!STM32F7_Ltdc_Initialize(&hltdc_F)) {
+    if (!STM32H7_Ltdc_Initialize(&hltdc_F)) {
         return false;
     }
 
     /* Configure the Layer*/
-    STM32F7_Ltdc_LayerConfiguration(&hltdc_F, &pLayerCfg, 1);
+    STM32H7_Ltdc_LayerConfiguration(&hltdc_F, &pLayerCfg, 1);
 
     return true;
 }
 
-bool STM32F7_Display_Uninitialize() {
+bool STM32H7_Display_Uninitialize() {
     RCC->APB2ENR &= ~RCC_APB2ENR_LTDCEN;
 
     return true;
 }
 
 //====================================================
-void STM32F7_Display_WriteFormattedChar(uint8_t c) {
-    if (m_STM32F7_DisplayEnable == false)
+void STM32H7_Display_WriteFormattedChar(uint8_t c) {
+    if (m_STM32H7_DisplayEnable == false)
         return;
 
     if (c == '\f') {
-        STM32F7_Display_Clear();
-        STM32F7_Display_TextEnterClearMode();
-        m_STM32F7_Display_TextColumn = 0;
+        STM32H7_Display_Clear();
+        STM32H7_Display_TextEnterClearMode();
+        m_STM32H7_Display_TextColumn = 0;
 
         return;
     }
 
     if (c == '\r') {
-        m_STM32F7_Display_TextColumn = 0;
+        m_STM32H7_Display_TextColumn = 0;
 
         return;
     }
     if (c == '\n') {
-        m_STM32F7_Display_TextColumn = 0;
+        m_STM32H7_Display_TextColumn = 0;
 
-        if (++m_STM32F7_Display_TextRow >= LCD_MAX_ROW) {
-            m_STM32F7_Display_TextRow = LCD_MAX_ROW - 1;
-            STM32F7_Display_TextShiftColUp();
+        if (++m_STM32H7_Display_TextRow >= LCD_MAX_ROW) {
+            m_STM32H7_Display_TextRow = LCD_MAX_ROW - 1;
+            STM32H7_Display_TextShiftColUp();
         }
         // clean the new line
         for (c = 0; c < (LCD_MAX_COLUMN - 1); c++) {
-            m_STM32F7_Display_TextBuffer[c][m_STM32F7_Display_TextRow] = ' ';
+            m_STM32H7_Display_TextBuffer[c][m_STM32H7_Display_TextRow] = ' ';
         }
 
         return;
     }
 
-    STM32F7_Display_PrintChracter(m_STM32F7_Display_TextColumn * 6, m_STM32F7_Display_TextRow * 8, c);
-    m_STM32F7_Display_TextBuffer[m_STM32F7_Display_TextColumn][m_STM32F7_Display_TextRow] = c;
+    STM32H7_Display_PrintChracter(m_STM32H7_Display_TextColumn * 6, m_STM32H7_Display_TextRow * 8, c);
+    m_STM32H7_Display_TextBuffer[m_STM32H7_Display_TextColumn][m_STM32H7_Display_TextRow] = c;
 
-    if (++m_STM32F7_Display_TextColumn >= (LCD_MAX_COLUMN - 1)) {
-        m_STM32F7_Display_TextColumn = 0;
+    if (++m_STM32H7_Display_TextColumn >= (LCD_MAX_COLUMN - 1)) {
+        m_STM32H7_Display_TextColumn = 0;
 
-        if (++m_STM32F7_Display_TextRow >= LCD_MAX_ROW) {
-            m_STM32F7_Display_TextRow = LCD_MAX_ROW - 1;
-            STM32F7_Display_TextShiftColUp();
+        if (++m_STM32H7_Display_TextRow >= LCD_MAX_ROW) {
+            m_STM32H7_Display_TextRow = LCD_MAX_ROW - 1;
+            STM32H7_Display_TextShiftColUp();
         }
         else {
             // clean the new line
             for (c = 0; c < LCD_MAX_COLUMN; c++) {
-                m_STM32F7_Display_TextBuffer[c][m_STM32F7_Display_TextRow] = ' ';
+                m_STM32H7_Display_TextBuffer[c][m_STM32H7_Display_TextRow] = ' ';
             }
         }
     }
 }
 //=======================================================
-void STM32F7_Display_PaintPixel(uint32_t x, uint32_t y, uint8_t c) {
+void STM32H7_Display_PaintPixel(uint32_t x, uint32_t y, uint8_t c) {
     volatile uint16_t * loc;
 
-    if (m_STM32F7_DisplayEnable == false)
+    if (m_STM32H7_DisplayEnable == false)
         return;
 
-    if (x >= m_STM32F7_DisplayWidth)
+    if (x >= m_STM32H7_DisplayWidth)
         return;
-    if (y >= m_STM32F7_DisplayHeight)
+    if (y >= m_STM32H7_DisplayHeight)
         return;
 
-    loc = m_STM32F7_Display_VituralRam + (y *m_STM32F7_DisplayWidth) + (x);
+    loc = m_STM32H7_Display_VituralRam + (y *m_STM32H7_DisplayWidth) + (x);
 
     if (c)
         *loc = 0x0fff;
@@ -739,151 +739,151 @@ void STM32F7_Display_PaintPixel(uint32_t x, uint32_t y, uint8_t c) {
         *loc = 0;
 }
 //=======================================================
-void STM32F7_Display_Paint8HorizontalPixels(uint32_t x, uint32_t y, uint8_t p) {
-    if (m_STM32F7_DisplayEnable == false)
+void STM32H7_Display_Paint8HorizontalPixels(uint32_t x, uint32_t y, uint8_t p) {
+    if (m_STM32H7_DisplayEnable == false)
         return;
 
     for (int32_t i = 0; i < 8; i++) {
         if (p&(1 << i))
-            STM32F7_Display_PaintPixel(x, y + i, 1);
+            STM32H7_Display_PaintPixel(x, y + i, 1);
         else
-            STM32F7_Display_PaintPixel(x, y + i, 0);//clear
+            STM32H7_Display_PaintPixel(x, y + i, 0);//clear
     }
 }
 //===========================================================
-void STM32F7_Display_TextEnterClearMode() {
+void STM32H7_Display_TextEnterClearMode() {
     uint32_t r, c;
 
-    if (m_STM32F7_DisplayEnable == false)
+    if (m_STM32H7_DisplayEnable == false)
         return;
 
-    STM32F7_Display_Clear();
-    m_STM32F7_Display_TextRow = 0;
-    m_STM32F7_Display_TextColumn = 0;
+    STM32H7_Display_Clear();
+    m_STM32H7_Display_TextRow = 0;
+    m_STM32H7_Display_TextColumn = 0;
 
     for (r = 0; r < LCD_MAX_ROW; r++) {
         for (c = 0; c < (LCD_MAX_COLUMN - 1); c++) {
-            m_STM32F7_Display_TextBuffer[c][r] = '1';
+            m_STM32H7_Display_TextBuffer[c][r] = '1';
         }
     }
 }
 //===========================================================
-void STM32F7_Display_PrintChracter(uint32_t x, uint32_t y, uint8_t c) {
+void STM32H7_Display_PrintChracter(uint32_t x, uint32_t y, uint8_t c) {
     uint8_t i;
 
-    if (m_STM32F7_DisplayEnable == false)
+    if (m_STM32H7_DisplayEnable == false)
         return;
 
     for (i = 0; i < 5; i++)
-        STM32F7_Display_Paint8HorizontalPixels(x + i, y, characters[c][i]);
+        STM32H7_Display_Paint8HorizontalPixels(x + i, y, characters[c][i]);
 
-    STM32F7_Display_Paint8HorizontalPixels(x + i, y, 0);
+    STM32H7_Display_Paint8HorizontalPixels(x + i, y, 0);
 }
 
-void STM32F7_Display_TextShiftColUp() {
+void STM32H7_Display_TextShiftColUp() {
     uint32_t r, c;
 
-    if (m_STM32F7_DisplayEnable == false)
+    if (m_STM32H7_DisplayEnable == false)
         return;
 
     // refresh with new data
-    STM32F7_Display_Clear();
-    m_STM32F7_Display_TextRow = 0;
-    m_STM32F7_Display_TextColumn = 0;
+    STM32H7_Display_Clear();
+    m_STM32H7_Display_TextRow = 0;
+    m_STM32H7_Display_TextColumn = 0;
 
     for (r = 0; r < (LCD_MAX_ROW - 1); r++) {
         for (c = 0; c < LCD_MAX_COLUMN - 1; c++) {
-            m_STM32F7_Display_TextBuffer[c][r] = m_STM32F7_Display_TextBuffer[c][r + 1];
-            STM32F7_Display_WriteFormattedChar(m_STM32F7_Display_TextBuffer[c][r]);
+            m_STM32H7_Display_TextBuffer[c][r] = m_STM32H7_Display_TextBuffer[c][r + 1];
+            STM32H7_Display_WriteFormattedChar(m_STM32H7_Display_TextBuffer[c][r]);
         }
     }
 }
 
-void STM32F7_Display_Clear() {
-    if (m_STM32F7_DisplayEnable == false || m_STM32F7_Display_VituralRam == nullptr)
+void STM32H7_Display_Clear() {
+    if (m_STM32H7_DisplayEnable == false || m_STM32H7_Display_VituralRam == nullptr)
         return;
 
-    memset((uint32_t*)m_STM32F7_Display_VituralRam, 0, m_STM32F7_DisplayBufferSize);
+    memset((uint32_t*)m_STM32H7_Display_VituralRam, 0, m_STM32H7_DisplayBufferSize);
 }
 
-const STM32F7_Gpio_Pin g_Display_ControllerPins[] = STM32F7_DISPLAY_CONTROLLER_PINS;
-const STM32F7_Gpio_Pin g_Display_BacklightPin = STM32F7_DISPLAY_BACKLIGHT_PIN;
-const STM32F7_Gpio_Pin g_Display_EnablePin = STM32F7_DISPLAY_ENABLE_PIN;
+const STM32H7_Gpio_Pin g_Display_ControllerPins[] = STM32H7_DISPLAY_CONTROLLER_PINS;
+const STM32H7_Gpio_Pin g_Display_BacklightPin = STM32H7_DISPLAY_BACKLIGHT_PIN;
+const STM32H7_Gpio_Pin g_Display_EnablePin = STM32H7_DISPLAY_ENABLE_PIN;
 
-bool STM32F7_Display_SetPinConfiguration(bool enable) {
+bool STM32H7_Display_SetPinConfiguration(bool enable) {
     if (enable) {
         for (int32_t i = 0; i < SIZEOF_ARRAY(g_Display_ControllerPins); i++) {
-            if (!STM32F7_GpioInternal_OpenPin(g_Display_ControllerPins[i].number)) {
+            if (!STM32H7_GpioInternal_OpenPin(g_Display_ControllerPins[i].number)) {
                 return false;
             }
 
-            STM32F7_GpioInternal_ConfigurePin(g_Display_ControllerPins[i].number, STM32F7_Gpio_PortMode::AlternateFunction, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::High, STM32F7_Gpio_PullDirection::None, g_Display_ControllerPins[i].alternateFunction);
+            STM32H7_GpioInternal_ConfigurePin(g_Display_ControllerPins[i].number, STM32H7_Gpio_PortMode::AlternateFunction, STM32H7_Gpio_OutputType::PushPull, STM32H7_Gpio_OutputSpeed::High, STM32H7_Gpio_PullDirection::None, g_Display_ControllerPins[i].alternateFunction);
         }
 
-        //if (!STM32F7_GpioInternal_OpenPin(g_Display_EnablePin.number)) {
+        //if (!STM32H7_GpioInternal_OpenPin(g_Display_EnablePin.number)) {
         //    return false;
         //}
 
-        if (m_STM32F7_DisplayOutputEnableIsFixed) {
-            STM32F7_GpioInternal_ConfigurePin(g_Display_EnablePin.number, STM32F7_Gpio_PortMode::GeneralPurposeOutput, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::High, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
-            STM32F7_GpioInternal_WritePin(g_Display_EnablePin.number, m_STM32F7_DisplayOutputEnablePolarity);
+        if (m_STM32H7_DisplayOutputEnableIsFixed) {
+            STM32H7_GpioInternal_ConfigurePin(g_Display_EnablePin.number, STM32H7_Gpio_PortMode::GeneralPurposeOutput, STM32H7_Gpio_OutputType::PushPull, STM32H7_Gpio_OutputSpeed::High, STM32H7_Gpio_PullDirection::None, STM32H7_Gpio_AlternateFunction::AF0);
+            STM32H7_GpioInternal_WritePin(g_Display_EnablePin.number, m_STM32H7_DisplayOutputEnablePolarity);
         }
         else {
-            STM32F7_GpioInternal_ConfigurePin(g_Display_EnablePin.number, STM32F7_Gpio_PortMode::AlternateFunction, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::High, STM32F7_Gpio_PullDirection::None, g_Display_EnablePin.alternateFunction);
+            STM32H7_GpioInternal_ConfigurePin(g_Display_EnablePin.number, STM32H7_Gpio_PortMode::AlternateFunction, STM32H7_Gpio_OutputType::PushPull, STM32H7_Gpio_OutputSpeed::High, STM32H7_Gpio_PullDirection::None, g_Display_EnablePin.alternateFunction);
         }
 
         if (g_Display_BacklightPin.number != PIN_NONE) {
-            if (!STM32F7_GpioInternal_OpenPin(g_Display_BacklightPin.number)) {
+            if (!STM32H7_GpioInternal_OpenPin(g_Display_BacklightPin.number)) {
                 return false;
             }
 
-            STM32F7_GpioInternal_ConfigurePin(g_Display_BacklightPin.number, STM32F7_Gpio_PortMode::GeneralPurposeOutput, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::High, STM32F7_Gpio_PullDirection::None, g_Display_BacklightPin.alternateFunction);
-            STM32F7_GpioInternal_WritePin(g_Display_BacklightPin.number, true);
+            STM32H7_GpioInternal_ConfigurePin(g_Display_BacklightPin.number, STM32H7_Gpio_PortMode::GeneralPurposeOutput, STM32H7_Gpio_OutputType::PushPull, STM32H7_Gpio_OutputSpeed::High, STM32H7_Gpio_PullDirection::None, g_Display_BacklightPin.alternateFunction);
+            STM32H7_GpioInternal_WritePin(g_Display_BacklightPin.number, true);
         }
     }
     else {
         for (int32_t i = 0; i < SIZEOF_ARRAY(g_Display_ControllerPins); i++) {
-            STM32F7_GpioInternal_ClosePin(g_Display_ControllerPins[i].number);
+            STM32H7_GpioInternal_ClosePin(g_Display_ControllerPins[i].number);
         }
 
-        STM32F7_GpioInternal_ClosePin(g_Display_EnablePin.number);
+        STM32H7_GpioInternal_ClosePin(g_Display_EnablePin.number);
 
-        STM32F7_GpioInternal_ClosePin(g_Display_BacklightPin.number);
+        STM32H7_GpioInternal_ClosePin(g_Display_BacklightPin.number);
     }
 
     return true;
 }
 
-uint32_t* STM32F7_Display_GetFrameBuffer() {
-    return (uint32_t*)m_STM32F7_Display_VituralRam;
+uint32_t* STM32H7_Display_GetFrameBuffer() {
+    return (uint32_t*)m_STM32H7_Display_VituralRam;
 }
 
-int32_t STM32F7_Display_GetWidth() {
-    int32_t width = m_STM32F7_DisplayWidth;
-    int32_t height = m_STM32F7_DisplayHeight;
+int32_t STM32H7_Display_GetWidth() {
+    int32_t width = m_STM32H7_DisplayWidth;
+    int32_t height = m_STM32H7_DisplayHeight;
 
-    STM32F7_Display_GetRotatedDimensions(&width, &height);
+    STM32H7_Display_GetRotatedDimensions(&width, &height);
 
     return width;
 }
 
-int32_t STM32F7_Display_GetHeight() {
-    int32_t width = m_STM32F7_DisplayWidth;
-    int32_t height = m_STM32F7_DisplayHeight;
+int32_t STM32H7_Display_GetHeight() {
+    int32_t width = m_STM32H7_DisplayWidth;
+    int32_t height = m_STM32H7_DisplayHeight;
 
-    STM32F7_Display_GetRotatedDimensions(&width, &height);
+    STM32H7_Display_GetRotatedDimensions(&width, &height);
 
     return height;
 }
 
-uint32_t STM32F7_Display_GetPixelClockDivider() {
-    return m_STM32F7_DisplayPixelClockRateKHz;
+uint32_t STM32H7_Display_GetPixelClockDivider() {
+    return m_STM32H7_DisplayPixelClockRateKHz;
 }
-int32_t STM32F7_Display_GetOrientation() {
-    return m_STM32F7_Display_CurrentRotation;
+int32_t STM32H7_Display_GetOrientation() {
+    return m_STM32H7_Display_CurrentRotation;
 }
 
-void  STM32F7_Display_MemCopy(void *dest, void *src, int32_t size) {
+void  STM32H7_Display_MemCopy(void *dest, void *src, int32_t size) {
     const int32_t MEMCOPY_BYTES_ALIGNED = 8;
 
     uint64_t *from64 = (uint64_t *)src;
@@ -909,32 +909,32 @@ void  STM32F7_Display_MemCopy(void *dest, void *src, int32_t size) {
     }
 }
 
-void STM32F7_Display_BitBltEx(int32_t x, int32_t y, int32_t width, int32_t height, uint32_t data[]) {
+void STM32H7_Display_BitBltEx(int32_t x, int32_t y, int32_t width, int32_t height, uint32_t data[]) {
 
     int32_t xTo, yTo, xFrom, yFrom;
     int32_t xOffset = x;
     int32_t yOffset = y;
     uint16_t *from = (uint16_t *)data;
-    uint16_t *to = (uint16_t *)m_STM32F7_Display_VituralRam;
+    uint16_t *to = (uint16_t *)m_STM32H7_Display_VituralRam;
 
 
-    int32_t screenWidth = m_STM32F7_DisplayWidth;
-    int32_t screenHeight = m_STM32F7_DisplayHeight;
+    int32_t screenWidth = m_STM32H7_DisplayWidth;
+    int32_t screenHeight = m_STM32H7_DisplayHeight;
     int32_t startPx, toAddition;
 
-    if (m_STM32F7_DisplayEnable == false)
+    if (m_STM32H7_DisplayEnable == false)
         return;
 
-    switch (m_STM32F7_Display_CurrentRotation) {
+    switch (m_STM32H7_Display_CurrentRotation) {
     case STM32F7xx_LCD_Rotation::rotateNormal_0:
 
         if (xOffset == 0 && yOffset == 0 &&
             width == screenWidth && height == screenHeight) {
-            STM32F7_Display_MemCopy(to, from, (screenWidth*screenHeight * 2));
+            STM32H7_Display_MemCopy(to, from, (screenWidth*screenHeight * 2));
         }
         else {
             for (yTo = yOffset; yTo < (yOffset + height); yTo++) {
-                STM32F7_Display_MemCopy((void*)(to + yTo * screenWidth + xOffset), (void*)(from + yTo * screenWidth + xOffset), (width * 2));
+                STM32H7_Display_MemCopy((void*)(to + yTo * screenWidth + xOffset), (void*)(from + yTo * screenWidth + xOffset), (width * 2));
             }
         }
 
@@ -1012,59 +1012,59 @@ void STM32F7_Display_BitBltEx(int32_t x, int32_t y, int32_t width, int32_t heigh
 
 }
 
-void STM32F7_Display_WriteChar(uint8_t c, int32_t row, int32_t col) {
-    m_STM32F7_Display_TextRow = row;
-    m_STM32F7_Display_TextColumn = col;
-    STM32F7_Display_WriteFormattedChar(c);
+void STM32H7_Display_WriteChar(uint8_t c, int32_t row, int32_t col) {
+    m_STM32H7_Display_TextRow = row;
+    m_STM32H7_Display_TextColumn = col;
+    STM32H7_Display_WriteFormattedChar(c);
 
 }
-void STM32F7_Display_GetRotatedDimensions(int32_t *screenWidth, int32_t *screenHeight) {
-    switch (m_STM32F7_Display_CurrentRotation) {
+void STM32H7_Display_GetRotatedDimensions(int32_t *screenWidth, int32_t *screenHeight) {
+    switch (m_STM32H7_Display_CurrentRotation) {
     case STM32F7xx_LCD_Rotation::rotateNormal_0:
     case STM32F7xx_LCD_Rotation::rotate_180:
-        *screenWidth = m_STM32F7_DisplayWidth;
-        *screenHeight = m_STM32F7_DisplayHeight;
+        *screenWidth = m_STM32H7_DisplayWidth;
+        *screenHeight = m_STM32H7_DisplayHeight;
         break;
 
     case STM32F7xx_LCD_Rotation::rotateCCW_90:
     case STM32F7xx_LCD_Rotation::rotateCW_90:
-        *screenWidth = m_STM32F7_DisplayHeight;
-        *screenHeight = m_STM32F7_DisplayWidth;
+        *screenWidth = m_STM32H7_DisplayHeight;
+        *screenHeight = m_STM32H7_DisplayWidth;
         break;
     }
 }
 
-TinyCLR_Result STM32F7_Display_Acquire(const TinyCLR_Display_Provider* self, int32_t controller) {
-    m_STM32F7_Display_CurrentRotation = STM32F7xx_LCD_Rotation::rotateNormal_0;
+TinyCLR_Result STM32H7_Display_Acquire(const TinyCLR_Display_Provider* self, int32_t controller) {
+    m_STM32H7_Display_CurrentRotation = STM32F7xx_LCD_Rotation::rotateNormal_0;
 
-    if (!STM32F7_Display_SetPinConfiguration(true)) {
+    if (!STM32H7_Display_SetPinConfiguration(true)) {
         return TinyCLR_Result::SharingViolation;
     }
 
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Display_Release(const TinyCLR_Display_Provider* self, int32_t controller) {
-    STM32F7_Display_Uninitialize();
+TinyCLR_Result STM32H7_Display_Release(const TinyCLR_Display_Provider* self, int32_t controller) {
+    STM32H7_Display_Uninitialize();
 
-    STM32F7_Display_SetPinConfiguration(false);
+    STM32H7_Display_SetPinConfiguration(false);
 
-    m_STM32F7_DisplayEnable = false;
+    m_STM32H7_DisplayEnable = false;
 
-    if (m_STM32F7_Display_VituralRam != nullptr) {
+    if (m_STM32H7_Display_VituralRam != nullptr) {
         auto memoryProvider = (const TinyCLR_Memory_Provider*)apiProvider->FindDefault(apiProvider, TinyCLR_Api_Type::MemoryProvider);
 
-        memoryProvider->Free(memoryProvider, m_STM32F7_Display_VituralRam);
+        memoryProvider->Free(memoryProvider, m_STM32H7_Display_VituralRam);
 
-        m_STM32F7_Display_VituralRam = nullptr;
+        m_STM32H7_Display_VituralRam = nullptr;
     }
 
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Display_Enable(const TinyCLR_Display_Provider* self, int32_t controller) {
-    if (m_STM32F7_DisplayEnable || STM32F7_Display_Initialize()) {
-        m_STM32F7_DisplayEnable = true;
+TinyCLR_Result STM32H7_Display_Enable(const TinyCLR_Display_Provider* self, int32_t controller) {
+    if (m_STM32H7_DisplayEnable || STM32H7_Display_Initialize()) {
+        m_STM32H7_DisplayEnable = true;
 
         return TinyCLR_Result::Success;
     }
@@ -1072,44 +1072,44 @@ TinyCLR_Result STM32F7_Display_Enable(const TinyCLR_Display_Provider* self, int3
     return TinyCLR_Result::InvalidOperation;
 }
 
-TinyCLR_Result STM32F7_Display_Disable(const TinyCLR_Display_Provider* self, int32_t controller) {
-    STM32F7_Display_Uninitialize();
+TinyCLR_Result STM32H7_Display_Disable(const TinyCLR_Display_Provider* self, int32_t controller) {
+    STM32H7_Display_Uninitialize();
 
-    m_STM32F7_DisplayEnable = false;
+    m_STM32H7_DisplayEnable = false;
 
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Display_SetConfiguration(const TinyCLR_Display_Provider* self, int32_t controller, TinyCLR_Display_DataFormat dataFormat, uint32_t width, uint32_t height, const void* configuration) {
+TinyCLR_Result STM32H7_Display_SetConfiguration(const TinyCLR_Display_Provider* self, int32_t controller, TinyCLR_Display_DataFormat dataFormat, uint32_t width, uint32_t height, const void* configuration) {
     if (dataFormat != TinyCLR_Display_DataFormat::Rgb565) return TinyCLR_Result::NotSupported;
 
-    m_STM32F7_DisplayWidth = width;
-    m_STM32F7_DisplayHeight = height;
+    m_STM32H7_DisplayWidth = width;
+    m_STM32H7_DisplayHeight = height;
 
     if (configuration != nullptr) {
         auto& cfg = *(const TinyCLR_Display_ParallelConfiguration*)configuration;
 
-        m_STM32F7_DisplayOutputEnableIsFixed = cfg.DataEnableIsFixed;
-        m_STM32F7_DisplayOutputEnablePolarity = cfg.DataEnablePolarity;
-        m_STM32F7_DisplayPixelPolarity = cfg.PixelPolarity;
+        m_STM32H7_DisplayOutputEnableIsFixed = cfg.DataEnableIsFixed;
+        m_STM32H7_DisplayOutputEnablePolarity = cfg.DataEnablePolarity;
+        m_STM32H7_DisplayPixelPolarity = cfg.PixelPolarity;
 
-        m_STM32F7_DisplayPixelClockRateKHz = cfg.PixelClockRate / 1000;
+        m_STM32H7_DisplayPixelClockRateKHz = cfg.PixelClockRate / 1000;
 
-        m_STM32F7_DisplayHorizontalSyncPolarity = cfg.HorizontalSyncPolarity;
+        m_STM32H7_DisplayHorizontalSyncPolarity = cfg.HorizontalSyncPolarity;
 
-        m_STM32F7_DisplayHorizontalSyncPulseWidth = cfg.HorizontalSyncPulseWidth;
-        m_STM32F7_DisplayHorizontalFrontPorch = cfg.HorizontalFrontPorch;
-        m_STM32F7_DisplayHorizontalBackPorch = cfg.HorizontalBackPorch;
+        m_STM32H7_DisplayHorizontalSyncPulseWidth = cfg.HorizontalSyncPulseWidth;
+        m_STM32H7_DisplayHorizontalFrontPorch = cfg.HorizontalFrontPorch;
+        m_STM32H7_DisplayHorizontalBackPorch = cfg.HorizontalBackPorch;
 
-        m_STM32F7_DisplayVerticalSyncPolarity = cfg.VerticalSyncPolarity;
+        m_STM32H7_DisplayVerticalSyncPolarity = cfg.VerticalSyncPolarity;
 
-        m_STM32F7_DisplayVerticalSyncPulseWidth = cfg.VerticalSyncPulseWidth;
-        m_STM32F7_DisplayVerticalFrontPorch = cfg.VerticalFrontPorch;
-        m_STM32F7_DisplayVerticalBackPorch = cfg.VerticalBackPorch;
+        m_STM32H7_DisplayVerticalSyncPulseWidth = cfg.VerticalSyncPulseWidth;
+        m_STM32H7_DisplayVerticalFrontPorch = cfg.VerticalFrontPorch;
+        m_STM32H7_DisplayVerticalBackPorch = cfg.VerticalBackPorch;
 
         switch (dataFormat) {
         case TinyCLR_Display_DataFormat::Rgb565:
-            m_STM32F7_DisplayBufferSize = width * height * 2;
+            m_STM32H7_DisplayBufferSize = width * height * 2;
             break;
 
         default:
@@ -1119,15 +1119,15 @@ TinyCLR_Result STM32F7_Display_SetConfiguration(const TinyCLR_Display_Provider* 
 
         auto memoryProvider = (const TinyCLR_Memory_Provider*)apiProvider->FindDefault(apiProvider, TinyCLR_Api_Type::MemoryProvider);
 
-        if (m_STM32F7_Display_VituralRam != nullptr) {
-            memoryProvider->Free(memoryProvider, m_STM32F7_Display_VituralRam);
+        if (m_STM32H7_Display_VituralRam != nullptr) {
+            memoryProvider->Free(memoryProvider, m_STM32H7_Display_VituralRam);
 
-            m_STM32F7_Display_VituralRam = nullptr;
+            m_STM32H7_Display_VituralRam = nullptr;
         }
 
-        m_STM32F7_Display_VituralRam = (uint16_t*)((uint8_t*)memoryProvider->Allocate(memoryProvider, m_STM32F7_DisplayBufferSize));
+        m_STM32H7_Display_VituralRam = (uint16_t*)((uint8_t*)memoryProvider->Allocate(memoryProvider, m_STM32H7_DisplayBufferSize));
 
-        if (m_STM32F7_Display_VituralRam == nullptr) {
+        if (m_STM32H7_Display_VituralRam == nullptr) {
             return TinyCLR_Result::OutOfMemory;
         }
     }
@@ -1135,31 +1135,31 @@ TinyCLR_Result STM32F7_Display_SetConfiguration(const TinyCLR_Display_Provider* 
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Display_GetConfiguration(const TinyCLR_Display_Provider* self, int32_t controller, TinyCLR_Display_DataFormat& dataFormat, uint32_t& width, uint32_t& height, void* configuration) {
+TinyCLR_Result STM32H7_Display_GetConfiguration(const TinyCLR_Display_Provider* self, int32_t controller, TinyCLR_Display_DataFormat& dataFormat, uint32_t& width, uint32_t& height, void* configuration) {
     dataFormat = TinyCLR_Display_DataFormat::Rgb565;
-    width = m_STM32F7_DisplayWidth;
-    height = m_STM32F7_DisplayHeight;
+    width = m_STM32H7_DisplayWidth;
+    height = m_STM32H7_DisplayHeight;
 
     if (configuration != nullptr) {
         auto& cfg = *(TinyCLR_Display_ParallelConfiguration*)configuration;
 
-        cfg.DataEnableIsFixed = m_STM32F7_DisplayOutputEnableIsFixed;
-        cfg.DataEnablePolarity = m_STM32F7_DisplayOutputEnablePolarity;
-        cfg.PixelPolarity = m_STM32F7_DisplayPixelPolarity;
+        cfg.DataEnableIsFixed = m_STM32H7_DisplayOutputEnableIsFixed;
+        cfg.DataEnablePolarity = m_STM32H7_DisplayOutputEnablePolarity;
+        cfg.PixelPolarity = m_STM32H7_DisplayPixelPolarity;
 
-        cfg.PixelClockRate = m_STM32F7_DisplayPixelClockRateKHz * 1000;
+        cfg.PixelClockRate = m_STM32H7_DisplayPixelClockRateKHz * 1000;
 
-        cfg.HorizontalSyncPolarity = m_STM32F7_DisplayHorizontalSyncPolarity;
+        cfg.HorizontalSyncPolarity = m_STM32H7_DisplayHorizontalSyncPolarity;
 
-        cfg.HorizontalSyncPulseWidth = m_STM32F7_DisplayHorizontalSyncPulseWidth;
-        cfg.HorizontalFrontPorch = m_STM32F7_DisplayHorizontalFrontPorch;
-        cfg.HorizontalBackPorch = m_STM32F7_DisplayHorizontalBackPorch;
+        cfg.HorizontalSyncPulseWidth = m_STM32H7_DisplayHorizontalSyncPulseWidth;
+        cfg.HorizontalFrontPorch = m_STM32H7_DisplayHorizontalFrontPorch;
+        cfg.HorizontalBackPorch = m_STM32H7_DisplayHorizontalBackPorch;
 
-        cfg.VerticalSyncPolarity = m_STM32F7_DisplayVerticalSyncPolarity;
+        cfg.VerticalSyncPolarity = m_STM32H7_DisplayVerticalSyncPolarity;
 
-        cfg.VerticalSyncPulseWidth = m_STM32F7_DisplayVerticalSyncPulseWidth;
-        cfg.VerticalFrontPorch = m_STM32F7_DisplayVerticalFrontPorch;
-        cfg.VerticalBackPorch = m_STM32F7_DisplayVerticalBackPorch;
+        cfg.VerticalSyncPulseWidth = m_STM32H7_DisplayVerticalSyncPulseWidth;
+        cfg.VerticalFrontPorch = m_STM32H7_DisplayVerticalFrontPorch;
+        cfg.VerticalBackPorch = m_STM32H7_DisplayVerticalBackPorch;
 
         return TinyCLR_Result::Success;
     }
@@ -1167,21 +1167,21 @@ TinyCLR_Result STM32F7_Display_GetConfiguration(const TinyCLR_Display_Provider* 
     return TinyCLR_Result::InvalidOperation;
 }
 
-TinyCLR_Result STM32F7_Display_DrawBuffer(const TinyCLR_Display_Provider* self, int32_t controller, int32_t x, int32_t y, int32_t width, int32_t height, const uint8_t* data) {
-    STM32F7_Display_BitBltEx(x, y, width, height, (uint32_t*)data);
+TinyCLR_Result STM32H7_Display_DrawBuffer(const TinyCLR_Display_Provider* self, int32_t controller, int32_t x, int32_t y, int32_t width, int32_t height, const uint8_t* data) {
+    STM32H7_Display_BitBltEx(x, y, width, height, (uint32_t*)data);
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Display_WriteString(const TinyCLR_Display_Provider* self, int32_t controller, const char* buffer, size_t length) {
+TinyCLR_Result STM32H7_Display_WriteString(const TinyCLR_Display_Provider* self, int32_t controller, const char* buffer, size_t length) {
     for (size_t i = 0; i < length; i++)
-        STM32F7_Display_WriteFormattedChar(buffer[i]);
+        STM32H7_Display_WriteFormattedChar(buffer[i]);
 
     return TinyCLR_Result::Success;
 }
 
 TinyCLR_Display_DataFormat dataFormats[] = { TinyCLR_Display_DataFormat::Rgb565 };
 
-TinyCLR_Result STM32F7_Display_GetCapabilities(const TinyCLR_Display_Provider* self, int32_t controller, TinyCLR_Display_InterfaceType& type, const TinyCLR_Display_DataFormat*& supportedDataFormats, size_t& supportedDataFormatCount) {
+TinyCLR_Result STM32H7_Display_GetCapabilities(const TinyCLR_Display_Provider* self, int32_t controller, TinyCLR_Display_InterfaceType& type, const TinyCLR_Display_DataFormat*& supportedDataFormats, size_t& supportedDataFormatCount) {
     type = TinyCLR_Display_InterfaceType::Parallel;
     supportedDataFormatCount = SIZEOF_ARRAY(dataFormats);
     supportedDataFormats = dataFormats;
@@ -1189,18 +1189,18 @@ TinyCLR_Result STM32F7_Display_GetCapabilities(const TinyCLR_Display_Provider* s
     return TinyCLR_Result::Success;
 }
 
-const TinyCLR_Api_Info* STM32F7_Display_GetApi() {
+const TinyCLR_Api_Info* STM32H7_Display_GetApi() {
     displayProvider.Parent = &displayApi;
-    displayProvider.Acquire = &STM32F7_Display_Acquire;
-    displayProvider.Release = &STM32F7_Display_Release;
-    displayProvider.Enable = &STM32F7_Display_Enable;
-    displayProvider.Disable = &STM32F7_Display_Disable;
-    displayProvider.SetConfiguration = &STM32F7_Display_SetConfiguration;
-    displayProvider.GetConfiguration = &STM32F7_Display_GetConfiguration;
-    displayProvider.GetCapabilities = &STM32F7_Display_GetCapabilities;
-    displayProvider.DrawBuffer = &STM32F7_Display_DrawBuffer;
-    displayProvider.WriteString = &STM32F7_Display_WriteString;
-    displayProvider.GetControllerCount = &STM32F7_Display_GetControllerCount;
+    displayProvider.Acquire = &STM32H7_Display_Acquire;
+    displayProvider.Release = &STM32H7_Display_Release;
+    displayProvider.Enable = &STM32H7_Display_Enable;
+    displayProvider.Disable = &STM32H7_Display_Disable;
+    displayProvider.SetConfiguration = &STM32H7_Display_SetConfiguration;
+    displayProvider.GetConfiguration = &STM32H7_Display_GetConfiguration;
+    displayProvider.GetCapabilities = &STM32H7_Display_GetCapabilities;
+    displayProvider.DrawBuffer = &STM32H7_Display_DrawBuffer;
+    displayProvider.WriteString = &STM32H7_Display_WriteString;
+    displayProvider.GetControllerCount = &STM32H7_Display_GetControllerCount;
 
     displayApi.Author = "GHI Electronics, LLC";
     displayApi.Name = "GHIElectronics.TinyCLR.NativeApis.STM32F7.DisplayProvider";
@@ -1208,21 +1208,21 @@ const TinyCLR_Api_Info* STM32F7_Display_GetApi() {
     displayApi.Version = 0;
     displayApi.Implementation = &displayProvider;
 
-    m_STM32F7_Display_VituralRam = nullptr;
+    m_STM32H7_Display_VituralRam = nullptr;
 
     return &displayApi;
 }
 
-void STM32F7_Display_Reset() {
-    STM32F7_Display_Clear();
+void STM32H7_Display_Reset() {
+    STM32H7_Display_Clear();
 
-    if (m_STM32F7_DisplayEnable)
-        STM32F7_Display_Release(&displayProvider, 0);
+    if (m_STM32H7_DisplayEnable)
+        STM32H7_Display_Release(&displayProvider, 0);
 
-    m_STM32F7_DisplayEnable = false;
+    m_STM32H7_DisplayEnable = false;
 }
 
-TinyCLR_Result STM32F7_Display_GetControllerCount(const TinyCLR_Display_Provider* self, int32_t& count) {
+TinyCLR_Result STM32H7_Display_GetControllerCount(const TinyCLR_Display_Provider* self, int32_t& count) {
     count = 1;
 
     return TinyCLR_Result::Success;

@@ -14,19 +14,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "STM32F7.h"
+#include "STM32H7.h"
 
-#if STM32F7_APB1_CLOCK_HZ == STM32F7_AHB_CLOCK_HZ
-#define PWM1_CLK_HZ (STM32F7_APB1_CLOCK_HZ)
+#if STM32H7_APB1_CLOCK_HZ == STM32H7_AHB_CLOCK_HZ
+#define PWM1_CLK_HZ (STM32H7_APB1_CLOCK_HZ)
 #else
-#define PWM1_CLK_HZ (STM32F7_APB1_CLOCK_HZ * 2)
+#define PWM1_CLK_HZ (STM32H7_APB1_CLOCK_HZ * 2)
 #endif
 #define PWM1_CLK_MHZ (PWM1_CLK_HZ / 1000000)
 
-#if STM32F7_APB2_CLOCK_HZ == STM32F7_AHB_CLOCK_HZ
-#define PWM2_CLK_HZ (STM32F7_APB2_CLOCK_HZ)
+#if STM32H7_APB2_CLOCK_HZ == STM32H7_AHB_CLOCK_HZ
+#define PWM2_CLK_HZ (STM32H7_APB2_CLOCK_HZ)
 #else
-#define PWM2_CLK_HZ (STM32F7_APB2_CLOCK_HZ * 2)
+#define PWM2_CLK_HZ (STM32H7_APB2_CLOCK_HZ * 2)
 #endif
 #define PWM2_CLK_MHZ (PWM2_CLK_HZ / 1000000)
 
@@ -41,13 +41,13 @@
 #define PWM_NANOSECONDS   1000000000
 #define PWM_PER_CONTROLLER 4
 
-#define STM32F7_MIN_PWM_FREQUENCY 1
+#define STM32H7_MIN_PWM_FREQUENCY 1
 
 typedef  TIM_TypeDef* ptr_TIM_TypeDef;
 
 struct PwmController {
     ptr_TIM_TypeDef     timerdef;
-    STM32F7_Gpio_Pin         gpioPin[PWM_PER_CONTROLLER];
+    STM32H7_Gpio_Pin         gpioPin[PWM_PER_CONTROLLER];
 
     bool                invert[PWM_PER_CONTROLLER];
     bool                isOpened[PWM_PER_CONTROLLER];
@@ -62,10 +62,10 @@ struct PwmController {
 
 };
 
-void STM32F7_Pwm_ResetController(int32_t controller);
-STM32F7_Gpio_Pin* STM32F7_Pwm_GetGpioPinForChannel(const TinyCLR_Pwm_Provider* self, int32_t controller, int32_t pin);
+void STM32H7_Pwm_ResetController(int32_t controller);
+STM32H7_Gpio_Pin* STM32H7_Pwm_GetGpioPinForChannel(const TinyCLR_Pwm_Provider* self, int32_t controller, int32_t pin);
 
-static STM32F7_Gpio_Pin pwmPins[][PWM_PER_CONTROLLER] = STM32F7_PWM_PINS;
+static STM32H7_Gpio_Pin pwmPins[][PWM_PER_CONTROLLER] = STM32H7_PWM_PINS;
 
 static const int TOTAL_PWM_CONTROLLER = SIZEOF_ARRAY(pwmPins);
 
@@ -74,20 +74,20 @@ static PwmController g_PwmController[TOTAL_PWM_CONTROLLER];
 static TinyCLR_Pwm_Provider pwmProviders;
 static TinyCLR_Api_Info pwmApi;
 
-const TinyCLR_Api_Info* STM32F7_Pwm_GetApi() {
+const TinyCLR_Api_Info* STM32H7_Pwm_GetApi() {
     pwmProviders.Parent = &pwmApi;
-    pwmProviders.Acquire = &STM32F7_Pwm_Acquire;
-    pwmProviders.Release = &STM32F7_Pwm_Release;
-    pwmProviders.AcquirePin = &STM32F7_Pwm_AcquirePin;
-    pwmProviders.ReleasePin = &STM32F7_Pwm_ReleasePin;
-    pwmProviders.EnablePin = &STM32F7_Pwm_EnablePin;
-    pwmProviders.DisablePin = &STM32F7_Pwm_DisablePin;
-    pwmProviders.SetPulseParameters = &STM32F7_Pwm_SetPulseParameters;
-    pwmProviders.SetDesiredFrequency = &STM32F7_Pwm_SetDesiredFrequency;
-    pwmProviders.GetMinFrequency = &STM32F7_Pwm_GetMinFrequency;
-    pwmProviders.GetMaxFrequency = &STM32F7_Pwm_GetMaxFrequency;
-    pwmProviders.GetPinCount = &STM32F7_Pwm_GetPinCount;
-    pwmProviders.GetControllerCount = &STM32F7_Pwm_GetControllerCount;
+    pwmProviders.Acquire = &STM32H7_Pwm_Acquire;
+    pwmProviders.Release = &STM32H7_Pwm_Release;
+    pwmProviders.AcquirePin = &STM32H7_Pwm_AcquirePin;
+    pwmProviders.ReleasePin = &STM32H7_Pwm_ReleasePin;
+    pwmProviders.EnablePin = &STM32H7_Pwm_EnablePin;
+    pwmProviders.DisablePin = &STM32H7_Pwm_DisablePin;
+    pwmProviders.SetPulseParameters = &STM32H7_Pwm_SetPulseParameters;
+    pwmProviders.SetDesiredFrequency = &STM32H7_Pwm_SetDesiredFrequency;
+    pwmProviders.GetMinFrequency = &STM32H7_Pwm_GetMinFrequency;
+    pwmProviders.GetMaxFrequency = &STM32H7_Pwm_GetMaxFrequency;
+    pwmProviders.GetPinCount = &STM32H7_Pwm_GetPinCount;
+    pwmProviders.GetControllerCount = &STM32H7_Pwm_GetControllerCount;
 
     pwmApi.Author = "GHI Electronics, LLC";
     pwmApi.Name = "GHIElectronics.TinyCLR.NativeApis.STM32F7.PwmProvider";
@@ -100,12 +100,12 @@ const TinyCLR_Api_Info* STM32F7_Pwm_GetApi() {
 
 //--//
 
-TinyCLR_Result STM32F7_Pwm_AcquirePin(const TinyCLR_Pwm_Provider* self, int32_t controller, int32_t pin) {
+TinyCLR_Result STM32H7_Pwm_AcquirePin(const TinyCLR_Pwm_Provider* self, int32_t controller, int32_t pin) {
     ptr_TIM_TypeDef treg = g_PwmController[controller].timerdef;
 
-    auto actualPin = STM32F7_Pwm_GetGpioPinForChannel(self, controller, pin);
+    auto actualPin = STM32H7_Pwm_GetGpioPinForChannel(self, controller, pin);
 
-    if (!STM32F7_GpioInternal_OpenPin(actualPin->number))
+    if (!STM32H7_GpioInternal_OpenPin(actualPin->number))
         return TinyCLR_Result::SharingViolation;
 
     // relevant RCC register & bit
@@ -136,10 +136,10 @@ TinyCLR_Result STM32F7_Pwm_AcquirePin(const TinyCLR_Pwm_Provider* self, int32_t 
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Pwm_ReleasePin(const TinyCLR_Pwm_Provider* self, int32_t controller, int32_t pin) {
+TinyCLR_Result STM32H7_Pwm_ReleasePin(const TinyCLR_Pwm_Provider* self, int32_t controller, int32_t pin) {
     ptr_TIM_TypeDef treg = g_PwmController[controller].timerdef;
 
-    auto actualPin = STM32F7_Pwm_GetGpioPinForChannel(self, controller, pin);
+    auto actualPin = STM32H7_Pwm_GetGpioPinForChannel(self, controller, pin);
 
     uint32_t mask = 0xFF; // disable PWM channel
     if (pin & 1) mask = 0xFF00; // 1 or 3
@@ -154,14 +154,14 @@ TinyCLR_Result STM32F7_Pwm_ReleasePin(const TinyCLR_Pwm_Provider* self, int32_t 
         *enReg &= ~enBit; // disable timer clock
     }
 
-    STM32F7_GpioInternal_ClosePin(actualPin->number);
+    STM32H7_GpioInternal_ClosePin(actualPin->number);
 
     g_PwmController[controller].isOpened[pin] = false;
 
     return TinyCLR_Result::Success;
 }
 
-void STM32F7_Pwm_GetScaleFactor(double frequency, uint32_t& period, uint32_t& scale) {
+void STM32H7_Pwm_GetScaleFactor(double frequency, uint32_t& period, uint32_t& scale) {
     if (frequency >= 1000.0) {
         period = (uint32_t)(((uint32_t)PWM_NANOSECONDS / frequency) + 0.5);
         scale = PWM_NANOSECONDS;
@@ -176,7 +176,7 @@ void STM32F7_Pwm_GetScaleFactor(double frequency, uint32_t& period, uint32_t& sc
     }
 }
 
-double STM32F7_Pwm_GetActualFrequency(const TinyCLR_Pwm_Provider* self, int32_t controller) {
+double STM32H7_Pwm_GetActualFrequency(const TinyCLR_Pwm_Provider* self, int32_t controller) {
     uint32_t period = 0;
     uint32_t scale = 0;
 
@@ -184,7 +184,7 @@ double STM32F7_Pwm_GetActualFrequency(const TinyCLR_Pwm_Provider* self, int32_t 
 
     ptr_TIM_TypeDef treg = g_PwmController[controller].timerdef;
 
-    STM32F7_Pwm_GetScaleFactor(freq, period, scale);
+    STM32H7_Pwm_GetScaleFactor(freq, period, scale);
 
     uint32_t p = period, s = scale;
 
@@ -256,12 +256,12 @@ double STM32F7_Pwm_GetActualFrequency(const TinyCLR_Pwm_Provider* self, int32_t 
     return actualFreq;
 }
 
-TinyCLR_Result STM32F7_Pwm_EnablePin(const TinyCLR_Pwm_Provider* self, int32_t controller, int32_t pin) {
+TinyCLR_Result STM32H7_Pwm_EnablePin(const TinyCLR_Pwm_Provider* self, int32_t controller, int32_t pin) {
     ptr_TIM_TypeDef treg = g_PwmController[controller].timerdef;
 
-    auto actualPin = STM32F7_Pwm_GetGpioPinForChannel(self, controller, pin);
+    auto actualPin = STM32H7_Pwm_GetGpioPinForChannel(self, controller, pin);
 
-    STM32F7_GpioInternal_ConfigurePin(actualPin->number, STM32F7_Gpio_PortMode::AlternateFunction, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, actualPin->alternateFunction);
+    STM32H7_GpioInternal_ConfigurePin(actualPin->number, STM32H7_Gpio_PortMode::AlternateFunction, STM32H7_Gpio_OutputType::PushPull, STM32H7_Gpio_OutputSpeed::VeryHigh, STM32H7_Gpio_PullDirection::None, actualPin->alternateFunction);
 
     uint16_t enBit = TIM_CCER_CC1E << (4 * pin);
 
@@ -277,17 +277,17 @@ TinyCLR_Result STM32F7_Pwm_EnablePin(const TinyCLR_Pwm_Provider* self, int32_t c
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Pwm_DisablePin(const TinyCLR_Pwm_Provider* self, int32_t controller, int32_t pin) {
+TinyCLR_Result STM32H7_Pwm_DisablePin(const TinyCLR_Pwm_Provider* self, int32_t controller, int32_t pin) {
     ptr_TIM_TypeDef treg = g_PwmController[controller].timerdef;
 
-    auto actualPin = STM32F7_Pwm_GetGpioPinForChannel(self, controller, pin);
+    auto actualPin = STM32H7_Pwm_GetGpioPinForChannel(self, controller, pin);
 
     uint16_t ccer = treg->CCER;
 
     ccer &= ~(TIM_CCER_CC1E << (4 * pin));
     treg->CCER = ccer; // disable output
 
-    STM32F7_GpioInternal_ConfigurePin(actualPin->number, STM32F7_Gpio_PortMode::Input, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
+    STM32H7_GpioInternal_ConfigurePin(actualPin->number, STM32H7_Gpio_PortMode::Input, STM32H7_Gpio_OutputType::PushPull, STM32H7_Gpio_OutputSpeed::VeryHigh, STM32H7_Gpio_PullDirection::None, STM32H7_Gpio_AlternateFunction::AF0);
 
     if ((ccer & (TIM_CCER_CC1E | TIM_CCER_CC2E | TIM_CCER_CC3E | TIM_CCER_CC4E)) == 0) { // idle
         treg->CR1 &= ~TIM_CR1_CEN; // stop timer
@@ -296,28 +296,28 @@ TinyCLR_Result STM32F7_Pwm_DisablePin(const TinyCLR_Pwm_Provider* self, int32_t 
     return TinyCLR_Result::Success;
 }
 
-int32_t STM32F7_Pwm_GetPinCount(const TinyCLR_Pwm_Provider* self, int32_t controller) {
+int32_t STM32H7_Pwm_GetPinCount(const TinyCLR_Pwm_Provider* self, int32_t controller) {
     return PWM_PER_CONTROLLER;
 }
 
-STM32F7_Gpio_Pin* STM32F7_Pwm_GetGpioPinForChannel(const TinyCLR_Pwm_Provider* self, int32_t controller, int32_t pin) {
+STM32H7_Gpio_Pin* STM32H7_Pwm_GetGpioPinForChannel(const TinyCLR_Pwm_Provider* self, int32_t controller, int32_t pin) {
     return &(g_PwmController[controller].gpioPin[pin]);
 }
 
-double STM32F7_Pwm_GetMaxFrequency(const TinyCLR_Pwm_Provider* self, int32_t controller) {
+double STM32H7_Pwm_GetMaxFrequency(const TinyCLR_Pwm_Provider* self, int32_t controller) {
     ptr_TIM_TypeDef treg = g_PwmController[controller].timerdef;
 
     if ((uint32_t)treg & 0x10000)
-        return STM32F7_APB2_CLOCK_HZ; // max can be Systemclock / 2 MHz on some PWM
+        return STM32H7_APB2_CLOCK_HZ; // max can be Systemclock / 2 MHz on some PWM
 
-    return STM32F7_APB1_CLOCK_HZ; //max can be Systemclock / 4 MHz on some PWM
+    return STM32H7_APB1_CLOCK_HZ; //max can be Systemclock / 4 MHz on some PWM
 }
 
-double STM32F7_Pwm_GetMinFrequency(const TinyCLR_Pwm_Provider* self, int32_t controller) {
-    return STM32F7_MIN_PWM_FREQUENCY;
+double STM32H7_Pwm_GetMinFrequency(const TinyCLR_Pwm_Provider* self, int32_t controller) {
+    return STM32H7_MIN_PWM_FREQUENCY;
 }
 
-TinyCLR_Result STM32F7_Pwm_SetPulseParameters(const TinyCLR_Pwm_Provider* self, int32_t controller, int32_t pin, double dutyCycle, bool invertPolarity) {
+TinyCLR_Result STM32H7_Pwm_SetPulseParameters(const TinyCLR_Pwm_Provider* self, int32_t controller, int32_t pin, double dutyCycle, bool invertPolarity) {
     ptr_TIM_TypeDef treg = g_PwmController[controller].timerdef;
 
     uint32_t duration = (uint32_t)(dutyCycle * g_PwmController[controller].period);
@@ -361,7 +361,7 @@ TinyCLR_Result STM32F7_Pwm_SetPulseParameters(const TinyCLR_Pwm_Provider* self, 
 
 }
 
-TinyCLR_Result STM32F7_Pwm_SetDesiredFrequency(const TinyCLR_Pwm_Provider* self, int32_t controller, double& frequency) {
+TinyCLR_Result STM32H7_Pwm_SetDesiredFrequency(const TinyCLR_Pwm_Provider* self, int32_t controller, double& frequency) {
     // If current frequency is same with desired frequency, no need to re-calculate
     if (g_PwmController[controller].theoryFreq == frequency) {
         return TinyCLR_Result::Success;
@@ -371,36 +371,36 @@ TinyCLR_Result STM32F7_Pwm_SetDesiredFrequency(const TinyCLR_Pwm_Provider* self,
     g_PwmController[controller].theoryFreq = frequency;
 
     // Calculate actual frequency base on desired frequency
-    frequency = STM32F7_Pwm_GetActualFrequency(self, controller);
+    frequency = STM32H7_Pwm_GetActualFrequency(self, controller);
 
     // Update channel if frequency had different
     for (int p = 0; p < PWM_PER_CONTROLLER; p++)
         if (g_PwmController[controller].gpioPin[p].number != PIN_NONE)
-            if (STM32F7_Pwm_SetPulseParameters(self, controller, p, g_PwmController[controller].dutyCycle[p], g_PwmController[controller].invert[p]) != TinyCLR_Result::Success)
+            if (STM32H7_Pwm_SetPulseParameters(self, controller, p, g_PwmController[controller].dutyCycle[p], g_PwmController[controller].invert[p]) != TinyCLR_Result::Success)
                 return TinyCLR_Result::InvalidOperation;
 
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Pwm_Acquire(const TinyCLR_Pwm_Provider* self, int32_t controller) {
+TinyCLR_Result STM32H7_Pwm_Acquire(const TinyCLR_Pwm_Provider* self, int32_t controller) {
     if (self == nullptr)
         return TinyCLR_Result::ArgumentNull;
 
-    STM32F7_Pwm_ResetController(controller);
+    STM32H7_Pwm_ResetController(controller);
 
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Pwm_Release(const TinyCLR_Pwm_Provider* self, int32_t controller) {
+TinyCLR_Result STM32H7_Pwm_Release(const TinyCLR_Pwm_Provider* self, int32_t controller) {
     if (self == nullptr)
         return TinyCLR_Result::ArgumentNull;
 
-    STM32F7_Pwm_ResetController(controller);
+    STM32H7_Pwm_ResetController(controller);
 
     return TinyCLR_Result::Success;
 }
 
-void STM32F7_Pwm_Reset() {
+void STM32H7_Pwm_Reset() {
     if (TOTAL_PWM_CONTROLLER > 0) g_PwmController[0].timerdef = TIM1;
     if (TOTAL_PWM_CONTROLLER > 1) g_PwmController[1].timerdef = TIM2;
     if (TOTAL_PWM_CONTROLLER > 2) g_PwmController[2].timerdef = TIM3;
@@ -419,11 +419,11 @@ void STM32F7_Pwm_Reset() {
 #endif
 
     for (auto controller = 0u; controller < TOTAL_PWM_CONTROLLER; controller++) {
-        STM32F7_Pwm_ResetController(controller);
+        STM32H7_Pwm_ResetController(controller);
     }
 }
 
-void STM32F7_Pwm_ResetController(int32_t controller) {
+void STM32H7_Pwm_ResetController(int32_t controller) {
     for (int p = 0; p < PWM_PER_CONTROLLER; p++) {
         g_PwmController[controller].gpioPin[p].number = pwmPins[controller][p].number;
         g_PwmController[controller].gpioPin[p].alternateFunction = pwmPins[controller][p].alternateFunction;
@@ -434,8 +434,8 @@ void STM32F7_Pwm_ResetController(int32_t controller) {
         }
 
         if (g_PwmController[controller].isOpened[p] == true) {
-            STM32F7_Pwm_DisablePin(&pwmProviders, controller, p);
-            STM32F7_Pwm_ReleasePin(&pwmProviders, controller, p);
+            STM32H7_Pwm_DisablePin(&pwmProviders, controller, p);
+            STM32H7_Pwm_ReleasePin(&pwmProviders, controller, p);
         }
 
         g_PwmController[controller].isOpened[p] = false;
@@ -448,7 +448,7 @@ void STM32F7_Pwm_ResetController(int32_t controller) {
     g_PwmController[controller].timer = controller + 1;
 }
 
-TinyCLR_Result STM32F7_Pwm_GetControllerCount(const TinyCLR_Pwm_Provider* self, int32_t& count) {
+TinyCLR_Result STM32H7_Pwm_GetControllerCount(const TinyCLR_Pwm_Provider* self, int32_t& count) {
     count = TOTAL_PWM_CONTROLLER;
 
     return TinyCLR_Result::Success;

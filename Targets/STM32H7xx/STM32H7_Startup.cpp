@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "STM32F7.h"
+#include "STM32H7.h"
 #include <stdio.h>
 
 #ifdef USE_SDRAM_HEAP // use EXTERNAL SDRAM
@@ -32,40 +32,40 @@ extern void SDRAM_Init(uint8_t databits);
 #endif //USE_SDRAM_HEAP
 
 
-void STM32F7_Startup_OnSoftReset(const TinyCLR_Api_Provider* apiProvider, const TinyCLR_Interop_Provider* interopProvider) {
+void STM32H7_Startup_OnSoftReset(const TinyCLR_Api_Provider* apiProvider, const TinyCLR_Interop_Provider* interopProvider) {
 
 #ifdef INCLUDE_ADC
-    STM32F7_Adc_Reset();
+    STM32H7_Adc_Reset();
 #endif
 #ifdef INCLUDE_CAN
-    STM32F7_Can_Reset();
+    STM32H7_Can_Reset();
 #endif
 #ifdef INCLUDE_DAC
-    STM32F7_Dac_Reset();
+    STM32H7_Dac_Reset();
 #endif
 #ifdef INCLUDE_DISPLAY
-    STM32F7_Display_Reset();
+    STM32H7_Display_Reset();
 #endif
 #ifdef INCLUDE_GPIO
-    STM32F7_Gpio_Reset();
+    STM32H7_Gpio_Reset();
 #endif
 #ifdef INCLUDE_I2C
-    STM32F7_I2c_Reset();
+    STM32H7_I2c_Reset();
 #endif
 #ifdef INCLUDE_PWM
-    STM32F7_Pwm_Reset();
+    STM32H7_Pwm_Reset();
 #endif
 #ifdef INCLUDE_SD
-    STM32F7_SdCard_Reset();
+    STM32H7_SdCard_Reset();
 #endif
 #ifdef INCLUDE_SPI
-    STM32F7_Spi_Reset();
+    STM32H7_Spi_Reset();
 #endif
 #ifdef INCLUDE_UART
-    STM32F7_Uart_Reset();
+    STM32H7_Uart_Reset();
 #endif
 #ifdef INCLUDE_USBCLIENT
-    STM32F7_UsbClient_Reset();
+    STM32H7_UsbClient_Reset();
 #endif
 
 }
@@ -75,7 +75,7 @@ void STM32F7_Startup_OnSoftReset(const TinyCLR_Api_Provider* apiProvider, const 
 #endif
 
 
-void STM32F7_DebugLed(uint16_t pin, bool onoff);
+void STM32H7_DebugLed(uint16_t pin, bool onoff);
 
 
 
@@ -84,55 +84,55 @@ void STM32F7_DebugLed(uint16_t pin, bool onoff);
 #define ONE_MHZ                             1000000
 
 /* STM32F7 clock configuration */
-#if !defined(STM32F7_EXT_CRYSTAL_CLOCK_HZ)
-#define STM32F7_INTERNAL_OSCILATOR_CLOCK_HZ 16000000
-#define STM32F7_EXT_CRYSTAL_CLOCK_HZ STM32F7_INTERNAL_OSCILATOR_CLOCK_HZ
+#if !defined(STM32H7_EXT_CRYSTAL_CLOCK_HZ)
+#define STM32H7_INTERNAL_OSCILATOR_CLOCK_HZ 16000000
+#define STM32H7_EXT_CRYSTAL_CLOCK_HZ STM32H7_INTERNAL_OSCILATOR_CLOCK_HZ
 #define RCC_PLLCFGR_PLLS_BITS (RCC_PLLCFGR_PLLSRC_HSI)
 #else
 #define RCC_PLLCFGR_PLLS_BITS (RCC_PLLCFGR_PLLSRC_HSE)
 #endif
 
-#if STM32F7_EXT_CRYSTAL_CLOCK_HZ % ONE_MHZ != 0
-#error STM32F7_EXT_CRYSTAL_CLOCK_HZ must be a multiple of 1MHz
+#if STM32H7_EXT_CRYSTAL_CLOCK_HZ % ONE_MHZ != 0
+#error STM32H7_EXT_CRYSTAL_CLOCK_HZ must be a multiple of 1MHz
 #endif
 
-#if (STM32F7_SYSTEM_CLOCK_HZ * 2 >= 192000000)\
- && (STM32F7_SYSTEM_CLOCK_HZ * 2 <= 432000000)\
- && (STM32F7_SYSTEM_CLOCK_HZ * 2 % 48000000 == 0)
-#define RCC_PLLCFGR_PLLM_BITS (STM32F7_EXT_CRYSTAL_CLOCK_HZ / ONE_MHZ * RCC_PLLCFGR_PLLM_0)
-#define RCC_PLLCFGR_PLLN_BITS (STM32F7_SYSTEM_CLOCK_HZ * 2 / ONE_MHZ * RCC_PLLCFGR_PLLN_0)
+#if (STM32H7_SYSTEM_CLOCK_HZ * 2 >= 192000000)\
+ && (STM32H7_SYSTEM_CLOCK_HZ * 2 <= 432000000)\
+ && (STM32H7_SYSTEM_CLOCK_HZ * 2 % 48000000 == 0)
+#define RCC_PLLCFGR_PLLM_BITS (STM32H7_EXT_CRYSTAL_CLOCK_HZ / ONE_MHZ * RCC_PLLCFGR_PLLM_0)
+#define RCC_PLLCFGR_PLLN_BITS (STM32H7_SYSTEM_CLOCK_HZ * 2 / ONE_MHZ * RCC_PLLCFGR_PLLN_0)
 #define RCC_PLLCFGR_PLLP_BITS (0)  // P = 2
-#define RCC_PLLCFGR_PLLQ_BITS (STM32F7_SYSTEM_CLOCK_HZ * 2 / 48000000 * RCC_PLLCFGR_PLLQ_0)
-#elif (STM32F7_SYSTEM_CLOCK_HZ * 4 >= 192000000)\
-   && (STM32F7_SYSTEM_CLOCK_HZ * 4 <= 432000000)\
-   && (STM32F7_SYSTEM_CLOCK_HZ * 4 % 48000000 == 0)
-#define RCC_PLLCFGR_PLLM_BITS (STM32F7_EXT_CRYSTAL_CLOCK_HZ / ONE_MHZ * RCC_PLLCFGR_PLLM_0)
-#define RCC_PLLCFGR_PLLN_BITS (STM32F7_SYSTEM_CLOCK_HZ * 4 / ONE_MHZ * RCC_PLLCFGR_PLLN_0)
+#define RCC_PLLCFGR_PLLQ_BITS (STM32H7_SYSTEM_CLOCK_HZ * 2 / 48000000 * RCC_PLLCFGR_PLLQ_0)
+#elif (STM32H7_SYSTEM_CLOCK_HZ * 4 >= 192000000)\
+   && (STM32H7_SYSTEM_CLOCK_HZ * 4 <= 432000000)\
+   && (STM32H7_SYSTEM_CLOCK_HZ * 4 % 48000000 == 0)
+#define RCC_PLLCFGR_PLLM_BITS (STM32H7_EXT_CRYSTAL_CLOCK_HZ / ONE_MHZ * RCC_PLLCFGR_PLLM_0)
+#define RCC_PLLCFGR_PLLN_BITS (STM32H7_SYSTEM_CLOCK_HZ * 4 / ONE_MHZ * RCC_PLLCFGR_PLLN_0)
 #define RCC_PLLCFGR_PLLP_BITS (RCC_PLLCFGR_PLLP_0)  // P = 4
-#define RCC_PLLCFGR_PLLQ_BITS (STM32F7_SYSTEM_CLOCK_HZ * 4 / 48000000 * RCC_PLLCFGR_PLLQ_0)
-#elif (STM32F7_SYSTEM_CLOCK_HZ * 6 >= 192000000)\
-   && (STM32F7_SYSTEM_CLOCK_HZ * 6 <= 432000000)\
-   && (STM32F7_SYSTEM_CLOCK_HZ * 6 % 48000000 == 0)
-#define RCC_PLLCFGR_PLLM_BITS (STM32F7_EXT_CRYSTAL_CLOCK_HZ / ONE_MHZ * RCC_PLLCFGR_PLLM_0)
-#define RCC_PLLCFGR_PLLN_BITS (STM32F7_SYSTEM_CLOCK_HZ * 6 / ONE_MHZ * RCC_PLLCFGR_PLLN_0)
+#define RCC_PLLCFGR_PLLQ_BITS (STM32H7_SYSTEM_CLOCK_HZ * 4 / 48000000 * RCC_PLLCFGR_PLLQ_0)
+#elif (STM32H7_SYSTEM_CLOCK_HZ * 6 >= 192000000)\
+   && (STM32H7_SYSTEM_CLOCK_HZ * 6 <= 432000000)\
+   && (STM32H7_SYSTEM_CLOCK_HZ * 6 % 48000000 == 0)
+#define RCC_PLLCFGR_PLLM_BITS (STM32H7_EXT_CRYSTAL_CLOCK_HZ / ONE_MHZ * RCC_PLLCFGR_PLLM_0)
+#define RCC_PLLCFGR_PLLN_BITS (STM32H7_SYSTEM_CLOCK_HZ * 6 / ONE_MHZ * RCC_PLLCFGR_PLLN_0)
 #define RCC_PLLCFGR_PLLP_BITS (RCC_PLLCFGR_PLLP_1)  // P = 6
-#define RCC_PLLCFGR_PLLQ_BITS (STM32F7_SYSTEM_CLOCK_HZ * 6 / 48000000 * RCC_PLLCFGR_PLLQ_0)
-#elif (STM32F7_SYSTEM_CLOCK_HZ * 8 >= 192000000)\
-   && (STM32F7_SYSTEM_CLOCK_HZ * 8 <= 432000000)\
-   && (STM32F7_SYSTEM_CLOCK_HZ * 8 % 48000000 == 0)
-#define RCC_PLLCFGR_PLLM_BITS (STM32F7_EXT_CRYSTAL_CLOCK_HZ / ONE_MHZ * RCC_PLLCFGR_PLLM_0)
-#define RCC_PLLCFGR_PLLN_BITS (STM32F7_SYSTEM_CLOCK_HZ * 8 / ONE_MHZ * RCC_PLLCFGR_PLLN_0)
+#define RCC_PLLCFGR_PLLQ_BITS (STM32H7_SYSTEM_CLOCK_HZ * 6 / 48000000 * RCC_PLLCFGR_PLLQ_0)
+#elif (STM32H7_SYSTEM_CLOCK_HZ * 8 >= 192000000)\
+   && (STM32H7_SYSTEM_CLOCK_HZ * 8 <= 432000000)\
+   && (STM32H7_SYSTEM_CLOCK_HZ * 8 % 48000000 == 0)
+#define RCC_PLLCFGR_PLLM_BITS (STM32H7_EXT_CRYSTAL_CLOCK_HZ / ONE_MHZ * RCC_PLLCFGR_PLLM_0)
+#define RCC_PLLCFGR_PLLN_BITS (STM32H7_SYSTEM_CLOCK_HZ * 8 / ONE_MHZ * RCC_PLLCFGR_PLLN_0)
 #define RCC_PLLCFGR_PLLP_BITS (RCC_PLLCFGR_PLLP_0 | RCC_PLLCFGR_PLLP_1)  // P = 8
-#define RCC_PLLCFGR_PLLQ_BITS (STM32F7_SYSTEM_CLOCK_HZ * 8 / 48000000 * RCC_PLLCFGR_PLLQ_0)
-#elif (STM32F7_SYSTEM_CLOCK_HZ * 2 >= 192000000)\
-    && (STM32F7_SYSTEM_CLOCK_HZ * 2 <= 432000000)\
-    && (STM32F7_SYSTEM_CLOCK_HZ * 4 % 48000000 == 0)
-#define RCC_PLLCFGR_PLLM_BITS (STM32F7_EXT_CRYSTAL_CLOCK_HZ / ONE_MHZ / RCC_PLLCFGR_PLLM_1 * RCC_PLLCFGR_PLLM_0)
-#define RCC_PLLCFGR_PLLN_BITS (STM32F7_SYSTEM_CLOCK_HZ *2 / ONE_MHZ * RCC_PLLCFGR_PLLN_0)
+#define RCC_PLLCFGR_PLLQ_BITS (STM32H7_SYSTEM_CLOCK_HZ * 8 / 48000000 * RCC_PLLCFGR_PLLQ_0)
+#elif (STM32H7_SYSTEM_CLOCK_HZ * 2 >= 192000000)\
+    && (STM32H7_SYSTEM_CLOCK_HZ * 2 <= 432000000)\
+    && (STM32H7_SYSTEM_CLOCK_HZ * 4 % 48000000 == 0)
+#define RCC_PLLCFGR_PLLM_BITS (STM32H7_EXT_CRYSTAL_CLOCK_HZ / ONE_MHZ / RCC_PLLCFGR_PLLM_1 * RCC_PLLCFGR_PLLM_0)
+#define RCC_PLLCFGR_PLLN_BITS (STM32H7_SYSTEM_CLOCK_HZ *2 / ONE_MHZ * RCC_PLLCFGR_PLLN_0)
 #define RCC_PLLCFGR_PLLP_BITS (RCC_PLLCFGR_PLLP_0 )
-#define RCC_PLLCFGR_PLLQ_BITS (STM32F7_SYSTEM_CLOCK_HZ *4 / 48000000 * RCC_PLLCFGR_PLLQ_0)
+#define RCC_PLLCFGR_PLLQ_BITS (STM32H7_SYSTEM_CLOCK_HZ *4 / 48000000 * RCC_PLLCFGR_PLLQ_0)
 #else
-#error illegal STM32F7_SYSTEM_CLOCK_HZ frequency
+#error illegal STM32H7_SYSTEM_CLOCK_HZ frequency
 #endif
 
 #define RCC_PLLCFGR_PLL_BITS (RCC_PLLCFGR_PLLM_BITS \
@@ -141,124 +141,124 @@ void STM32F7_DebugLed(uint16_t pin, bool onoff);
                             | RCC_PLLCFGR_PLLQ_BITS \
                             | RCC_PLLCFGR_PLLS_BITS)
 
-#if STM32F7_SYSTEM_CLOCK_HZ == STM32F7_AHB_CLOCK_HZ * 1
+#if STM32H7_SYSTEM_CLOCK_HZ == STM32H7_AHB_CLOCK_HZ * 1
 #define RCC_CFGR_HPRE_DIV_BITS RCC_CFGR_HPRE_DIV1
-#elif STM32F7_SYSTEM_CLOCK_HZ == STM32F7_AHB_CLOCK_HZ * 2
+#elif STM32H7_SYSTEM_CLOCK_HZ == STM32H7_AHB_CLOCK_HZ * 2
 #define RCC_CFGR_HPRE_DIV_BITS RCC_CFGR_HPRE_DIV2
-#elif STM32F7_SYSTEM_CLOCK_HZ == STM32F7_AHB_CLOCK_HZ * 4
+#elif STM32H7_SYSTEM_CLOCK_HZ == STM32H7_AHB_CLOCK_HZ * 4
 #define RCC_CFGR_HPRE_DIV_BITS RCC_CFGR_HPRE_DIV4
-#elif STM32F7_SYSTEM_CLOCK_HZ == STM32F7_AHB_CLOCK_HZ * 8
+#elif STM32H7_SYSTEM_CLOCK_HZ == STM32H7_AHB_CLOCK_HZ * 8
 #define RCC_CFGR_HPRE_DIV_BITS RCC_CFGR_HPRE_DIV8
-#elif STM32F7_SYSTEM_CLOCK_HZ == STM32F7_AHB_CLOCK_HZ * 16
+#elif STM32H7_SYSTEM_CLOCK_HZ == STM32H7_AHB_CLOCK_HZ * 16
 #define RCC_CFGR_HPRE_DIV_BITS RCC_CFGR_HPRE_DIV16
-#elif STM32F7_SYSTEM_CLOCK_HZ == STM32F7_AHB_CLOCK_HZ * 64
+#elif STM32H7_SYSTEM_CLOCK_HZ == STM32H7_AHB_CLOCK_HZ * 64
 #define RCC_CFGR_HPRE_DIV_BITS RCC_CFGR_HPRE_DIV64
-#elif STM32F7_SYSTEM_CLOCK_HZ == STM32F7_AHB_CLOCK_HZ * 128
+#elif STM32H7_SYSTEM_CLOCK_HZ == STM32H7_AHB_CLOCK_HZ * 128
 #define RCC_CFGR_HPRE_DIV_BITS RCC_CFGR_HPRE_DIV128
-#elif STM32F7_SYSTEM_CLOCK_HZ == STM32F7_AHB_CLOCK_HZ * 256
+#elif STM32H7_SYSTEM_CLOCK_HZ == STM32H7_AHB_CLOCK_HZ * 256
 #define RCC_CFGR_HPRE_DIV_BITS RCC_CFGR_HPRE_DIV256
-#elif STM32F7_SYSTEM_CLOCK_HZ == STM32F7_AHB_CLOCK_HZ * 512
+#elif STM32H7_SYSTEM_CLOCK_HZ == STM32H7_AHB_CLOCK_HZ * 512
 #define RCC_CFGR_HPRE_DIV_BITS RCC_CFGR_HPRE_DIV512
 #else
-#error STM32F7_SYSTEM_CLOCK_HZ must be STM32F7_AHB_CLOCK_HZ * 1, 2, 4, 8, .. 256, or 512
+#error STM32H7_SYSTEM_CLOCK_HZ must be STM32H7_AHB_CLOCK_HZ * 1, 2, 4, 8, .. 256, or 512
 #endif
 
-#if STM32F7_AHB_CLOCK_HZ == STM32F7_APB1_CLOCK_HZ * 1
+#if STM32H7_AHB_CLOCK_HZ == STM32H7_APB1_CLOCK_HZ * 1
 #define RCC_CFGR_PPRE1_DIV_BITS RCC_CFGR_PPRE1_DIV1
-#elif STM32F7_AHB_CLOCK_HZ == STM32F7_APB1_CLOCK_HZ * 2
+#elif STM32H7_AHB_CLOCK_HZ == STM32H7_APB1_CLOCK_HZ * 2
 #define RCC_CFGR_PPRE1_DIV_BITS RCC_CFGR_PPRE1_DIV2
-#elif STM32F7_AHB_CLOCK_HZ == STM32F7_APB1_CLOCK_HZ * 4
+#elif STM32H7_AHB_CLOCK_HZ == STM32H7_APB1_CLOCK_HZ * 4
 #define RCC_CFGR_PPRE1_DIV_BITS RCC_CFGR_PPRE1_DIV4
-#elif STM32F7_AHB_CLOCK_HZ == STM32F7_APB1_CLOCK_HZ * 8
+#elif STM32H7_AHB_CLOCK_HZ == STM32H7_APB1_CLOCK_HZ * 8
 #define RCC_CFGR_PPRE1_DIV_BITS RCC_CFGR_PPRE1_DIV8
-#elif STM32F7_AHB_CLOCK_HZ == STM32F7_APB1_CLOCK_HZ * 16
+#elif STM32H7_AHB_CLOCK_HZ == STM32H7_APB1_CLOCK_HZ * 16
 #define RCC_CFGR_PPRE1_DIV_BITS RCC_CFGR_PPRE1_DIV16
 #else
-#error STM32F7_AHB_CLOCK_HZ must be STM32F7_APB1_CLOCK_HZ * 1, 2, 4, 8, or 16
+#error STM32H7_AHB_CLOCK_HZ must be STM32H7_APB1_CLOCK_HZ * 1, 2, 4, 8, or 16
 #endif
 
-#if STM32F7_AHB_CLOCK_HZ == STM32F7_APB2_CLOCK_HZ * 1
+#if STM32H7_AHB_CLOCK_HZ == STM32H7_APB2_CLOCK_HZ * 1
 #define RCC_CFGR_PPRE2_DIV_BITS RCC_CFGR_PPRE2_DIV1
-#elif STM32F7_AHB_CLOCK_HZ == STM32F7_APB2_CLOCK_HZ * 2
+#elif STM32H7_AHB_CLOCK_HZ == STM32H7_APB2_CLOCK_HZ * 2
 #define RCC_CFGR_PPRE2_DIV_BITS RCC_CFGR_PPRE2_DIV2
-#elif STM32F7_AHB_CLOCK_HZ == STM32F7_APB2_CLOCK_HZ * 4
+#elif STM32H7_AHB_CLOCK_HZ == STM32H7_APB2_CLOCK_HZ * 4
 #define RCC_CFGR_PPRE2_DIV_BITS RCC_CFGR_PPRE2_DIV4
-#elif STM32F7_AHB_CLOCK_HZ == STM32F7_APB2_CLOCK_HZ * 8
+#elif STM32H7_AHB_CLOCK_HZ == STM32H7_APB2_CLOCK_HZ * 8
 #define RCC_CFGR_PPRE2_DIV_BITS RCC_CFGR_PPRE2_DIV8
-#elif STM32F7_AHB_CLOCK_HZ == STM32F7_APB2_CLOCK_HZ * 16
+#elif STM32H7_AHB_CLOCK_HZ == STM32H7_APB2_CLOCK_HZ * 16
 #define RCC_CFGR_PPRE2_DIV_BITS RCC_CFGR_PPRE2_DIV16
 #else
-#error STM32F7_AHB_CLOCK_HZ must be STM32F7_APB2_CLOCK_HZ * 1, 2, 4, 8, or 16
+#error STM32H7_AHB_CLOCK_HZ must be STM32H7_APB2_CLOCK_HZ * 1, 2, 4, 8, or 16
 #endif
 
-#if STM32F7_SUPPLY_VOLTAGE_MV < 2100
-#if STM32F7_AHB_CLOCK_HZ <= 20000000
+#if STM32H7_SUPPLY_VOLTAGE_MV < 2100
+#if STM32H7_AHB_CLOCK_HZ <= 20000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_0WS // no wait states
-#elif STM32F7_AHB_CLOCK_HZ <= 40000000
+#elif STM32H7_AHB_CLOCK_HZ <= 40000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_1WS // 1 wait state
-#elif STM32F7_AHB_CLOCK_HZ <= 60000000
+#elif STM32H7_AHB_CLOCK_HZ <= 60000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_2WS // 2 wait states
-#elif STM32F7_AHB_CLOCK_HZ <= 80000000
+#elif STM32H7_AHB_CLOCK_HZ <= 80000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_3WS // 3 wait states
-#elif STM32F7_AHB_CLOCK_HZ <= 100000000
+#elif STM32H7_AHB_CLOCK_HZ <= 100000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_4WS // 4 wait states
-#elif STM32F7_AHB_CLOCK_HZ <= 120000000
+#elif STM32H7_AHB_CLOCK_HZ <= 120000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_5WS // 5 wait states
-#elif STM32F7_AHB_CLOCK_HZ <= 140000000
+#elif STM32H7_AHB_CLOCK_HZ <= 140000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_6WS // 6 wait states
-#elif STM32F7_AHB_CLOCK_HZ <= 160000000
+#elif STM32H7_AHB_CLOCK_HZ <= 160000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_7WS // 7 wait states
 #else
-#error STM32F7_AHB_CLOCK_HZ must be <= 160MHz at < 2.1V
+#error STM32H7_AHB_CLOCK_HZ must be <= 160MHz at < 2.1V
 #endif
-#elif STM32F7_SUPPLY_VOLTAGE_MV < 2400
-#if STM32F7_AHB_CLOCK_HZ <= 22000000
+#elif STM32H7_SUPPLY_VOLTAGE_MV < 2400
+#if STM32H7_AHB_CLOCK_HZ <= 22000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_0WS // no wait states
-#elif STM32F7_AHB_CLOCK_HZ <= 44000000
+#elif STM32H7_AHB_CLOCK_HZ <= 44000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_1WS // 1 wait state
-#elif STM32F7_AHB_CLOCK_HZ <= 66000000
+#elif STM32H7_AHB_CLOCK_HZ <= 66000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_2WS // 2 wait states
-#elif STM32F7_AHB_CLOCK_HZ <= 88000000
+#elif STM32H7_AHB_CLOCK_HZ <= 88000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_3WS // 3 wait states
-#elif STM32F7_AHB_CLOCK_HZ <= 110000000
+#elif STM32H7_AHB_CLOCK_HZ <= 110000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_4WS // 4 wait states
-#elif STM32F7_AHB_CLOCK_HZ <= 1328000000
+#elif STM32H7_AHB_CLOCK_HZ <= 1328000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_5WS // 5 wait states
-#elif STM32F7_AHB_CLOCK_HZ <= 154000000
+#elif STM32H7_AHB_CLOCK_HZ <= 154000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_6WS // 6 wait states
-#elif STM32F7_AHB_CLOCK_HZ <= 176000000
+#elif STM32H7_AHB_CLOCK_HZ <= 176000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_7WS // 7 wait states
 #else
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_8WS // 8 wait states
 #endif
-#elif STM32F7_SUPPLY_VOLTAGE_MV < 2700
-#if STM32F7_AHB_CLOCK_HZ <= 24000000
+#elif STM32H7_SUPPLY_VOLTAGE_MV < 2700
+#if STM32H7_AHB_CLOCK_HZ <= 24000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_0WS // no wait states
-#elif STM32F7_AHB_CLOCK_HZ <= 48000000
+#elif STM32H7_AHB_CLOCK_HZ <= 48000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_1WS // 1 wait state
-#elif STM32F7_AHB_CLOCK_HZ <= 72000000
+#elif STM32H7_AHB_CLOCK_HZ <= 72000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_2WS // 2 wait states
-#elif STM32F7_AHB_CLOCK_HZ <= 96000000
+#elif STM32H7_AHB_CLOCK_HZ <= 96000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_3WS // 3 wait states
-#elif STM32F7_AHB_CLOCK_HZ <= 120000000
+#elif STM32H7_AHB_CLOCK_HZ <= 120000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_4WS // 4 wait states
-#elif STM32F7_AHB_CLOCK_HZ <= 144000000
+#elif STM32H7_AHB_CLOCK_HZ <= 144000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_5WS // 5 wait states
-#elif STM32F7_AHB_CLOCK_HZ <= 168000000
+#elif STM32H7_AHB_CLOCK_HZ <= 168000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_6WS // 6 wait states
 #else
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_7WS // 7 wait states
 #endif
 #else
-#if STM32F7_AHB_CLOCK_HZ <= 30000000
+#if STM32H7_AHB_CLOCK_HZ <= 30000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_0WS // no wait states
-#elif STM32F7_AHB_CLOCK_HZ <= 60000000
+#elif STM32H7_AHB_CLOCK_HZ <= 60000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_1WS // 1 wait state
-#elif STM32F7_AHB_CLOCK_HZ <= 90000000
+#elif STM32H7_AHB_CLOCK_HZ <= 90000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_2WS // 2 wait states
-#elif STM32F7_AHB_CLOCK_HZ <= 120000000
+#elif STM32H7_AHB_CLOCK_HZ <= 120000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_3WS // 3 wait states
-#elif STM32F7_AHB_CLOCK_HZ <= 150000000
+#elif STM32H7_AHB_CLOCK_HZ <= 150000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_4WS // 4 wait states
 #else
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_5WS // 5 wait states
@@ -270,7 +270,7 @@ void STM32F7_DebugLed(uint16_t pin, bool onoff);
 extern "C" {
     void __section("SectionForBootstrapOperations") SystemInit() {
         // Enable cahce
-        STM32F7_Startup_CacheEnable();
+        STM32H7_Startup_CacheEnable();
 
         // enable FPU coprocessors (CP10, CP11)
         SCB->CPACR |= 0x3 << 2 * 10 | 0x3 << 2 * 11; // full access
@@ -316,7 +316,7 @@ extern "C" {
 		RCC->CFGR = (RCC->CFGR & ~(RCC_CFGR_HPRE_Msk | RCC_CFGR_PPRE1_Msk | RCC_CFGR_PPRE2_Msk));
 
         // final clock setup
-        RCC->CFGR = RCC_CFGR_SW_PLL          // sysclk = pll out (STM32F7_SYSTEM_CLOCK_HZ)
+        RCC->CFGR = RCC_CFGR_SW_PLL          // sysclk = pll out (STM32H7_SYSTEM_CLOCK_HZ)
             | RCC_CFGR_HPRE_DIV_BITS   // AHB clock
             | RCC_CFGR_PPRE1_DIV_BITS  // APB1 clock
             | RCC_CFGR_PPRE2_DIV_BITS; // APB2 clock
@@ -381,7 +381,7 @@ extern "C" {
 		//SDRAM_Init(SDRAM_DATABITS); // Init MT48LC4M32 SDRAM for heap (Databits depend on hardware implementation)
 #endif
 
-		//STM32F7_DebugLed(PIN(A, 12), true);
+		//STM32H7_DebugLed(PIN(A, 12), true);
     }
 }
 
@@ -447,12 +447,12 @@ static void __section("SectionForBootstrapOperations") Prepare_Zero(uint32_t* ds
     }
 }
 
-void STM32F7_Startup_GetHeap(uint8_t*& start, size_t& length) {
+void STM32H7_Startup_GetHeap(uint8_t*& start, size_t& length) {
     start = (uint8_t*)&HeapBegin;
     length = (size_t)(((int)&HeapEnd) - ((int)&HeapBegin));
 }
 
-void STM32F7_Startup_Initialize() {
+void STM32H7_Startup_Initialize() {
     //
     // Copy RAM RO regions into proper location.
     //
@@ -489,7 +489,7 @@ void STM32F7_Startup_Initialize() {
 
 }
 
-const TinyCLR_Startup_UsbDebuggerConfiguration STM32F7_Startup_UsbDebuggerConfiguration = {
+const TinyCLR_Startup_UsbDebuggerConfiguration STM32H7_Startup_UsbDebuggerConfiguration = {
     USB_DEBUGGER_VENDOR_ID,
     USB_DEBUGGER_PRODUCT_ID,
     CONCAT(L,DEVICE_MANUFACTURER),
@@ -497,11 +497,11 @@ const TinyCLR_Startup_UsbDebuggerConfiguration STM32F7_Startup_UsbDebuggerConfig
     0
 };
 
-void STM32F7_Startup_GetDebuggerTransportProvider(const TinyCLR_Api_Info*& api, size_t& index, const void*& configuration) {
+void STM32H7_Startup_GetDebuggerTransportProvider(const TinyCLR_Api_Info*& api, size_t& index, const void*& configuration) {
 #if defined(DEBUGGER_SELECTOR_PIN) && defined(DEBUGGER_SELECTOR_PULL) && defined(DEBUGGER_SELECTOR_USB_STATE)
     TinyCLR_Gpio_PinValue value;
 
-    auto provider = static_cast<const TinyCLR_Gpio_Provider*>(STM32F7_Gpio_GetApi()->Implementation);
+    auto provider = static_cast<const TinyCLR_Gpio_Provider*>(STM32H7_Gpio_GetApi()->Implementation);
 
     auto gpioController = 0; //TODO Temporary set to 0
 
@@ -511,12 +511,12 @@ void STM32F7_Startup_GetDebuggerTransportProvider(const TinyCLR_Api_Info*& api, 
     provider->ReleasePin(provider, gpioController, DEBUGGER_SELECTOR_PIN);
 
     if (value == DEBUGGER_SELECTOR_USB_STATE) {
-        api = STM32F7_UsbClient_GetApi();
+        api = STM32H7_UsbClient_GetApi();
         index = USB_DEBUGGER_INDEX;
-        configuration = (const void*)&STM32F7_Startup_UsbDebuggerConfiguration;
+        configuration = (const void*)&STM32H7_Startup_UsbDebuggerConfiguration;
     }
     else {
-        api = STM32F7_Uart_GetApi();
+        api = STM32H7_Uart_GetApi();
         index = UART_DEBUGGER_INDEX;
     }
 #elif defined(DEBUGGER_FORCE_API) && defined(DEBUGGER_FORCE_INDEX)
@@ -527,10 +527,10 @@ void STM32F7_Startup_GetDebuggerTransportProvider(const TinyCLR_Api_Info*& api, 
 #endif
 }
 
-void STM32F7_Startup_GetRunApp(bool& runApp) {
+void STM32H7_Startup_GetRunApp(bool& runApp) {
 #if defined(RUN_APP_PIN) && defined(RUN_APP_PULL) && defined(RUN_APP_STATE)
     TinyCLR_Gpio_PinValue value;
-    auto provider = static_cast<const TinyCLR_Gpio_Provider*>(STM32F7_Gpio_GetApi()->Implementation);
+    auto provider = static_cast<const TinyCLR_Gpio_Provider*>(STM32H7_Gpio_GetApi()->Implementation);
 
     auto gpioController = 0; //TODO Temporary set to 0
 
@@ -547,7 +547,7 @@ void STM32F7_Startup_GetRunApp(bool& runApp) {
 #endif
 }
 
-void STM32F7_Startup_CacheEnable(void) {
+void STM32H7_Startup_CacheEnable(void) {
     /* Enable I-Cache */
     SCB_EnableICache();
 
@@ -555,7 +555,7 @@ void STM32F7_Startup_CacheEnable(void) {
     SCB_EnableDCache();
 }
 
-void STM32F7_Startup_CacheDisable(void) {
+void STM32H7_Startup_CacheDisable(void) {
     /* Enable I-Cache */
     SCB_DisableICache();
 
@@ -563,12 +563,12 @@ void STM32F7_Startup_CacheDisable(void) {
     SCB_DisableDCache();
 }
 
-void STM32F7_DebugLed(uint16_t pin, bool onoff)
+void STM32H7_DebugLed(uint16_t pin, bool onoff)
 {
-	STM32F7_GpioInternal_ConfigurePin(pin, STM32F7_Gpio_PortMode::GeneralPurposeOutput, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
-	STM32F7_GpioInternal_OpenPin(pin);
-	STM32F7_GpioInternal_WritePin(pin, onoff);
-	//STM32F7_GpioInternal_ClosePin(pin);
+	STM32H7_GpioInternal_ConfigurePin(pin, STM32H7_Gpio_PortMode::GeneralPurposeOutput, STM32H7_Gpio_OutputType::PushPull, STM32H7_Gpio_OutputSpeed::VeryHigh, STM32H7_Gpio_PullDirection::None, STM32H7_Gpio_AlternateFunction::AF0);
+	STM32H7_GpioInternal_OpenPin(pin);
+	STM32H7_GpioInternal_WritePin(pin, onoff);
+	//STM32H7_GpioInternal_ClosePin(pin);
 }
 
 

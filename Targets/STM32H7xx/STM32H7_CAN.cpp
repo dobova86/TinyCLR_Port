@@ -14,7 +14,7 @@
 
 #include <algorithm>
 #include <string.h>
-#include "STM32F7.h"
+#include "STM32H7.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -175,7 +175,7 @@ typedef struct {
 
     FunctionalState CAN_TXFP;  /*!< Enable or disable the transmit FIFO priority.
                                     This parameter can be set either to ENABLE or DISABLE. */
-} STM32F7_Can_InitTypeDef;
+} STM32H7_Can_InitTypeDef;
 
 /**
   * @brief  CAN filter init structure definition
@@ -212,7 +212,7 @@ typedef struct {
 
     FunctionalState CAN_FilterActivation; /*!< Enable or disable the filter.
                                                 This parameter can be set either to ENABLE or DISABLE. */
-} STM32F7_Can_FilterInitTypeDef;
+} STM32H7_Can_FilterInitTypeDef;
 
 /**
   * @brief  CAN Tx message structure definition
@@ -238,7 +238,7 @@ typedef struct {
 
     uint8_t Data[8]; /*!< Contains the data to be transmitted. It ranges from 0
                           to 0xFF. */
-} STM32F7_Can_TxMessage;
+} STM32H7_Can_TxMessage;
 
 /**
   * @brief  CAN Rx message structure definition
@@ -267,10 +267,10 @@ typedef struct {
     uint8_t FMI;     /*!< Specifies the index of the filter the message stored in
                           the mailbox passes through. This parameter can be a
                           value between 0 to 0xFF */
-} STM32F7_Can_RxMessage;
+} STM32H7_Can_RxMessage;
 
 
-struct STM32F7_Can_Filter {
+struct STM32H7_Can_Filter {
     uint32_t* matchFilters;
     uint32_t matchFiltersSize;
 
@@ -295,18 +295,18 @@ typedef struct {
 
     int32_t length;
 
-} STM32F7_Can_Message;
+} STM32H7_Can_Message;
 
-struct STM32F7_Can_Controller {
+struct STM32H7_Can_Controller {
     const TinyCLR_Can_Provider* provider;
 
-    STM32F7_Can_Message *canRxMessagesFifo;
+    STM32H7_Can_Message *canRxMessagesFifo;
 
-    STM32F7_Can_TxMessage *txMessage;
-    STM32F7_Can_RxMessage *rxMessage;
+    STM32H7_Can_TxMessage *txMessage;
+    STM32H7_Can_RxMessage *rxMessage;
 
-    STM32F7_Can_InitTypeDef initTypeDef;
-    STM32F7_Can_FilterInitTypeDef filterInitTypeDef;
+    STM32H7_Can_InitTypeDef initTypeDef;
+    STM32H7_Can_FilterInitTypeDef filterInitTypeDef;
 
     TinyCLR_Can_ErrorReceivedHandler   errorEventHandler;
     TinyCLR_Can_MessageReceivedHandler    messageReceivedEventHandler;
@@ -320,18 +320,18 @@ struct STM32F7_Can_Controller {
 
     uint32_t baudrate;
 
-    STM32F7_Can_Filter canDataFilter;
+    STM32H7_Can_Filter canDataFilter;
 
     bool isOpened;
 };
 
-static const STM32F7_Gpio_Pin g_STM32F7_Can_Tx_Pins[] = STM32F7_CAN_TX_PINS;
-static const STM32F7_Gpio_Pin g_STM32F7_Can_Rx_Pins[] = STM32F7_CAN_RX_PINS;
-static const uint32_t g_STM32F7_Can_defaultBuffersSize[] = STM32F7_CAN_BUFFER_DEFAULT_SIZE;
+static const STM32H7_Gpio_Pin g_STM32H7_Can_Tx_Pins[] = STM32H7_CAN_TX_PINS;
+static const STM32H7_Gpio_Pin g_STM32H7_Can_Rx_Pins[] = STM32H7_CAN_RX_PINS;
+static const uint32_t g_STM32H7_Can_defaultBuffersSize[] = STM32H7_CAN_BUFFER_DEFAULT_SIZE;
 
-static const int TOTAL_CAN_CONTROLLERS = SIZEOF_ARRAY(g_STM32F7_Can_Tx_Pins);
+static const int TOTAL_CAN_CONTROLLERS = SIZEOF_ARRAY(g_STM32H7_Can_Tx_Pins);
 
-static STM32F7_Can_Controller canController[TOTAL_CAN_CONTROLLERS];
+static STM32H7_Can_Controller canController[TOTAL_CAN_CONTROLLERS];
 
 static TinyCLR_Can_Provider canProvider;
 static TinyCLR_Api_Info canApi;
@@ -404,12 +404,12 @@ int32_t BinarySearch2(uint32_t* lowerBounds, uint32_t* upperBounds, int32_t firs
   * @brief  Initializes the CAN peripheral according to the specified
   *         parameters in the CAN_InitStruct.
   * @param  CANx: where x can be 1 or 2 to select the CAN peripheral.
-  * @param  CAN_InitStruct: pointer to a STM32F7_Can_InitTypeDef structure that contains
+  * @param  CAN_InitStruct: pointer to a STM32H7_Can_InitTypeDef structure that contains
   *         the configuration information for the CAN peripheral.
   * @retval Constant indicates initialization succeed which will be
   *         CAN_InitStatus_Failed or CAN_InitStatus_Success.
   */
-uint8_t CAN_Initialize(CAN_TypeDef* CANx, STM32F7_Can_InitTypeDef* CAN_InitStruct) {
+uint8_t CAN_Initialize(CAN_TypeDef* CANx, STM32H7_Can_InitTypeDef* CAN_InitStruct) {
     uint8_t InitStatus = CAN_InitStatus_Failed;
     uint32_t wait_ack = 0x00000000;
 
@@ -510,11 +510,11 @@ uint8_t CAN_Initialize(CAN_TypeDef* CANx, STM32F7_Can_InitTypeDef* CAN_InitStruc
 /**
   * @brief  Configures the CAN reception filter according to the specified
   *         parameters in the CAN_FilterInitStruct.
-  * @param  CAN_FilterInitStruct: pointer to a STM32F7_Can_FilterInitTypeDef structure that
+  * @param  CAN_FilterInitStruct: pointer to a STM32H7_Can_FilterInitTypeDef structure that
   *         contains the configuration information.
   * @retval None
   */
-void CAN_FilterInit(STM32F7_Can_FilterInitTypeDef* CAN_FilterInitStruct) {
+void CAN_FilterInit(STM32H7_Can_FilterInitTypeDef* CAN_FilterInitStruct) {
     uint32_t filter_number_bit_pos = 0;
     /* Check the parameters */
 
@@ -596,7 +596,7 @@ void CAN_FilterInit(STM32F7_Can_FilterInitTypeDef* CAN_FilterInitStruct) {
   *         CAN DLC, CAN data and FMI number.
   * @retval None
   */
-void CAN_Receive(CAN_TypeDef* CANx, uint8_t FIFONumber, STM32F7_Can_RxMessage* RxMessage) {
+void CAN_Receive(CAN_TypeDef* CANx, uint8_t FIFONumber, STM32H7_Can_RxMessage* RxMessage) {
     /* Check the parameters */
     // TQD assert_param(IS_CAN_ALL_PERIPH(CANx));
     // TQD assert_param(IS_CAN_FIFO(FIFONumber));
@@ -642,7 +642,7 @@ void CAN_Receive(CAN_TypeDef* CANx, uint8_t FIFONumber, STM32F7_Can_RxMessage* R
   * @retval The number of the mailbox that is used for transmission or
   *         CAN_TxStatus_NoMailBox if there is no empty mailbox.
   */
-uint8_t CAN_Transmit(CAN_TypeDef* CANx, STM32F7_Can_TxMessage* TxMessage) {
+uint8_t CAN_Transmit(CAN_TypeDef* CANx, STM32H7_Can_TxMessage* TxMessage) {
     uint8_t transmit_mailbox = 0;
 
     /* Select one empty transmit mailbox */
@@ -1030,30 +1030,30 @@ bool CAN_ErrorHandler(uint8_t controller) {
     return false;
 }
 
-const TinyCLR_Api_Info* STM32F7_Can_GetApi() {
+const TinyCLR_Api_Info* STM32H7_Can_GetApi() {
 
     canProvider.Parent = &canApi;
-    canProvider.Acquire = &STM32F7_Can_Acquire;
-    canProvider.Release = &STM32F7_Can_Release;
-    canProvider.Reset = &STM32F7_Can_SoftReset;
-    canProvider.WriteMessage = &STM32F7_Can_WriteMessage;
-    canProvider.ReadMessage = &STM32F7_Can_ReadMessage;
-    canProvider.SetBitTiming = &STM32F7_Can_SetBitTiming;
-    canProvider.GetUnreadMessageCount = &STM32F7_Can_GetUnreadMessageCount;
-    canProvider.SetMessageReceivedHandler = &STM32F7_Can_SetMessageReceivedHandler;
-    canProvider.SetErrorReceivedHandler = &STM32F7_Can_SetErrorReceivedHandler;
-    canProvider.SetExplicitFilters = &STM32F7_Can_SetExplicitFilters;
-    canProvider.SetGroupFilters = &STM32F7_Can_SetGroupFilters;
-    canProvider.ClearReadBuffer = &STM32F7_Can_ClearReadBuffer;
-    canProvider.IsWritingAllowed = &STM32F7_Can_IsWritingAllowed;
-    canProvider.GetWriteErrorCount = &STM32F7_Can_GetWriteErrorCount;
-    canProvider.GetReadErrorCount = &STM32F7_Can_GetReadErrorCount;
-    canProvider.GetSourceClock = &STM32F7_Can_GetSourceClock;
-    canProvider.GetReadBufferSize = &STM32F7_Can_GetReadBufferSize;
-    canProvider.SetReadBufferSize = &STM32F7_Can_SetReadBufferSize;
-    canProvider.GetWriteBufferSize = &STM32F7_Can_GetWriteBufferSize;
-    canProvider.SetWriteBufferSize = &STM32F7_Can_SetWriteBufferSize;
-    canProvider.GetControllerCount = &STM32F7_Can_GetControllerCount;
+    canProvider.Acquire = &STM32H7_Can_Acquire;
+    canProvider.Release = &STM32H7_Can_Release;
+    canProvider.Reset = &STM32H7_Can_SoftReset;
+    canProvider.WriteMessage = &STM32H7_Can_WriteMessage;
+    canProvider.ReadMessage = &STM32H7_Can_ReadMessage;
+    canProvider.SetBitTiming = &STM32H7_Can_SetBitTiming;
+    canProvider.GetUnreadMessageCount = &STM32H7_Can_GetUnreadMessageCount;
+    canProvider.SetMessageReceivedHandler = &STM32H7_Can_SetMessageReceivedHandler;
+    canProvider.SetErrorReceivedHandler = &STM32H7_Can_SetErrorReceivedHandler;
+    canProvider.SetExplicitFilters = &STM32H7_Can_SetExplicitFilters;
+    canProvider.SetGroupFilters = &STM32H7_Can_SetGroupFilters;
+    canProvider.ClearReadBuffer = &STM32H7_Can_ClearReadBuffer;
+    canProvider.IsWritingAllowed = &STM32H7_Can_IsWritingAllowed;
+    canProvider.GetWriteErrorCount = &STM32H7_Can_GetWriteErrorCount;
+    canProvider.GetReadErrorCount = &STM32H7_Can_GetReadErrorCount;
+    canProvider.GetSourceClock = &STM32H7_Can_GetSourceClock;
+    canProvider.GetReadBufferSize = &STM32H7_Can_GetReadBufferSize;
+    canProvider.SetReadBufferSize = &STM32H7_Can_SetReadBufferSize;
+    canProvider.GetWriteBufferSize = &STM32H7_Can_GetWriteBufferSize;
+    canProvider.SetWriteBufferSize = &STM32H7_Can_SetWriteBufferSize;
+    canProvider.GetControllerCount = &STM32H7_Can_GetControllerCount;
 
     canApi.Author = "GHI Electronics, LLC";
     canApi.Name = "GHIElectronics.TinyCLR.NativeApis.STM32F7.CanProvider";
@@ -1064,15 +1064,15 @@ const TinyCLR_Api_Info* STM32F7_Can_GetApi() {
     return &canApi;
 }
 
-TinyCLR_Result STM32F7_Can_GetReadBufferSize(const TinyCLR_Can_Provider* self, int32_t controller, size_t& size) {
+TinyCLR_Result STM32H7_Can_GetReadBufferSize(const TinyCLR_Can_Provider* self, int32_t controller, size_t& size) {
 
 
-    size = canController[controller].can_rxBufferSize == 0 ? g_STM32F7_Can_defaultBuffersSize[controller] : canController[controller].can_rxBufferSize;
+    size = canController[controller].can_rxBufferSize == 0 ? g_STM32H7_Can_defaultBuffersSize[controller] : canController[controller].can_rxBufferSize;
 
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Can_SetReadBufferSize(const TinyCLR_Can_Provider* self, int32_t controller, size_t size) {
+TinyCLR_Result STM32H7_Can_SetReadBufferSize(const TinyCLR_Can_Provider* self, int32_t controller, size_t size) {
 
 
     if (size > 3) {
@@ -1080,18 +1080,18 @@ TinyCLR_Result STM32F7_Can_SetReadBufferSize(const TinyCLR_Can_Provider* self, i
         return TinyCLR_Result::Success;
     }
     else {
-        canController[controller].can_rxBufferSize = g_STM32F7_Can_defaultBuffersSize[controller];
+        canController[controller].can_rxBufferSize = g_STM32H7_Can_defaultBuffersSize[controller];
         return TinyCLR_Result::ArgumentInvalid;;
     }
 }
 
-TinyCLR_Result STM32F7_Can_GetWriteBufferSize(const TinyCLR_Can_Provider* self, int32_t controller, size_t& size) {
+TinyCLR_Result STM32H7_Can_GetWriteBufferSize(const TinyCLR_Can_Provider* self, int32_t controller, size_t& size) {
     size = 1;
 
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Can_SetWriteBufferSize(const TinyCLR_Can_Provider* self, int32_t controller, size_t size) {
+TinyCLR_Result STM32H7_Can_SetWriteBufferSize(const TinyCLR_Can_Provider* self, int32_t controller, size_t size) {
 
 
     canController[controller].can_txBufferSize = 1;
@@ -1100,7 +1100,7 @@ TinyCLR_Result STM32F7_Can_SetWriteBufferSize(const TinyCLR_Can_Provider* self, 
 }
 
 uint32_t STM32_Can_GetLocalTime() {
-    return STM32F7_Time_GetTimeForProcessorTicks(nullptr, STM32F7_Time_GetCurrentProcessorTicks(nullptr));
+    return STM32H7_Time_GetTimeForProcessorTicks(nullptr, STM32H7_Time_GetCurrentProcessorTicks(nullptr));
 }
 void STM32_Can_RxInterruptHandler(int32_t controller) {
     DISABLE_INTERRUPTS_SCOPED(irq);
@@ -1118,7 +1118,7 @@ void STM32_Can_RxInterruptHandler(int32_t controller) {
 
     CAN_TypeDef* CANx = ((controller == 0) ? CAN1 : CAN2);
 
-    STM32F7_Can_RxMessage rxMessage;
+    STM32H7_Can_RxMessage rxMessage;
 
     uint32_t error = CAN_ErrorHandler(controller);
 
@@ -1161,7 +1161,7 @@ void STM32_Can_RxInterruptHandler(int32_t controller) {
         return;
     }
 
-    STM32F7_Can_Message *can_msg = &canController[controller].canRxMessagesFifo[canController[controller].can_rx_in];
+    STM32H7_Can_Message *can_msg = &canController[controller].canRxMessagesFifo[canController[controller].can_rx_in];
 
     uint64_t t = STM32_Can_GetLocalTime();
 
@@ -1193,41 +1193,41 @@ void STM32_Can_RxInterruptHandler(int32_t controller) {
     return;
 }
 
-void STM32F7_Can_TxInterruptHandler0(void *param) {
+void STM32H7_Can_TxInterruptHandler0(void *param) {
     CAN_ErrorHandler(0);
 }
 
-void STM32F7_Can_TxInterruptHandler1(void *param) {
+void STM32H7_Can_TxInterruptHandler1(void *param) {
     CAN_ErrorHandler(1);
 }
 
-void STM32F7_Can_RxInterruptHandler0(void *param) {
+void STM32H7_Can_RxInterruptHandler0(void *param) {
     STM32_Can_RxInterruptHandler(0);
 }
 
-void STM32F7_Can_RxInterruptHandler1(void *param) {
+void STM32H7_Can_RxInterruptHandler1(void *param) {
     STM32_Can_RxInterruptHandler(1);
 }
 
-TinyCLR_Result STM32F7_Can_Acquire(const TinyCLR_Can_Provider* self, int32_t controller) {
+TinyCLR_Result STM32H7_Can_Acquire(const TinyCLR_Can_Provider* self, int32_t controller) {
     if (self == nullptr)
         return TinyCLR_Result::ArgumentNull;
 
-    if (!STM32F7_GpioInternal_OpenPin(g_STM32F7_Can_Tx_Pins[controller].number))
+    if (!STM32H7_GpioInternal_OpenPin(g_STM32H7_Can_Tx_Pins[controller].number))
         return TinyCLR_Result::SharingViolation;
 
-    if (!STM32F7_GpioInternal_OpenPin(g_STM32F7_Can_Rx_Pins[controller].number))
+    if (!STM32H7_GpioInternal_OpenPin(g_STM32H7_Can_Rx_Pins[controller].number))
         return TinyCLR_Result::SharingViolation;
 
     // set pin as analog
-    STM32F7_GpioInternal_ConfigurePin(g_STM32F7_Can_Tx_Pins[controller].number, STM32F7_Gpio_PortMode::AlternateFunction, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::High, STM32F7_Gpio_PullDirection::PullUp, g_STM32F7_Can_Tx_Pins[controller].alternateFunction);
-    STM32F7_GpioInternal_ConfigurePin(g_STM32F7_Can_Rx_Pins[controller].number, STM32F7_Gpio_PortMode::AlternateFunction, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::High, STM32F7_Gpio_PullDirection::PullUp, g_STM32F7_Can_Rx_Pins[controller].alternateFunction);
+    STM32H7_GpioInternal_ConfigurePin(g_STM32H7_Can_Tx_Pins[controller].number, STM32H7_Gpio_PortMode::AlternateFunction, STM32H7_Gpio_OutputType::PushPull, STM32H7_Gpio_OutputSpeed::High, STM32H7_Gpio_PullDirection::PullUp, g_STM32H7_Can_Tx_Pins[controller].alternateFunction);
+    STM32H7_GpioInternal_ConfigurePin(g_STM32H7_Can_Rx_Pins[controller].number, STM32H7_Gpio_PortMode::AlternateFunction, STM32H7_Gpio_OutputType::PushPull, STM32H7_Gpio_OutputSpeed::High, STM32H7_Gpio_PullDirection::PullUp, g_STM32H7_Can_Rx_Pins[controller].alternateFunction);
 
     canController[controller].can_rx_count = 0;
     canController[controller].can_rx_in = 0;
     canController[controller].can_rx_out = 0;
     canController[controller].baudrate = 0;
-    canController[controller].can_rxBufferSize = g_STM32F7_Can_defaultBuffersSize[controller];
+    canController[controller].can_rxBufferSize = g_STM32H7_Can_defaultBuffersSize[controller];
     canController[controller].provider = self;
 
     canController[controller].canRxMessagesFifo = nullptr;
@@ -1237,7 +1237,7 @@ TinyCLR_Result STM32F7_Can_Acquire(const TinyCLR_Can_Provider* self, int32_t con
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Can_Release(const TinyCLR_Can_Provider* self, int32_t controller) {
+TinyCLR_Result STM32H7_Can_Release(const TinyCLR_Can_Provider* self, int32_t controller) {
     if (self == nullptr)
         return TinyCLR_Result::ArgumentNull;
 
@@ -1252,8 +1252,8 @@ TinyCLR_Result STM32F7_Can_Release(const TinyCLR_Can_Provider* self, int32_t con
     }
 
     if (canController[controller].isOpened) {
-        STM32F7_GpioInternal_ClosePin(g_STM32F7_Can_Tx_Pins[controller].number);
-        STM32F7_GpioInternal_ClosePin(g_STM32F7_Can_Rx_Pins[controller].number);
+        STM32H7_GpioInternal_ClosePin(g_STM32H7_Can_Tx_Pins[controller].number);
+        STM32H7_GpioInternal_ClosePin(g_STM32H7_Can_Rx_Pins[controller].number);
     }
 
     canController[controller].isOpened = false;
@@ -1261,7 +1261,7 @@ TinyCLR_Result STM32F7_Can_Release(const TinyCLR_Can_Provider* self, int32_t con
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Can_SoftReset(const TinyCLR_Can_Provider* self, int32_t controller) {
+TinyCLR_Result STM32H7_Can_SoftReset(const TinyCLR_Can_Provider* self, int32_t controller) {
 
     CAN_TypeDef* CANx = ((controller == 0) ? CAN1 : CAN2);
 
@@ -1271,7 +1271,7 @@ TinyCLR_Result STM32F7_Can_SoftReset(const TinyCLR_Can_Provider* self, int32_t c
 
     RCC->APB1RSTR |= ((controller == 0) ? RCC_APB1ENR_CAN1EN : RCC_APB1ENR_CAN2EN);
 
-    STM32F7_Time_Delay(nullptr, 1000);
+    STM32H7_Time_Delay(nullptr, 1000);
 
     RCC->APB1RSTR &= ((controller == 0) ? ~RCC_APB1ENR_CAN1EN : ~RCC_APB1ENR_CAN2EN);
 
@@ -1286,7 +1286,7 @@ TinyCLR_Result STM32F7_Can_SoftReset(const TinyCLR_Can_Provider* self, int32_t c
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Can_WriteMessage(const TinyCLR_Can_Provider* self, int32_t controller, uint32_t arbitrationId, bool isExtendedId, bool isRemoteTransmissionRequest, uint8_t* data, size_t length) {
+TinyCLR_Result STM32H7_Can_WriteMessage(const TinyCLR_Can_Provider* self, int32_t controller, uint32_t arbitrationId, bool isExtendedId, bool isRemoteTransmissionRequest, uint8_t* data, size_t length) {
 
     uint32_t* data32 = (uint32_t*)data;
 
@@ -1321,7 +1321,7 @@ TinyCLR_Result STM32F7_Can_WriteMessage(const TinyCLR_Can_Provider* self, int32_
     txmailbox = CAN_Transmit(CANx, canController[controller].txMessage);
 
     while (CAN_TransmitStatus(CANx, txmailbox) != CAN_TxStatus_Ok && i++ < CAN_GetTransferTimeout())
-        STM32F7_Time_Delay(nullptr, 1);
+        STM32H7_Time_Delay(nullptr, 1);
 
     if (txmailbox == CAN_TxStatus_NoMailBox || i == CAN_GetTransferTimeout()) {
 
@@ -1333,8 +1333,8 @@ TinyCLR_Result STM32F7_Can_WriteMessage(const TinyCLR_Can_Provider* self, int32_
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Can_ReadMessage(const TinyCLR_Can_Provider* self, int32_t controller, uint32_t& arbitrationId, bool& isExtendedId, bool& isRemoteTransmissionRequest, uint64_t& timestamp, uint8_t* data, size_t& length) {
-    STM32F7_Can_Message *can_msg;
+TinyCLR_Result STM32H7_Can_ReadMessage(const TinyCLR_Can_Provider* self, int32_t controller, uint32_t& arbitrationId, bool& isExtendedId, bool& isRemoteTransmissionRequest, uint64_t& timestamp, uint8_t* data, size_t& length) {
+    STM32H7_Can_Message *can_msg;
 
     uint32_t* data32 = (uint32_t*)data;
 
@@ -1364,14 +1364,14 @@ TinyCLR_Result STM32F7_Can_ReadMessage(const TinyCLR_Can_Provider* self, int32_t
 
 }
 
-TinyCLR_Result STM32F7_Can_SetBitTiming(const TinyCLR_Can_Provider* self, int32_t controller, int32_t propagation, int32_t phase1, int32_t phase2, int32_t baudratePrescaler, int32_t synchronizationJumpWidth, int8_t useMultiBitSampling) {
+TinyCLR_Result STM32H7_Can_SetBitTiming(const TinyCLR_Can_Provider* self, int32_t controller, int32_t propagation, int32_t phase1, int32_t phase2, int32_t baudratePrescaler, int32_t synchronizationJumpWidth, int8_t useMultiBitSampling) {
 
     CAN_TypeDef* CANx = ((controller == 0) ? CAN1 : CAN2);
 
     auto memoryProvider = (const TinyCLR_Memory_Provider*)apiProvider->FindDefault(apiProvider, TinyCLR_Api_Type::MemoryProvider);
 
     if (canController[controller].canRxMessagesFifo == nullptr)
-        canController[controller].canRxMessagesFifo = (STM32F7_Can_Message*)memoryProvider->Allocate(memoryProvider, canController[controller].can_rxBufferSize * sizeof(STM32F7_Can_Message));
+        canController[controller].canRxMessagesFifo = (STM32H7_Can_Message*)memoryProvider->Allocate(memoryProvider, canController[controller].can_rxBufferSize * sizeof(STM32H7_Can_Message));
 
     if (canController[controller].canRxMessagesFifo == nullptr) {
         return TinyCLR_Result::OutOfMemory;
@@ -1379,7 +1379,7 @@ TinyCLR_Result STM32F7_Can_SetBitTiming(const TinyCLR_Can_Provider* self, int32_
 
     RCC->APB1RSTR |= ((controller == 0) ? RCC_APB1ENR_CAN1EN : RCC_APB1ENR_CAN2EN);
 
-    STM32F7_Time_Delay(nullptr, 1000);
+    STM32H7_Time_Delay(nullptr, 1000);
 
     RCC->APB1RSTR &= ((controller == 0) ? ~RCC_APB1ENR_CAN1EN : ~RCC_APB1ENR_CAN2EN);
 
@@ -1416,12 +1416,12 @@ TinyCLR_Result STM32F7_Can_SetBitTiming(const TinyCLR_Can_Provider* self, int32_
     CAN_FilterInit(&canController[controller].filterInitTypeDef);
 
     if (controller == 0) {
-        STM32F7_InterruptInternal_Activate(CAN1_TX_IRQn, (uint32_t*)&STM32F7_Can_TxInterruptHandler0, 0);
-        STM32F7_InterruptInternal_Activate(CAN1_RX0_IRQn, (uint32_t*)&STM32F7_Can_RxInterruptHandler0, 0);
+        STM32H7_InterruptInternal_Activate(CAN1_TX_IRQn, (uint32_t*)&STM32H7_Can_TxInterruptHandler0, 0);
+        STM32H7_InterruptInternal_Activate(CAN1_RX0_IRQn, (uint32_t*)&STM32H7_Can_RxInterruptHandler0, 0);
     }
     else {
-        STM32F7_InterruptInternal_Activate(CAN2_TX_IRQn, (uint32_t*)&STM32F7_Can_TxInterruptHandler1, 0);
-        STM32F7_InterruptInternal_Activate(CAN2_RX0_IRQn, (uint32_t*)&STM32F7_Can_RxInterruptHandler1, 0);
+        STM32H7_InterruptInternal_Activate(CAN2_TX_IRQn, (uint32_t*)&STM32H7_Can_TxInterruptHandler1, 0);
+        STM32H7_InterruptInternal_Activate(CAN2_RX0_IRQn, (uint32_t*)&STM32H7_Can_RxInterruptHandler1, 0);
     }
 
     CANx->IER |= (CAN_IT_FMP0 | CAN_IT_FF0 | CAN_IT_FOV0 | CAN_IT_EWG | CAN_IT_EPV | CAN_IT_BOF | CAN_IT_LEC | CAN_IT_ERR);
@@ -1429,7 +1429,7 @@ TinyCLR_Result STM32F7_Can_SetBitTiming(const TinyCLR_Can_Provider* self, int32_
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Can_GetUnreadMessageCount(const TinyCLR_Can_Provider* self, int32_t controller, size_t& count) {
+TinyCLR_Result STM32H7_Can_GetUnreadMessageCount(const TinyCLR_Can_Provider* self, int32_t controller, size_t& count) {
 
     count = canController[controller].can_rx_count;
 
@@ -1439,14 +1439,14 @@ TinyCLR_Result STM32F7_Can_GetUnreadMessageCount(const TinyCLR_Can_Provider* sel
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Can_SetMessageReceivedHandler(const TinyCLR_Can_Provider* self, int32_t controller, TinyCLR_Can_MessageReceivedHandler handler) {
+TinyCLR_Result STM32H7_Can_SetMessageReceivedHandler(const TinyCLR_Can_Provider* self, int32_t controller, TinyCLR_Can_MessageReceivedHandler handler) {
 
     canController[controller].messageReceivedEventHandler = handler;
 
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Can_SetErrorReceivedHandler(const TinyCLR_Can_Provider* self, int32_t controller, TinyCLR_Can_ErrorReceivedHandler handler) {
+TinyCLR_Result STM32H7_Can_SetErrorReceivedHandler(const TinyCLR_Can_Provider* self, int32_t controller, TinyCLR_Can_ErrorReceivedHandler handler) {
 
 
     canController[controller].errorEventHandler = handler;
@@ -1454,7 +1454,7 @@ TinyCLR_Result STM32F7_Can_SetErrorReceivedHandler(const TinyCLR_Can_Provider* s
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Can_SetExplicitFilters(const TinyCLR_Can_Provider* self, int32_t controller, uint8_t* filters, size_t length) {
+TinyCLR_Result STM32H7_Can_SetExplicitFilters(const TinyCLR_Can_Provider* self, int32_t controller, uint8_t* filters, size_t length) {
     uint32_t*_matchFilters;
     uint32_t*filters32 = (uint32_t*)filters;
 
@@ -1480,7 +1480,7 @@ TinyCLR_Result STM32F7_Can_SetExplicitFilters(const TinyCLR_Can_Provider* self, 
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Can_SetGroupFilters(const TinyCLR_Can_Provider* self, int32_t controller, uint8_t* lowerBounds, uint8_t* upperBounds, size_t length) {
+TinyCLR_Result STM32H7_Can_SetGroupFilters(const TinyCLR_Can_Provider* self, int32_t controller, uint8_t* lowerBounds, uint8_t* upperBounds, size_t length) {
     uint32_t* _lowerBoundFilters, *_upperBoundFilters;
     uint32_t* lowerBounds32 = (uint32_t *)lowerBounds;
     uint32_t* upperBounds32 = (uint32_t *)upperBounds;
@@ -1520,7 +1520,7 @@ TinyCLR_Result STM32F7_Can_SetGroupFilters(const TinyCLR_Can_Provider* self, int
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Can_ClearReadBuffer(const TinyCLR_Can_Provider* self, int32_t controller) {
+TinyCLR_Result STM32H7_Can_ClearReadBuffer(const TinyCLR_Can_Provider* self, int32_t controller) {
 
     canController[controller].can_rx_count = 0;
     canController[controller].can_rx_in = 0;
@@ -1529,7 +1529,7 @@ TinyCLR_Result STM32F7_Can_ClearReadBuffer(const TinyCLR_Can_Provider* self, int
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Can_IsWritingAllowed(const TinyCLR_Can_Provider* self, int32_t controller, bool& allowed) {
+TinyCLR_Result STM32H7_Can_IsWritingAllowed(const TinyCLR_Can_Provider* self, int32_t controller, bool& allowed) {
 
     CAN_TypeDef* CANx = ((controller == 0) ? CAN1 : CAN2);
 
@@ -1540,7 +1540,7 @@ TinyCLR_Result STM32F7_Can_IsWritingAllowed(const TinyCLR_Can_Provider* self, in
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Can_GetReadErrorCount(const TinyCLR_Can_Provider* self, int32_t controller, size_t& count) {
+TinyCLR_Result STM32H7_Can_GetReadErrorCount(const TinyCLR_Can_Provider* self, int32_t controller, size_t& count) {
 
     CAN_TypeDef* CANx = ((controller == 0) ? CAN1 : CAN2);
 
@@ -1549,7 +1549,7 @@ TinyCLR_Result STM32F7_Can_GetReadErrorCount(const TinyCLR_Can_Provider* self, i
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Can_GetWriteErrorCount(const TinyCLR_Can_Provider* self, int32_t controller, size_t& count) {
+TinyCLR_Result STM32H7_Can_GetWriteErrorCount(const TinyCLR_Can_Provider* self, int32_t controller, size_t& count) {
 
     CAN_TypeDef* CANx = ((controller == 0) ? CAN1 : CAN2);
 
@@ -1558,23 +1558,23 @@ TinyCLR_Result STM32F7_Can_GetWriteErrorCount(const TinyCLR_Can_Provider* self, 
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Can_GetSourceClock(const TinyCLR_Can_Provider* self, int32_t controller, uint32_t& sourceClock) {
-    sourceClock = STM32F7_APB1_CLOCK_HZ;
+TinyCLR_Result STM32H7_Can_GetSourceClock(const TinyCLR_Can_Provider* self, int32_t controller, uint32_t& sourceClock) {
+    sourceClock = STM32H7_APB1_CLOCK_HZ;
 
     return TinyCLR_Result::Success;
 }
 
-void STM32F7_Can_Reset() {
+void STM32H7_Can_Reset() {
     for (int i = 0; i < TOTAL_CAN_CONTROLLERS; i++) {
         canController[i].canRxMessagesFifo = nullptr;
 
-        STM32F7_Can_Release(&canProvider, i);
+        STM32H7_Can_Release(&canProvider, i);
 
         canController[i].isOpened = false;
     }
 }
 
-TinyCLR_Result STM32F7_Can_GetControllerCount(const TinyCLR_Can_Provider* self, int32_t& count) {
+TinyCLR_Result STM32H7_Can_GetControllerCount(const TinyCLR_Can_Provider* self, int32_t& count) {
     count = TOTAL_CAN_CONTROLLERS;
 
     return TinyCLR_Result::Success;

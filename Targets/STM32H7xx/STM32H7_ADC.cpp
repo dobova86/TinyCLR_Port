@@ -14,38 +14,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "STM32F7.h"
+#include "STM32H7.h"
 
-#define STM32F7_AD_SAMPLE_TIME 2   // sample time = 28 cycles
+#define STM32H7_AD_SAMPLE_TIME 2   // sample time = 28 cycles
 #define ADCx ADC1
 #define RCC_APB2ENR_ADCxEN RCC_APB2ENR_ADC1EN
-#define STM32F7_ADC_CHANNEL_NONE    0xFF
-#define STM32F7_ADC_PINS { PIN(A, 0), PIN(A, 1), PIN(A, 2), PIN(A, 3), PIN(A, 4), PIN(A, 5), PIN(A, 6), PIN(A, 7), PIN(B, 0), PIN(B, 1), PIN(C, 0), PIN(C, 1), PIN(C, 2),PIN(C, 3), PIN(C, 4), PIN(C, 5), PIN_NONE, PIN_NONE}
+#define STM32H7_ADC_CHANNEL_NONE    0xFF
+#define STM32H7_ADC_PINS { PIN(A, 0), PIN(A, 1), PIN(A, 2), PIN(A, 3), PIN(A, 4), PIN(A, 5), PIN(A, 6), PIN(A, 7), PIN(B, 0), PIN(B, 1), PIN(C, 0), PIN(C, 1), PIN(C, 2),PIN(C, 3), PIN(C, 4), PIN(C, 5), PIN_NONE, PIN_NONE}
 
-#define STM32F7_AD_NUM 18 // number of channels
+#define STM32H7_AD_NUM 18 // number of channels
 
-static const uint32_t g_STM32F7_AD_Pins[] = STM32F7_ADC_PINS;
+static const uint32_t g_STM32H7_AD_Pins[] = STM32H7_ADC_PINS;
 
 static TinyCLR_Adc_Provider adcProvider;
 static TinyCLR_Api_Info adcApi;
 
-bool g_STM32F7_AD_IsOpened[STM32F7_AD_NUM];
+bool g_STM32H7_AD_IsOpened[STM32H7_AD_NUM];
 
-const TinyCLR_Api_Info* STM32F7_Adc_GetApi() {
+const TinyCLR_Api_Info* STM32H7_Adc_GetApi() {
     adcProvider.Parent = &adcApi;
-    adcProvider.Acquire = &STM32F7_Adc_Acquire;
-    adcProvider.Release = &STM32F7_Adc_Release;
-    adcProvider.AcquireChannel = &STM32F7_Adc_AcquireChannel;
-    adcProvider.ReleaseChannel = &STM32F7_Adc_ReleaseChannel;
-    adcProvider.ReadValue = &STM32F7_Adc_ReadValue;
-    adcProvider.SetChannelMode = &STM32F7_Adc_SetChannelMode;
-    adcProvider.GetChannelMode = &STM32F7_Adc_GetChannelMode;
-    adcProvider.IsChannelModeSupported = &STM32F7_Adc_IsChannelModeSupported;
-    adcProvider.GetMinValue = &STM32F7_Adc_GetMinValue;
-    adcProvider.GetMaxValue = &STM32F7_Adc_GetMaxValue;
-    adcProvider.GetResolutionInBits = &STM32F7_Adc_GetResolutionInBits;
-    adcProvider.GetChannelCount = &STM32F7_Adc_GetChannelCount;
-    adcProvider.GetControllerCount = &STM32F7_Adc_GetControllerCount;
+    adcProvider.Acquire = &STM32H7_Adc_Acquire;
+    adcProvider.Release = &STM32H7_Adc_Release;
+    adcProvider.AcquireChannel = &STM32H7_Adc_AcquireChannel;
+    adcProvider.ReleaseChannel = &STM32H7_Adc_ReleaseChannel;
+    adcProvider.ReadValue = &STM32H7_Adc_ReadValue;
+    adcProvider.SetChannelMode = &STM32H7_Adc_SetChannelMode;
+    adcProvider.GetChannelMode = &STM32H7_Adc_GetChannelMode;
+    adcProvider.IsChannelModeSupported = &STM32H7_Adc_IsChannelModeSupported;
+    adcProvider.GetMinValue = &STM32H7_Adc_GetMinValue;
+    adcProvider.GetMaxValue = &STM32H7_Adc_GetMaxValue;
+    adcProvider.GetResolutionInBits = &STM32H7_Adc_GetResolutionInBits;
+    adcProvider.GetChannelCount = &STM32H7_Adc_GetChannelCount;
+    adcProvider.GetControllerCount = &STM32H7_Adc_GetControllerCount;
 
     adcApi.Author = "GHI Electronics, LLC";
     adcApi.Name = "GHIElectronics.TinyCLR.NativeApis.STM32F7.AdcProvider";
@@ -56,20 +56,20 @@ const TinyCLR_Api_Info* STM32F7_Adc_GetApi() {
     return &adcApi;
 }
 
-TinyCLR_Result STM32F7_Adc_Acquire(const TinyCLR_Adc_Provider* self, int32_t controller) {
+TinyCLR_Result STM32H7_Adc_Acquire(const TinyCLR_Adc_Provider* self, int32_t controller) {
     return self == nullptr ? TinyCLR_Result::ArgumentNull : TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Adc_Release(const TinyCLR_Adc_Provider* self, int32_t controller) {
+TinyCLR_Result STM32H7_Adc_Release(const TinyCLR_Adc_Provider* self, int32_t controller) {
     return self == nullptr ? TinyCLR_Result::ArgumentNull : TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Adc_AcquireChannel(const TinyCLR_Adc_Provider* self, int32_t controller, int32_t channel) {
-    if (channel <= 15 && !STM32F7_GpioInternal_OpenPin(g_STM32F7_AD_Pins[channel]))
+TinyCLR_Result STM32H7_Adc_AcquireChannel(const TinyCLR_Adc_Provider* self, int32_t controller, int32_t channel) {
+    if (channel <= 15 && !STM32H7_GpioInternal_OpenPin(g_STM32H7_AD_Pins[channel]))
         return TinyCLR_Result::SharingViolation;
 
-    // init this channel if it's listed in the STM32F7_AD_CHANNELS array
-    for (int i = 0; i < STM32F7_AD_NUM; i++) {
+    // init this channel if it's listed in the STM32H7_AD_CHANNELS array
+    for (int i = 0; i < STM32H7_AD_NUM; i++) {
         if (i == channel) {
             // valid channel
             if (!(RCC->APB2ENR & RCC_APB2ENR_ADCxEN)) { // not yet initialized
@@ -78,16 +78,16 @@ TinyCLR_Result STM32F7_Adc_AcquireChannel(const TinyCLR_Adc_Provider* self, int3
                 ADCx->SQR1 = 0; // 1 conversion
                 ADCx->CR1 = 0;
                 ADCx->CR2 = ADC_CR2_ADON; // AD on
-                ADCx->SMPR1 = 0x01249249 * STM32F7_AD_SAMPLE_TIME;
-                ADCx->SMPR2 = 0x09249249 * STM32F7_AD_SAMPLE_TIME;
+                ADCx->SMPR1 = 0x01249249 * STM32H7_AD_SAMPLE_TIME;
+                ADCx->SMPR2 = 0x09249249 * STM32H7_AD_SAMPLE_TIME;
             }
 
             // set pin as analog input if channel is not one of the internally connected
             if (channel <= 15) {
-                STM32F7_GpioInternal_ConfigurePin(g_STM32F7_AD_Pins[channel], STM32F7_Gpio_PortMode::Analog, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
+                STM32H7_GpioInternal_ConfigurePin(g_STM32H7_AD_Pins[channel], STM32H7_Gpio_PortMode::Analog, STM32H7_Gpio_OutputType::PushPull, STM32H7_Gpio_OutputSpeed::VeryHigh, STM32H7_Gpio_PullDirection::None, STM32H7_Gpio_AlternateFunction::AF0);
             }
 
-            g_STM32F7_AD_IsOpened[i] = true;
+            g_STM32H7_AD_IsOpened[i] = true;
 
             return TinyCLR_Result::Success;
 
@@ -98,23 +98,23 @@ TinyCLR_Result STM32F7_Adc_AcquireChannel(const TinyCLR_Adc_Provider* self, int3
     return TinyCLR_Result::ArgumentOutOfRange;
 }
 
-TinyCLR_Result STM32F7_Adc_ReleaseChannel(const TinyCLR_Adc_Provider* self, int32_t controller, int32_t channel) {
-    // free GPIO pin if this channel is listed in the STM32F7_AD_CHANNELS array
+TinyCLR_Result STM32H7_Adc_ReleaseChannel(const TinyCLR_Adc_Provider* self, int32_t controller, int32_t channel) {
+    // free GPIO pin if this channel is listed in the STM32H7_AD_CHANNELS array
     // and if it's not one of the internally connected ones as these channels don't take any GPIO pins
-    if (channel <= 15 && channel < STM32F7_AD_NUM)
-        if (g_STM32F7_AD_IsOpened[channel])
-            STM32F7_GpioInternal_ClosePin(g_STM32F7_AD_Pins[channel]);
+    if (channel <= 15 && channel < STM32H7_AD_NUM)
+        if (g_STM32H7_AD_IsOpened[channel])
+            STM32H7_GpioInternal_ClosePin(g_STM32H7_AD_Pins[channel]);
 
-    g_STM32F7_AD_IsOpened[channel] = false;
+    g_STM32H7_AD_IsOpened[channel] = false;
 
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Adc_ReadValue(const TinyCLR_Adc_Provider* self, int32_t controller, int32_t channel, int32_t& value) {
-    // check if this channel is listed in the STM32F7_AD_CHANNELS array
+TinyCLR_Result STM32H7_Adc_ReadValue(const TinyCLR_Adc_Provider* self, int32_t controller, int32_t channel, int32_t& value) {
+    // check if this channel is listed in the STM32H7_AD_CHANNELS array
     value = 0;
 
-    for (int i = 0; i < STM32F7_AD_NUM; i++) {
+    for (int i = 0; i < STM32H7_AD_NUM; i++) {
         if (i == channel) { // valid channel
             int x = ADCx->DR; // clear EOC flag
 
@@ -143,43 +143,43 @@ TinyCLR_Result STM32F7_Adc_ReadValue(const TinyCLR_Adc_Provider* self, int32_t c
     return TinyCLR_Result::ArgumentOutOfRange;
 }
 
-int32_t STM32F7_Adc_GetChannelCount(const TinyCLR_Adc_Provider* self, int32_t controller) {
-    return STM32F7_AD_NUM;
+int32_t STM32H7_Adc_GetChannelCount(const TinyCLR_Adc_Provider* self, int32_t controller) {
+    return STM32H7_AD_NUM;
 }
 
-int32_t STM32F7_Adc_GetResolutionInBits(const TinyCLR_Adc_Provider* self, int32_t controller) {
+int32_t STM32H7_Adc_GetResolutionInBits(const TinyCLR_Adc_Provider* self, int32_t controller) {
     return 12;
 }
 
-int32_t STM32F7_Adc_GetMinValue(const TinyCLR_Adc_Provider* self, int32_t controller) {
+int32_t STM32H7_Adc_GetMinValue(const TinyCLR_Adc_Provider* self, int32_t controller) {
     return 0;
 }
 
-int32_t STM32F7_Adc_GetMaxValue(const TinyCLR_Adc_Provider* self, int32_t controller) {
-    return (1 << STM32F7_Adc_GetResolutionInBits(self, controller)) - 1;
+int32_t STM32H7_Adc_GetMaxValue(const TinyCLR_Adc_Provider* self, int32_t controller) {
+    return (1 << STM32H7_Adc_GetResolutionInBits(self, controller)) - 1;
 }
 
-TinyCLR_Adc_ChannelMode STM32F7_Adc_GetChannelMode(const TinyCLR_Adc_Provider* self, int32_t controller) {
+TinyCLR_Adc_ChannelMode STM32H7_Adc_GetChannelMode(const TinyCLR_Adc_Provider* self, int32_t controller) {
     return TinyCLR_Adc_ChannelMode::SingleEnded;
 }
 
-TinyCLR_Result STM32F7_Adc_SetChannelMode(const TinyCLR_Adc_Provider* self, int32_t controller, TinyCLR_Adc_ChannelMode mode) {
+TinyCLR_Result STM32H7_Adc_SetChannelMode(const TinyCLR_Adc_Provider* self, int32_t controller, TinyCLR_Adc_ChannelMode mode) {
     return mode == TinyCLR_Adc_ChannelMode::SingleEnded ? TinyCLR_Result::Success : TinyCLR_Result::NotSupported;
 }
 
-bool STM32F7_Adc_IsChannelModeSupported(const TinyCLR_Adc_Provider* self, int32_t controller, TinyCLR_Adc_ChannelMode mode) {
+bool STM32H7_Adc_IsChannelModeSupported(const TinyCLR_Adc_Provider* self, int32_t controller, TinyCLR_Adc_ChannelMode mode) {
     return mode == TinyCLR_Adc_ChannelMode::SingleEnded;
 }
 
-void STM32F7_Adc_Reset() {
-    for (auto i = 0; i < STM32F7_AD_NUM; i++) {
-        STM32F7_Adc_ReleaseChannel(&adcProvider, 0, i);
+void STM32H7_Adc_Reset() {
+    for (auto i = 0; i < STM32H7_AD_NUM; i++) {
+        STM32H7_Adc_ReleaseChannel(&adcProvider, 0, i);
 
-        g_STM32F7_AD_IsOpened[i] = false;
+        g_STM32H7_AD_IsOpened[i] = false;
     }
 }
 
-TinyCLR_Result STM32F7_Adc_GetControllerCount(const TinyCLR_Adc_Provider* self, int32_t& count) {
+TinyCLR_Result STM32H7_Adc_GetControllerCount(const TinyCLR_Adc_Provider* self, int32_t& count) {
     count = 1;
 
     return TinyCLR_Result::Success;

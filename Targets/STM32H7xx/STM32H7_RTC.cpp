@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "STM32F7.h"
+#include "STM32H7.h"
 
 #define PERIPH_BB_BASE        ((uint32_t)0x42000000) /*!< Peripheral base address in the bit-band region                                */
 
@@ -78,12 +78,12 @@
 static TinyCLR_Rtc_Provider rtcProvider;
 static TinyCLR_Api_Info timeApi;
 
-const TinyCLR_Api_Info* STM32F7_Rtc_GetApi() {
+const TinyCLR_Api_Info* STM32H7_Rtc_GetApi() {
     rtcProvider.Parent = &timeApi;
-    rtcProvider.Acquire = &STM32F7_Rtc_Acquire;
-    rtcProvider.Release = &STM32F7_Rtc_Release;
-    rtcProvider.GetNow = &STM32F7_Rtc_GetNow;
-    rtcProvider.SetNow = &STM32F7_Rtc_SetNow;
+    rtcProvider.Acquire = &STM32H7_Rtc_Acquire;
+    rtcProvider.Release = &STM32H7_Rtc_Release;
+    rtcProvider.GetNow = &STM32H7_Rtc_GetNow;
+    rtcProvider.SetNow = &STM32H7_Rtc_SetNow;
 
     timeApi.Author = "GHI Electronics, LLC";
     timeApi.Name = "GHIElectronics.TinyCLR.NativeApis.STM32F7.RtcProvider";
@@ -93,7 +93,7 @@ const TinyCLR_Api_Info* STM32F7_Rtc_GetApi() {
 
     return &timeApi;
 }
-uint8_t STM32F7_Rtc_ByteToBcd2(uint8_t value) {
+uint8_t STM32H7_Rtc_ByteToBcd2(uint8_t value) {
     uint8_t bcdhigh = 0;
 
     while (value >= 10) {
@@ -103,11 +103,11 @@ uint8_t STM32F7_Rtc_ByteToBcd2(uint8_t value) {
     return  ((uint8_t)(bcdhigh << 4) | value);
 }
 
-uint8_t STM32F7_Rtc_Bcd2ToByte(uint8_t value) {
+uint8_t STM32H7_Rtc_Bcd2ToByte(uint8_t value) {
     return ((((uint8_t)(value & (uint8_t)0xF0) >> (uint8_t)0x4) * 10) + (value & (uint8_t)0x0F));
 }
 
-TinyCLR_Result STM32F7_Rtc_SetInitializeMode(bool set) {
+TinyCLR_Result STM32H7_Rtc_SetInitializeMode(bool set) {
     int timeout = RTC_TIMEOUT;
     if (set) {
         /* Check if the Initialization mode is set */
@@ -125,7 +125,7 @@ TinyCLR_Result STM32F7_Rtc_SetInitializeMode(bool set) {
     return timeout > 0 ? TinyCLR_Result::Success : TinyCLR_Result::InvalidOperation;
 }
 
-void STM32F7_Rtc_SetWriteProtection(bool set) {
+void STM32H7_Rtc_SetWriteProtection(bool set) {
     if (set)
         RTC->WPR = 0xFF;
     else {
@@ -134,11 +134,11 @@ void STM32F7_Rtc_SetWriteProtection(bool set) {
     }
 }
 
-TinyCLR_Result STM32F7_Rtc_WaitForSynchro() {
+TinyCLR_Result STM32H7_Rtc_WaitForSynchro() {
     int32_t timeout = RTC_TIMEOUT;
 
     /* Disable the write protection for RTC registers */
-    STM32F7_Rtc_SetWriteProtection(false);
+    STM32H7_Rtc_SetWriteProtection(false);
 
     /* Clear RSF flag */
     RTC->ISR &= RTC_RSF_MASK;
@@ -147,12 +147,12 @@ TinyCLR_Result STM32F7_Rtc_WaitForSynchro() {
     while (((RTC->ISR & RTC_ISR_RSF) == 0) && (timeout-- > 0));
 
     /* Enable the write protection for RTC registers */
-    STM32F7_Rtc_SetWriteProtection(true);
+    STM32H7_Rtc_SetWriteProtection(true);
 
     return timeout > 0 ? TinyCLR_Result::Success : TinyCLR_Result::InvalidOperation;
 }
 
-TinyCLR_Result STM32F7_Rtc_Configuration() {
+TinyCLR_Result STM32H7_Rtc_Configuration() {
     /* Enable the PWR clock */
     RCC->APB1ENR |= RCC_APB1ENR_PWREN;
 
@@ -188,14 +188,14 @@ TinyCLR_Result STM32F7_Rtc_Configuration() {
     RCC->BDCR |= (RCC_BDCR_RTCEN);
 
     /* Wait for RTC APB registers synchronisation */
-    return STM32F7_Rtc_WaitForSynchro();
+    return STM32H7_Rtc_WaitForSynchro();
 }
 
-TinyCLR_Result STM32F7_Rtc_Initialize() {
+TinyCLR_Result STM32H7_Rtc_Initialize() {
     /* Disable the write protection for RTC registers */
-    STM32F7_Rtc_SetWriteProtection(false);
+    STM32H7_Rtc_SetWriteProtection(false);
 
-    if (STM32F7_Rtc_SetInitializeMode(true) != TinyCLR_Result::Success)
+    if (STM32H7_Rtc_SetInitializeMode(true) != TinyCLR_Result::Success)
         return TinyCLR_Result::InvalidOperation;
 
     /* Clear RTC CR FMT Bit */
@@ -208,29 +208,29 @@ TinyCLR_Result STM32F7_Rtc_Initialize() {
     RTC->PRER |= 0x7F << 16;
 
     /* Exit Initialization mode */
-    STM32F7_Rtc_SetInitializeMode(false);
+    STM32H7_Rtc_SetInitializeMode(false);
 
     /* Enable the write protection for RTC registers */
-    STM32F7_Rtc_SetWriteProtection(true);
+    STM32H7_Rtc_SetWriteProtection(true);
 
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Rtc_Acquire(const TinyCLR_Rtc_Provider* self) {
-    if (STM32F7_Rtc_Configuration() != TinyCLR_Result::Success)
+TinyCLR_Result STM32H7_Rtc_Acquire(const TinyCLR_Rtc_Provider* self) {
+    if (STM32H7_Rtc_Configuration() != TinyCLR_Result::Success)
         return TinyCLR_Result::InvalidOperation;
 
-    if (STM32F7_Rtc_Initialize() != TinyCLR_Result::Success)
+    if (STM32H7_Rtc_Initialize() != TinyCLR_Result::Success)
         return TinyCLR_Result::InvalidOperation;
 
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Rtc_Release(const TinyCLR_Rtc_Provider* self) {
+TinyCLR_Result STM32H7_Rtc_Release(const TinyCLR_Rtc_Provider* self) {
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Rtc_GetNow(const TinyCLR_Rtc_Provider* self, TinyCLR_Rtc_DateTime& value) {
+TinyCLR_Result STM32H7_Rtc_GetNow(const TinyCLR_Rtc_Provider* self, TinyCLR_Rtc_DateTime& value) {
     uint32_t  time;
     uint32_t  date;
 
@@ -241,9 +241,9 @@ TinyCLR_Result STM32F7_Rtc_GetNow(const TinyCLR_Rtc_Provider* self, TinyCLR_Rtc_
     uint8_t minute = static_cast<uint8_t>((time & (RTC_TR_MNT | RTC_TR_MNU)) >> 8);
     uint8_t second = static_cast<uint8_t>(time & (RTC_TR_ST | RTC_TR_SU));
 
-    value.Hour = STM32F7_Rtc_Bcd2ToByte(hour);
-    value.Minute = STM32F7_Rtc_Bcd2ToByte(minute);
-    value.Second = STM32F7_Rtc_Bcd2ToByte(second);
+    value.Hour = STM32H7_Rtc_Bcd2ToByte(hour);
+    value.Minute = STM32H7_Rtc_Bcd2ToByte(minute);
+    value.Second = STM32H7_Rtc_Bcd2ToByte(second);
     value.Millisecond = 0;
 
     /* Get the RTC_TR register */
@@ -254,26 +254,26 @@ TinyCLR_Result STM32F7_Rtc_GetNow(const TinyCLR_Rtc_Provider* self, TinyCLR_Rtc_
     uint8_t day_of_month = static_cast<uint8_t>(date & (RTC_DR_DT | RTC_DR_DU));
     uint8_t day_of_week = static_cast<uint8_t>((date & (RTC_DR_WDU)) >> 13);
 
-    value.Year = STM32F7_Rtc_Bcd2ToByte(year) + 1980;
-    value.Month = STM32F7_Rtc_Bcd2ToByte(month);
-    value.DayOfMonth = STM32F7_Rtc_Bcd2ToByte(day_of_month);
-    value.DayOfWeek = STM32F7_Rtc_Bcd2ToByte(day_of_week);
+    value.Year = STM32H7_Rtc_Bcd2ToByte(year) + 1980;
+    value.Month = STM32H7_Rtc_Bcd2ToByte(month);
+    value.DayOfMonth = STM32H7_Rtc_Bcd2ToByte(day_of_month);
+    value.DayOfWeek = STM32H7_Rtc_Bcd2ToByte(day_of_week);
 
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F7_Rtc_SetNow(const TinyCLR_Rtc_Provider* self, TinyCLR_Rtc_DateTime value) {
+TinyCLR_Result STM32H7_Rtc_SetNow(const TinyCLR_Rtc_Provider* self, TinyCLR_Rtc_DateTime value) {
     uint32_t  time;
     uint32_t  date;
 
-    time = (STM32F7_Rtc_ByteToBcd2(value.Hour) << 16) | (STM32F7_Rtc_ByteToBcd2(value.Minute) << 8) | (STM32F7_Rtc_ByteToBcd2(value.Second));
-    date = (STM32F7_Rtc_ByteToBcd2(value.Year - 1980) << 16) | (STM32F7_Rtc_ByteToBcd2(value.Month) << 8) | (STM32F7_Rtc_ByteToBcd2(value.DayOfMonth)) | (value.DayOfWeek << 13);
+    time = (STM32H7_Rtc_ByteToBcd2(value.Hour) << 16) | (STM32H7_Rtc_ByteToBcd2(value.Minute) << 8) | (STM32H7_Rtc_ByteToBcd2(value.Second));
+    date = (STM32H7_Rtc_ByteToBcd2(value.Year - 1980) << 16) | (STM32H7_Rtc_ByteToBcd2(value.Month) << 8) | (STM32H7_Rtc_ByteToBcd2(value.DayOfMonth)) | (value.DayOfWeek << 13);
 
     /* Disable the write protection for RTC registers */
-    STM32F7_Rtc_SetWriteProtection(false);
+    STM32H7_Rtc_SetWriteProtection(false);
 
     /* Set Initialization mode */
-    if (STM32F7_Rtc_SetInitializeMode(true) != TinyCLR_Result::Success)
+    if (STM32H7_Rtc_SetInitializeMode(true) != TinyCLR_Result::Success)
         return TinyCLR_Result::InvalidOperation;
 
     /* Set the RTC_TR register */
@@ -282,12 +282,12 @@ TinyCLR_Result STM32F7_Rtc_SetNow(const TinyCLR_Rtc_Provider* self, TinyCLR_Rtc_
     /* Set the RTC_DR register */
     RTC->DR = date & RTC_DR_RESERVED_MASK;
 
-    STM32F7_Rtc_SetInitializeMode(false);
+    STM32H7_Rtc_SetInitializeMode(false);
 
-    STM32F7_Rtc_WaitForSynchro();
+    STM32H7_Rtc_WaitForSynchro();
 
     /* Enable the write protection for RTC registers */
-    STM32F7_Rtc_SetWriteProtection(true);
+    STM32H7_Rtc_SetWriteProtection(true);
 
     return TinyCLR_Result::Success;
 }
