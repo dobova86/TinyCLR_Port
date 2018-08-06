@@ -60,4 +60,4 @@ void InitSdramPins(void);
 //=================================================================================================
 
 
-void SDRAM_Init(void);
+void SDRAM_Init(uint8_t dummyval);

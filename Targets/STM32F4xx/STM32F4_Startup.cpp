@@ -17,10 +17,6 @@
 #include "STM32F4.h"
 #include <stdio.h>
 
-
-void STM32F4_DebugLed(uint16_t pin, bool onoff);
-
-
 void STM32F4_Startup_OnSoftReset(const TinyCLR_Api_Provider* apiProvider, const TinyCLR_Interop_Provider* interopProvider) {
 #ifdef INCLUDE_ADC
     STM32F4_Adc_Reset();
@@ -55,7 +51,6 @@ void STM32F4_Startup_OnSoftReset(const TinyCLR_Api_Provider* apiProvider, const 
 #ifdef INCLUDE_USBCLIENT
     STM32F4_UsbClient_Reset();
 #endif
-	//STM32F4_DebugLed(PIN(G,14), true);
 }
 
 #ifndef FLASH
@@ -483,6 +478,7 @@ void STM32F4_Startup_GetDebuggerTransportProvider(const TinyCLR_Api_Info*& api, 
 #elif defined(DEBUGGER_FORCE_API) && defined(DEBUGGER_FORCE_INDEX)
     api = DEBUGGER_FORCE_API;
     index = DEBUGGER_FORCE_INDEX;
+	configuration = (const void*)&STM32F4_Startup_UsbDebuggerConfiguration; // by DB!!
 #else
 #error You must specify a debugger mode pin or specify the API explicitly.
 #endif
@@ -514,4 +510,3 @@ void STM32F4_DebugLed(uint16_t pin, bool onoff)
 	STM32F4_GpioInternal_WritePin(pin, onoff);
 	//STM32F7_GpioInternal_ClosePin(pin);
 }
-

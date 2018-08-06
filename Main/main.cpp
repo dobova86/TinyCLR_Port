@@ -17,8 +17,8 @@
 
 #define TARGET(a) CONCAT(DEVICE_TARGET, a)
 
-extern void STM32F7_DebugLed(uint16_t pin, bool onoff);
-extern void SDRAM_Init(uint8_t databits);
+extern void STM32F4_DebugLed(uint16_t pin, bool onoff);
+extern void SDRAM_Init(uint8_t databits); // for Discovery F429ZI
 
 const TinyCLR_Api_Provider* apiProvider = nullptr;
 
@@ -122,6 +122,7 @@ int main() {
 	auto runApp = true;
 
 	TARGET(_Startup_GetRunApp)(runApp);
+	
 	TinyCLR_Startup_Start(&OnSoftReset, runApp);
 
 	return 0;

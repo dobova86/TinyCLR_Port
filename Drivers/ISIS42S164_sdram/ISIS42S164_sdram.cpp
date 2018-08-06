@@ -30,7 +30,7 @@ const STM32F4_Gpio_Pin GPIOInitTable[] = SDRAM_PINS;
 //=================================================================================================
 // SDRAM_Init function
 //=================================================================================================
-void SDRAM_Init(void)
+void SDRAM_Init(uint8_t dummyval)
 {
 	volatile uint32_t ptr = 0;
 	volatile uint32_t i = 0;

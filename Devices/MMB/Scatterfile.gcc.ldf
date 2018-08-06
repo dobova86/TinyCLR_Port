@@ -1,8 +1,9 @@
 ENTRY(EntryPoint)
 MEMORY
 {
-    IRAM : ORIGIN = 0x20000000, LENGTH = 0x00018000
+    IRAM : ORIGIN = 0x20000000, LENGTH = 0x20000
     LR_FLASH : ORIGIN = 0x08000000, LENGTH = 0x00100000
+	CCM : ORIGIN = 0x10000000, LENGTH = 0x10000
 }
 SECTIONS
 {
@@ -67,36 +68,47 @@ SECTIONS
         * (.ARM.extab*)
     }
 
-    ER_HEAP_BEGIN 0x20006600 : ALIGN(0x08)
+    ER_HEAP_BEGIN 0x20008000 : ALIGN(0x08)
     {
         * (SectionForHeapBegin)
     }>IRAM
 
-    ER_HEAP_END 0x20016000 - 0x08:
+    ER_HEAP_END 0x2001BF00 - 0x08:
     {
         * (SectionForHeapEnd)
     }>IRAM
 
-    ER_RLP_BEGIN 0x20016000 :
+    ER_RLP_BEGIN 0x2001BF00 :
     {
         * (SectionForRlpBegin)
     }>IRAM
 
-    ER_RLP_END 0x20016400 - 0x08:
+    ER_RLP_END 0x2001C000 - 0x08:
     {
         * (SectionForRlpEnd)
     }>IRAM
 
-    ER_STACK_BOTTOM 0x20016400 :
+    ER_STACK_BOTTOM 0x10000000 :
+    {
+        * (SectionForStackBottom)
+    }>CCM
+
+    ER_STACK_TOP 0x10008000 - 0x08 :
+    {
+        * (SectionForStackTop +LAST)
+    }>CCM
+
+/*
+    ER_STACK_BOTTOM 0x2001C000 :
     {
         * (SectionForStackBottom)
     }>IRAM
 
-    ER_STACK_TOP 0x20018000 - 0x08 :
+    ER_STACK_TOP 0x20020000 - 0x08 :
     {
         * (SectionForStackTop +LAST)
     }>IRAM
-
+*/
 
 }
 Load$$ER_FLASH$$Base = LOADADDR(ER_FLASH);
