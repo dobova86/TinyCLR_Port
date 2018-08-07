@@ -55,7 +55,7 @@
 
 
 #define SDRAM_DATABITS 16 
-//#define USE_SDRAM_HEAP
+#define USE_SDRAM_HEAP
 #define SDRAM_PINS {\
 				{ PIN(C, 0), AF(12) },\
 				{ PIN(D, 0), AF(12) }, { PIN(D, 1), AF(12) }, { PIN(D, 8), AF(12) }, { PIN(D, 9), AF(12) }, { PIN(D,10), AF(12) }, { PIN(D,14), AF(12) }, { PIN(D,15), AF(12) },\
@@ -75,9 +75,9 @@
 #define STM32F4_EXT_CRYSTAL_CLOCK_HZ 8000000
 #define STM32F4_SUPPLY_VOLTAGE_MV 3300
 
-//#define INCLUDE_ADC
+#define INCLUDE_ADC
 
-//#define INCLUDE_CAN
+#define INCLUDE_CAN
 #define STM32F4_CAN_BUFFER_DEFAULT_SIZE { 128 , 128 }
 #define STM32F4_CAN_TX_PINS { { PIN(D, 1), AF(9) }, { PIN(B, 9), AF(9) } }
 #define STM32F4_CAN_RX_PINS { { PIN(D, 0), AF(9) }, { PIN(B, 8), AF(9) } }

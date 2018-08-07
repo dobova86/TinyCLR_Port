@@ -68,6 +68,8 @@ void STM32F7_Startup_OnSoftReset(const TinyCLR_Api_Provider* apiProvider, const 
     STM32F7_UsbClient_Reset();
 #endif
 
+
+
 }
 
 #ifndef FLASH
@@ -378,7 +380,7 @@ extern "C" {
 
 #ifdef USE_SDRAM_HEAP
 		// Note: SDRAM_DATABITS is set in device.h
-		//SDRAM_Init(SDRAM_DATABITS); // Init MT48LC4M32 SDRAM for heap (Databits depend on hardware implementation)
+		SDRAM_Init(SDRAM_DATABITS); // Init MT48LC4M32 SDRAM for heap (Databits depend on hardware implementation)
 #endif
 
 		//STM32F7_DebugLed(PIN(A, 12), true);

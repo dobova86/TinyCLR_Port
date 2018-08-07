@@ -16,6 +16,8 @@
 
 #include "STM32H7.h"
 
+#ifdef INCLUDE_ADC
+
 #define STM32H7_AD_SAMPLE_TIME 2   // sample time = 28 cycles
 #define ADCx ADC1
 #define RCC_APB2ENR_ADCxEN RCC_APB2ENR_ADC1EN
@@ -184,3 +186,5 @@ TinyCLR_Result STM32H7_Adc_GetControllerCount(const TinyCLR_Adc_Provider* self, 
 
     return TinyCLR_Result::Success;
 }
+
+#endif // INCLUDE_ADC

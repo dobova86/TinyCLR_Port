@@ -380,6 +380,10 @@ extern "C" {
 		// Note: SDRAM_DATABITS is set in device.h
 		//SDRAM_Init(SDRAM_DATABITS); // Init MT48LC4M32 SDRAM for heap (Databits depend on hardware implementation)
 #endif
+#ifdef USE_SDRAM_HEAP
+		// Note: SDRAM_DATABITS is set in device.h
+		SDRAM_Init(SDRAM_DATABITS); // Init MT48LC4M32 SDRAM for heap (Databits depend on hardware implementation)
+#endif
 
 		//STM32H7_DebugLed(PIN(A, 12), true);
     }

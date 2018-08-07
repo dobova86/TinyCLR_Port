@@ -1,163 +1,3 @@
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp: In function 'TinyCLR_Result STM32H7_Adc_AcquireChannel(const TinyCLR_Adc_Provider*, int32_t, int32_t)':
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:21:28: error: 'RCC_APB2ENR_ADC1EN' was not declared in this scope
- #define RCC_APB2ENR_ADCxEN RCC_APB2ENR_ADC1EN
-                            ^
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:75:34: note: in expansion of macro 'RCC_APB2ENR_ADCxEN'
-             if (!(RCC->APB2ENR & RCC_APB2ENR_ADCxEN)) { // not yet initialized
-                                  ^~~~~~~~~~~~~~~~~~
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:21:28: note: suggested alternative: 'RCC_APB2ENR_ADCxEN'
- #define RCC_APB2ENR_ADCxEN RCC_APB2ENR_ADC1EN
-                            ^
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:75:34: note: in expansion of macro 'RCC_APB2ENR_ADCxEN'
-             if (!(RCC->APB2ENR & RCC_APB2ENR_ADCxEN)) { // not yet initialized
-                                  ^~~~~~~~~~~~~~~~~~
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:77:17: error: 'ADC' was not declared in this scope
-                 ADC->CCR = 0; // ADCCLK = PB2CLK / 2;
-                 ^~~
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:77:17: note: suggested alternative: 'ADCx'
-                 ADC->CCR = 0; // ADCCLK = PB2CLK / 2;
-                 ^~~
-                 ADCx
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:79:23: error: 'struct ADC_TypeDef' has no member named 'CR1'; did you mean 'CR'?
-                 ADCx->CR1 = 0;
-                       ^~~
-                       CR
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:80:23: error: 'struct ADC_TypeDef' has no member named 'CR2'; did you mean 'CR'?
-                 ADCx->CR2 = ADC_CR2_ADON; // AD on
-                       ^~~
-                       CR
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:80:29: error: 'ADC_CR2_ADON' was not declared in this scope
-                 ADCx->CR2 = ADC_CR2_ADON; // AD on
-                             ^~~~~~~~~~~~
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:80:29: note: suggested alternative: 'ADC_CR_ADEN'
-                 ADCx->CR2 = ADC_CR2_ADON; // AD on
-                             ^~~~~~~~~~~~
-                             ADC_CR_ADEN
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp: In function 'TinyCLR_Result STM32H7_Adc_ReadValue(const TinyCLR_Adc_Provider*, int32_t, int32_t, int32_t&)':
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:125:17: error: 'ADC' was not declared in this scope
-                 ADC->CCR |= ADC_CCR_TSVREFE; // Enable internal reference to work with temperature sensor and VREFINT channels
-                 ^~~
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:125:17: note: suggested alternative: 'ADCx'
-                 ADC->CCR |= ADC_CCR_TSVREFE; // Enable internal reference to work with temperature sensor and VREFINT channels
-                 ^~~
-                 ADCx
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:125:29: error: 'ADC_CCR_TSVREFE' was not declared in this scope
-                 ADC->CCR |= ADC_CCR_TSVREFE; // Enable internal reference to work with temperature sensor and VREFINT channels
-                             ^~~~~~~~~~~~~~~
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:125:29: note: suggested alternative: 'ADC_CCR_VREFEN'
-                 ADC->CCR |= ADC_CCR_TSVREFE; // Enable internal reference to work with temperature sensor and VREFINT channels
-                             ^~~~~~~~~~~~~~~
-                             ADC_CCR_VREFEN
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:128:19: error: 'struct ADC_TypeDef' has no member named 'CR2'; did you mean 'CR'?
-             ADCx->CR2 |= ADC_CR2_SWSTART; // start AD
-                   ^~~
-                   CR
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:128:26: error: 'ADC_CR2_SWSTART' was not declared in this scope
-             ADCx->CR2 |= ADC_CR2_SWSTART; // start AD
-                          ^~~~~~~~~~~~~~~
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:128:26: note: suggested alternative: 'ADC_CR_ADSTART'
-             ADCx->CR2 |= ADC_CR2_SWSTART; // start AD
-                          ^~~~~~~~~~~~~~~
-                          ADC_CR_ADSTART
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:129:28: error: 'struct ADC_TypeDef' has no member named 'SR'; did you mean 'ISR'?
-             while (!(ADCx->SR & ADC_SR_EOC)); // wait for completion
-                            ^~
-                            ISR
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:129:33: error: 'ADC_SR_EOC' was not declared in this scope
-             while (!(ADCx->SR & ADC_SR_EOC)); // wait for completion
-                                 ^~~~~~~~~~
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:129:33: note: suggested alternative: 'ADC_ISR_EOC'
-             while (!(ADCx->SR & ADC_SR_EOC)); // wait for completion
-                                 ^~~~~~~~~~
-                                 ADC_ISR_EOC
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:133:17: error: 'ADC' was not declared in this scope
-                 ADC->CCR &= ~ADC_CCR_TSVREFE;
-                 ^~~
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:133:17: note: suggested alternative: 'ADCx'
-                 ADC->CCR &= ~ADC_CCR_TSVREFE;
-                 ^~~
-                 ADCx
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:133:30: error: 'ADC_CCR_TSVREFE' was not declared in this scope
-                 ADC->CCR &= ~ADC_CCR_TSVREFE;
-                              ^~~~~~~~~~~~~~~
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_ADC.cpp:133:30: note: suggested alternative: 'ADC_CCR_VREFEN'
-                 ADC->CCR &= ~ADC_CCR_TSVREFE;
-                              ^~~~~~~~~~~~~~~
-                              ADC_CCR_VREFEN
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp: In function 'TinyCLR_Result STM32H7_Dac_AcquireChannel(const TinyCLR_Dac_Provider*, int32_t, int32_t)':
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp:72:10: error: 'struct RCC_TypeDef' has no member named 'APB1ENR'; did you mean 'AHB1ENR'?
-     RCC->APB1ENR |= RCC_APB1ENR_DACEN;
-          ^~~~~~~
-          AHB1ENR
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp:72:21: error: 'RCC_APB1ENR_DACEN' was not declared in this scope
-     RCC->APB1ENR |= RCC_APB1ENR_DACEN;
-                     ^~~~~~~~~~~~~~~~~
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp:72:21: note: suggested alternative: 'RCC_AHB1ENR_DMA1EN'
-     RCC->APB1ENR |= RCC_APB1ENR_DACEN;
-                     ^~~~~~~~~~~~~~~~~
-                     RCC_AHB1ENR_DMA1EN
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp:78:9: error: 'DAC' was not declared in this scope
-         DAC->CR |= DAC_CR_EN2; // enable channel 2
-         ^~~
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp:78:9: note: suggested alternative: 'DAC1'
-         DAC->CR |= DAC_CR_EN2; // enable channel 2
-         ^~~
-         DAC1
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp:81:9: error: 'DAC' was not declared in this scope
-         DAC->CR |= DAC_CR_EN1; // enable channel 1
-         ^~~
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp:81:9: note: suggested alternative: 'DAC1'
-         DAC->CR |= DAC_CR_EN1; // enable channel 1
-         ^~~
-         DAC1
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp: In function 'TinyCLR_Result STM32H7_Dac_ReleaseChannel(const TinyCLR_Dac_Provider*, int32_t, int32_t)':
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp:98:9: error: 'DAC' was not declared in this scope
-         DAC->CR &= ~DAC_CR_EN2; // disable channel 2
-         ^~~
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp:98:9: note: suggested alternative: 'DAC1'
-         DAC->CR &= ~DAC_CR_EN2; // disable channel 2
-         ^~~
-         DAC1
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp:101:9: error: 'DAC' was not declared in this scope
-         DAC->CR &= ~DAC_CR_EN1; // disable channel 1
-         ^~~
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp:101:9: note: suggested alternative: 'DAC1'
-         DAC->CR &= ~DAC_CR_EN1; // disable channel 1
-         ^~~
-         DAC1
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp:104:10: error: 'DAC' was not declared in this scope
-     if ((DAC->CR & (DAC_CR_EN1 | DAC_CR_EN2)) == 0) { // all channels off
-          ^~~
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp:104:10: note: suggested alternative: 'DAC1'
-     if ((DAC->CR & (DAC_CR_EN1 | DAC_CR_EN2)) == 0) { // all channels off
-          ^~~
-          DAC1
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp:106:14: error: 'struct RCC_TypeDef' has no member named 'APB1ENR'; did you mean 'AHB1ENR'?
-         RCC->APB1ENR &= ~RCC_APB1ENR_DACEN;
-              ^~~~~~~
-              AHB1ENR
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp:106:26: error: 'RCC_APB1ENR_DACEN' was not declared in this scope
-         RCC->APB1ENR &= ~RCC_APB1ENR_DACEN;
-                          ^~~~~~~~~~~~~~~~~
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp:106:26: note: suggested alternative: 'RCC_AHB1ENR_DMA1EN'
-         RCC->APB1ENR &= ~RCC_APB1ENR_DACEN;
-                          ^~~~~~~~~~~~~~~~~
-                          RCC_AHB1ENR_DMA1EN
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp: In function 'TinyCLR_Result STM32H7_Dac_WriteValue(const TinyCLR_Dac_Provider*, int32_t, int32_t, int32_t)':
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp:121:9: error: 'DAC' was not declared in this scope
-         DAC->DHR12R2 = value;
-         ^~~
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp:121:9: note: suggested alternative: 'DAC1'
-         DAC->DHR12R2 = value;
-         ^~~
-         DAC1
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp:123:9: error: 'DAC' was not declared in this scope
-         DAC->DHR12R1 = value;
-         ^~~
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_DAC.cpp:123:9: note: suggested alternative: 'DAC1'
-         DAC->DHR12R1 = value;
-         ^~~
-         DAC1
 H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:39:0: warning: "FLASH_SR_EOP_Pos" redefined
  #define FLASH_SR_EOP_Pos              (0U)
  
@@ -1011,21 +851,15 @@ H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_USBC.cpp:441:19: 
   RCC->AHB2ENR &= ~RCC_AHB2ENR_OTGFSEN;
                    ^~~~~~~~~~~~~~~~~~~
                    RCC_AHB2ENR_RNGEN
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Build\release\NUCLEO-H743\STM32H7_Startup.gcc.obj: In function `Reset_Handler':
-(i.EntryPoint+0x1cc): undefined reference to `SystemInit'
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Build\release\NUCLEO-H743\main.obj: In function `OnSoftReset(TinyCLR_Api_Provider const*)':
-main.cpp:(.text._Z11OnSoftResetPK20TinyCLR_Api_Provider+0xe0): undefined reference to `STM32H7_Adc_GetApi()'
-main.cpp:(.text._Z11OnSoftResetPK20TinyCLR_Api_Provider+0xe4): undefined reference to `STM32H7_Dac_GetApi()'
-main.cpp:(.text._Z11OnSoftResetPK20TinyCLR_Api_Provider+0xec): undefined reference to `STM32H7_Gpio_GetApi()'
-main.cpp:(.text._Z11OnSoftResetPK20TinyCLR_Api_Provider+0xf4): undefined reference to `STM32H7_I2c_GetApi()'
-main.cpp:(.text._Z11OnSoftResetPK20TinyCLR_Api_Provider+0xf8): undefined reference to `STM32H7_Pwm_GetApi()'
-main.cpp:(.text._Z11OnSoftResetPK20TinyCLR_Api_Provider+0xfc): undefined reference to `STM32H7_Rtc_GetApi()'
-main.cpp:(.text._Z11OnSoftResetPK20TinyCLR_Api_Provider+0x104): undefined reference to `STM32H7_SdCard_GetApi()'
-main.cpp:(.text._Z11OnSoftResetPK20TinyCLR_Api_Provider+0x10c): undefined reference to `STM32H7_Spi_GetApi()'
-main.cpp:(.text._Z11OnSoftResetPK20TinyCLR_Api_Provider+0x110): undefined reference to `STM32H7_Uart_GetApi()'
-main.cpp:(.text._Z11OnSoftResetPK20TinyCLR_Api_Provider+0x114): undefined reference to `STM32H7_UsbClient_GetApi()'
-main.cpp:(.text._Z11OnSoftResetPK20TinyCLR_Api_Provider+0x118): undefined reference to `STM32H7_Startup_OnSoftReset(TinyCLR_Api_Provider const*, TinyCLR_Interop_Provider const*)'
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Build\release\NUCLEO-H743\main.obj: In function `main':
+H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Build\release\nucleo-h743\STM32H7_Startup.gcc.obj: In function `Reset_Handler':
+(i.EntryPoint+0x29c): undefined reference to `SystemInit'
+H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Build\release\nucleo-h743\main.obj: In function `OnSoftReset(TinyCLR_Api_Provider const*)':
+main.cpp:(.text._Z11OnSoftResetPK20TinyCLR_Api_Provider+0x80): undefined reference to `STM32H7_Gpio_GetApi()'
+main.cpp:(.text._Z11OnSoftResetPK20TinyCLR_Api_Provider+0x88): undefined reference to `STM32H7_Rtc_GetApi()'
+main.cpp:(.text._Z11OnSoftResetPK20TinyCLR_Api_Provider+0x90): undefined reference to `STM32H7_SdCard_GetApi()'
+main.cpp:(.text._Z11OnSoftResetPK20TinyCLR_Api_Provider+0x98): undefined reference to `STM32H7_UsbClient_GetApi()'
+main.cpp:(.text._Z11OnSoftResetPK20TinyCLR_Api_Provider+0x9c): undefined reference to `STM32H7_Startup_OnSoftReset(TinyCLR_Api_Provider const*, TinyCLR_Interop_Provider const*)'
+H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Build\release\nucleo-h743\main.obj: In function `main':
 main.cpp:(.text.startup.main+0x7c): undefined reference to `STM32H7_Startup_Initialize()'
 main.cpp:(.text.startup.main+0x80): undefined reference to `STM32H7_Startup_GetHeap(unsigned char*&, unsigned int&)'
 main.cpp:(.text.startup.main+0x90): undefined reference to `STM32H7_Startup_GetDebuggerTransportProvider(TinyCLR_Api_Info const*&, unsigned int&, void const*&)'
@@ -1033,5 +867,5 @@ main.cpp:(.text.startup.main+0xa0): undefined reference to `STM32H7_Deployment_G
 main.cpp:(.text.startup.main+0xa8): undefined reference to `STM32H7_Power_GetApi()'
 main.cpp:(.text.startup.main+0xb4): undefined reference to `STM32H7_Startup_GetRunApp(bool&)'
 collect2.exe: error: ld returned 1 exit status
-H:\GNU Tools ARM Embedded\7 2018-q2-update\bin\arm-none-eabi-objcopy.exe: 'H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Build\release\NUCLEO-H743\NUCLEO-H743 Firmware.axf': No such file
-H:\GNU Tools ARM Embedded\7 2018-q2-update\bin\arm-none-eabi-objcopy.exe: 'H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Build\release\NUCLEO-H743\NUCLEO-H743 Firmware.axf': No such file
+H:\GNU Tools ARM Embedded\7 2018-q2-update\bin\arm-none-eabi-objcopy.exe: 'H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Build\release\nucleo-h743\nucleo-h743 Firmware.axf': No such file
+H:\GNU Tools ARM Embedded\7 2018-q2-update\bin\arm-none-eabi-objcopy.exe: 'H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Build\release\nucleo-h743\nucleo-h743 Firmware.axf': No such file

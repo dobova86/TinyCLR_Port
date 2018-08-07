@@ -18,8 +18,6 @@
 
 #include <STM32H7.h>
 
-
-
 #define DEVICE_TARGET STM32H7
 #define DEVICE_NAME "NUCLEO-H743"
 #define DEVICE_MANUFACTURER "Nucleo STM32H743"
@@ -59,14 +57,14 @@
 #define STM32H7_EXT_CRYSTAL_CLOCK_HZ 8000000
 #define STM32H7_SUPPLY_VOLTAGE_MV 3300
 
-#define INCLUDE_ADC
+//#define INCLUDE_ADC
 
 //#define INCLUDE_CAN
 #define STM32H7_CAN_BUFFER_DEFAULT_SIZE { 128 }
 #define STM32H7_CAN_TX_PINS { { PIN(D, 1), AF(9) } }
 #define STM32H7_CAN_RX_PINS { { PIN(D, 0), AF(9) } }
 
-#define INCLUDE_DAC
+//#define INCLUDE_DAC
 
 #define INCLUDE_GPIO
 #define STM32H7_GPIO_PINS {/*      0          1          2          3          4          5          6          7          8          9          10         11         12         13         14         15      */\
@@ -83,11 +81,11 @@
 						   /*PKx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
 						  }
 
-#define INCLUDE_I2C			// NOTE: I2C1 on Nucleo is not connected to CN9 by default (see Nucleo-144 user guide)
+//#define INCLUDE_I2C			// NOTE: I2C1 on Nucleo is not connected to CN9 by default (see Nucleo-144 user guide)
 #define STM32H7_I2C_SCL_PINS { { PIN(B, 8), AF(4) }, { PIN(F, 1), AF(4) } }
 #define STM32H7_I2C_SDA_PINS { { PIN(B, 9), AF(4) }, { PIN(F, 0), AF(4) } }
 
-#define INCLUDE_PWM
+//#define INCLUDE_PWM
 #define STM32H7_PWM_PINS {/* CH         1                          2                        3                        4                       */\
 						  /* TIM1  */ { { PIN(E,  9), AF(1)   }, { PIN(E, 11), AF(1)   }, { PIN(E, 13), AF(1)   }, { PIN_NONE  , AF_NONE } },\
 						  /* TIM2  */ { { PIN(A,  0), AF(1)   }, { PIN_NONE  , AF_NONE }, { PIN(B, 10), AF(1)   }, { PIN(B, 11), AF(1)   } },\
@@ -105,12 +103,12 @@
 						  /* TIM14 */ { { PIN(A,  7), AF(9)   }, { PIN_NONE  , AF_NONE }, { PIN_NONE  , AF_NONE }, { PIN_NONE  , AF_NONE } },\
 						 }
 
-#define INCLUDE_SPI
+//#define INCLUDE_SPI
 #define STM32H7_SPI_SCLK_PINS { { PIN(A, 5), AF(5) }, { PIN(A,12), AF(5) } } //, { PIN(B, 10), AF(5) } }
 #define STM32H7_SPI_MISO_PINS { { PIN(A, 6), AF(5) }, { PIN(B,14), AF(5) } } //, { PIN(C,  2), AF(5) } }
 #define STM32H7_SPI_MOSI_PINS { { PIN(A, 7), AF(5) }, { PIN(B,15), AF(5) } } //, { PIN(C,  3), AF(5) } }
 
-#define INCLUDE_UART
+//#define INCLUDE_UART
 #define STM32H7_UART_DEFAULT_TX_BUFFER_SIZE  { 256, 256, 256, 256, 256, 256 }
 #define STM32H7_UART_DEFAULT_RX_BUFFER_SIZE  { 512, 512, 512, 512, 512, 512 }
 #define STM32H7_UART_TX_PINS  { { PIN_NONE , AF_NONE }, { PIN(D,  5), AF(7)  },{ PIN(D, 8) , AF(7) },{ PIN_NONE , AF_NONE },{ PIN_NONE , AF_NONE }, { PIN(G,14), AF(8) } }

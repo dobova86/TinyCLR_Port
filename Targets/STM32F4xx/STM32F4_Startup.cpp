@@ -17,6 +17,9 @@
 #include "STM32F4.h"
 #include <stdio.h>
 
+void STM32F4_DebugLed(uint16_t pin, bool onoff);
+extern void SDRAM_Init(uint8_t databits);
+
 void STM32F4_Startup_OnSoftReset(const TinyCLR_Api_Provider* apiProvider, const TinyCLR_Interop_Provider* interopProvider) {
 #ifdef INCLUDE_ADC
     STM32F4_Adc_Reset();
@@ -51,6 +54,8 @@ void STM32F4_Startup_OnSoftReset(const TinyCLR_Api_Provider* apiProvider, const 
 #ifdef INCLUDE_USBCLIENT
     STM32F4_UsbClient_Reset();
 #endif
+
+
 }
 
 #ifndef FLASH
@@ -339,6 +344,12 @@ extern "C" {
 #ifdef RCC_AHB1ENR_GPIOKEN
         RCC->AHB1ENR |= RCC_AHB1ENR_GPIOKEN;
 #endif
+
+#ifdef USE_SDRAM_HEAP
+		// Note: SDRAM_DATABITS is set in device.h
+		SDRAM_Init(SDRAM_DATABITS); // Init MT48LC4M32 SDRAM for heap (Databits depend on hardware implementation)
+#endif
+
     }
 }
 

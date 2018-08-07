@@ -114,10 +114,10 @@ Default_Handler:
     def_irq_handler     DMA1_Stream5_IRQHandler           @ DMA1 Stream 5
     def_irq_handler     DMA1_Stream6_IRQHandler           @ DMA1 Stream 6
     def_irq_handler     ADC_IRQHandler                    @ ADC1, ADC2 and ADC3s
-    def_irq_handler     CAN1_TX_IRQHandler                @ CAN1 TX
-    def_irq_handler     CAN1_RX0_IRQHandler               @ CAN1 RX0
-    def_irq_handler     CAN1_RX1_IRQHandler               @ CAN1 RX1
-    def_irq_handler     CAN1_SCE_IRQHandler               @ CAN1 SCE
+    def_irq_handler     FDCAN1_IT0_IRQHandler                @ CAN1 TX
+    def_irq_handler     FDCAN2_IT0_IRQHandler               @ CAN1 RX0
+    def_irq_handler     FDCAN1_IT1_IRQHandler               @ CAN1 RX1
+    def_irq_handler     FDCAN2_IT1_IRQHandler               @ CAN1 SCE
     def_irq_handler     EXTI9_5_IRQHandler                @ External Line[9:5]s
     def_irq_handler     TIM1_BRK_TIM9_IRQHandler          @ TIM1 Break and TIM9
     def_irq_handler     TIM1_UP_TIM10_IRQHandler          @ TIM1 Update and TIM10
@@ -158,10 +158,7 @@ Default_Handler:
     def_irq_handler     DMA2_Stream4_IRQHandler           @ DMA2 Stream 4
     def_irq_handler     ETH_IRQHandler                    @ Ethernet
     def_irq_handler     ETH_WKUP_IRQHandler               @ Ethernet Wakeup through EXTI line
-    def_irq_handler     CAN2_TX_IRQHandler                @ CAN2 TX
-    def_irq_handler     CAN2_RX0_IRQHandler               @ CAN2 RX0
-    def_irq_handler     CAN2_RX1_IRQHandler               @ CAN2 RX1
-    def_irq_handler     CAN2_SCE_IRQHandler               @ CAN2 SCE
+    def_irq_handler     FDCAN_CAL_IRQHandler                @ CAN2 TX
     def_irq_handler     OTG_FS_IRQHandler                 @ USB OTG FS
     def_irq_handler     DMA2_Stream5_IRQHandler           @ DMA2 Stream 5
     def_irq_handler     DMA2_Stream6_IRQHandler           @ DMA2 Stream 6
@@ -193,8 +190,54 @@ Default_Handler:
     def_irq_handler     I2C4_EV_IRQHandler                @ I2C4 Event
     def_irq_handler     I2C4_ER_IRQHandler                @ I2C4 Error
     def_irq_handler     SPDIF_RX_IRQHandler               @ SPDIF_RX
+	def_irq_handler     OTG_FS_EP1_OUT_IRQHandler         /* USB OTG FS End Point 1 Out   */   
+	def_irq_handler     OTG_FS_EP1_IN_IRQHandler          /* USB OTG FS End Point 1 In    */   
+	def_irq_handler     OTG_FS_WKUP_IRQHandler            /* USB OTG FS Wakeup through EXTI */  
+	def_irq_handler     OTG_FS_IRQHandler                 /* USB OTG FS                   */
+	def_irq_handler     DMAMUX1_OVR_IRQHandler            /* DMAMUX1 Overrun interrupt    */  
+	def_irq_handler     HRTIM1_Master_IRQHandler          /* HRTIM Master Timer global Interrupt */
+	def_irq_handler     HRTIM1_TIMA_IRQHandler            /* HRTIM Timer A global Interrupt */  
+	def_irq_handler     HRTIM1_TIMB_IRQHandler            /* HRTIM Timer B global Interrupt */  
+	def_irq_handler     HRTIM1_TIMC_IRQHandler            /* HRTIM Timer C global Interrupt */  
+	def_irq_handler     HRTIM1_TIMD_IRQHandler            /* HRTIM Timer D global Interrupt */  
+	def_irq_handler     HRTIM1_TIME_IRQHandler            /* HRTIM Timer E global Interrupt */  
+	def_irq_handler     HRTIM1_FLT_IRQHandler             /* HRTIM Fault global Interrupt   */ 
+	def_irq_handler     DFSDM1_FLT0_IRQHandler            /* DFSDM Filter0 Interrupt        */
+	def_irq_handler     DFSDM1_FLT1_IRQHandler            /* DFSDM Filter1 Interrupt        */     
+	def_irq_handler     DFSDM1_FLT2_IRQHandler            /* DFSDM Filter2 Interrupt        */    
+	def_irq_handler     DFSDM1_FLT3_IRQHandler            /* DFSDM Filter3 Interrupt        */   
+	def_irq_handler     SAI3_IRQHandler                   /* SAI3 global Interrupt          */   
+	def_irq_handler     SWPMI1_IRQHandler                 /* Serial Wire Interface 1 global interrupt */
+	def_irq_handler     TIM15_IRQHandler                  /* TIM15 global Interrupt      */        
+	def_irq_handler     TIM16_IRQHandler                  /* TIM16 global Interrupt      */      
+	def_irq_handler     TIM17_IRQHandler                  /* TIM17 global Interrupt      */      
+	def_irq_handler     MDIOS_WKUP_IRQHandler             /* MDIOS Wakeup  Interrupt     */     
+	def_irq_handler     MDIOS_IRQHandler                  /* MDIOS global Interrupt      */    
+	def_irq_handler     JPEG_IRQHandler                   /* JPEG global Interrupt       */    
+	def_irq_handler     MDMA_IRQHandler                   /* MDMA global Interrupt       */    
+	def_irq_handler     SDMMC2_IRQHandler                 /* SDMMC2 global Interrupt     */    
+	def_irq_handler     HSEM1_IRQHandler                  /* HSEM1 global Interrupt      */    
+	def_irq_handler     ADC3_IRQHandler                   /* ADC3 global Interrupt       */    
+	def_irq_handler     DMAMUX2_OVR_IRQHandler            /* DMAMUX Overrun interrupt    */    
+	def_irq_handler     BDMA_Channel0_IRQHandler          /* BDMA Channel 0 global Interrupt */
+	def_irq_handler     BDMA_Channel1_IRQHandler          /* BDMA Channel 1 global Interrupt */ 
+	def_irq_handler     BDMA_Channel2_IRQHandler          /* BDMA Channel 2 global Interrupt */ 
+	def_irq_handler     BDMA_Channel3_IRQHandler          /* BDMA Channel 3 global Interrupt */ 
+	def_irq_handler     BDMA_Channel4_IRQHandler          /* BDMA Channel 4 global Interrupt */ 
+	def_irq_handler     BDMA_Channel5_IRQHandler          /* BDMA Channel 5 global Interrupt */ 
+	def_irq_handler     BDMA_Channel6_IRQHandler          /* BDMA Channel 6 global Interrupt */ 
+	def_irq_handler     BDMA_Channel7_IRQHandler          /* BDMA Channel 7 global Interrupt */ 
+	def_irq_handler     COMP1_IRQHandler                  /* COMP1 global Interrupt     */          
+	def_irq_handler     LPTIM2_IRQHandler                 /* LP TIM2 global interrupt   */      
+	def_irq_handler     LPTIM3_IRQHandler                 /* LP TIM3 global interrupt   */     
+	def_irq_handler     LPTIM4_IRQHandler                 /* LP TIM4 global interrupt   */     
+	def_irq_handler     LPTIM5_IRQHandler                 /* LP TIM5 global interrupt   */     
+	def_irq_handler     LPUART1_IRQHandler                /* LP UART1 interrupt         */     
+	def_irq_handler     CRS_IRQHandler                    /* Clock Recovery Global Interrupt */ 
+	def_irq_handler     SAI4_IRQHandler                   /* SAI4 global interrupt      */      
+	def_irq_handler     WAKEUP_PIN_IRQHandler             /* Interrupt for all 6 wake-up pins */
 
-    .section i.EntryPoint, "ax", %progbits
+	.section i.EntryPoint, "ax", %progbits
 
    @ENTRY
 
@@ -258,10 +301,10 @@ EntryPoint:
     .word     DMA1_Stream5_IRQHandler           @ DMA1 Stream 5
     .word     DMA1_Stream6_IRQHandler           @ DMA1 Stream 6
     .word     ADC_IRQHandler                    @ ADC1, ADC2 and ADC3s
-    .word     CAN1_TX_IRQHandler                @ CAN1 TX
-    .word     CAN1_RX0_IRQHandler               @ CAN1 RX0
-    .word     CAN1_RX1_IRQHandler               @ CAN1 RX1
-    .word     CAN1_SCE_IRQHandler               @ CAN1 SCE
+    .word     FDCAN1_IT0_IRQHandler             @ FDCAN1 TX
+    .word     FDCAN2_IT0_IRQHandler             @ FDCAN1 RX0
+    .word     FDCAN1_IT1_IRQHandler             @ FDCAN1 RX1
+    .word     FDCAN2_IT1_IRQHandler             @ FDCAN1 SCE
     .word     EXTI9_5_IRQHandler                @ External Line[9:5]s
     .word     TIM1_BRK_TIM9_IRQHandler          @ TIM1 Break and TIM9
     .word     TIM1_UP_TIM10_IRQHandler          @ TIM1 Update and TIM10
@@ -281,7 +324,7 @@ EntryPoint:
     .word     USART3_IRQHandler                 @ USART3
     .word     EXTI15_10_IRQHandler              @ External Line[15:10]s
     .word     RTC_Alarm_IRQHandler              @ RTC Alarm (A and B) through EXTI Line
-    .word     OTG_FS_WKUP_IRQHandler            @ USB OTG FS Wakeup through EXTI line
+    .word     0						            @ RESERVED
     .word     TIM8_BRK_TIM12_IRQHandler         @ TIM8 Break and TIM12
     .word     TIM8_UP_TIM13_IRQHandler          @ TIM8 Update and TIM13
     .word     TIM8_TRG_COM_TIM14_IRQHandler     @ TIM8 Trigger and Commutation and TIM14
@@ -302,11 +345,11 @@ EntryPoint:
     .word     DMA2_Stream4_IRQHandler           @ DMA2 Stream 4
     .word     ETH_IRQHandler                    @ Ethernet
     .word     ETH_WKUP_IRQHandler               @ Ethernet Wakeup through EXTI line
-    .word     CAN2_TX_IRQHandler                @ CAN2 TX
-    .word     CAN2_RX0_IRQHandler               @ CAN2 RX0
-    .word     CAN2_RX1_IRQHandler               @ CAN2 RX1
-    .word     CAN2_SCE_IRQHandler               @ CAN2 SCE
-    .word     OTG_FS_IRQHandler                 @ USB OTG FS
+    .word     FDCAN_CAL_IRQHandler              @ CAN2 TX
+    .word     0               					@ RESERVED
+    .word     0               					@ RESERVED
+    .word     0               					@ RESERVED
+    .word     0                 				@ RESERVED -- EX USB OTG FS
     .word     DMA2_Stream5_IRQHandler           @ DMA2 Stream 5
     .word     DMA2_Stream6_IRQHandler           @ DMA2 Stream 6
     .word     DMA2_Stream7_IRQHandler           @ DMA2 Stream 7
@@ -318,7 +361,7 @@ EntryPoint:
     .word     OTG_HS_WKUP_IRQHandler            @ USB OTG HS Wakeup through EXTI
     .word     OTG_HS_IRQHandler                 @ USB OTG HS
     .word     DCMI_IRQHandler                   @ DCMI
-    .word     Reserved_IRQHandler               @ Reserved
+    .word     0					                @ Reserved
     .word     RNG_IRQHandler                    @ Rng
     .word     FPU_IRQHandler                    @ FPU
     .word     UART7_IRQHandler                  @ UART7
@@ -337,7 +380,62 @@ EntryPoint:
     .word     I2C4_EV_IRQHandler                @ I2C4 Event
     .word     I2C4_ER_IRQHandler                @ I2C4 Error
     .word     SPDIF_RX_IRQHandler               @ SPDIF_RX
+	
+	.word     OTG_FS_EP1_OUT_IRQHandler         /* USB OTG FS End Point 1 Out   */   
+	.word     OTG_FS_EP1_IN_IRQHandler          /* USB OTG FS End Point 1 In    */   
+	.word     OTG_FS_WKUP_IRQHandler            /* USB OTG FS Wakeup through EXTI */  
+	.word     OTG_FS_IRQHandler                 /* USB OTG FS                   */
+	.word     DMAMUX1_OVR_IRQHandler            /* DMAMUX1 Overrun interrupt    */  
+	.word     HRTIM1_Master_IRQHandler          /* HRTIM Master Timer global Interrupt */
+	.word     HRTIM1_TIMA_IRQHandler            /* HRTIM Timer A global Interrupt */  
+	.word     HRTIM1_TIMB_IRQHandler            /* HRTIM Timer B global Interrupt */  
+	.word     HRTIM1_TIMC_IRQHandler            /* HRTIM Timer C global Interrupt */  
+	.word     HRTIM1_TIMD_IRQHandler            /* HRTIM Timer D global Interrupt */  
+	.word     HRTIM1_TIME_IRQHandler            /* HRTIM Timer E global Interrupt */  
+	.word     HRTIM1_FLT_IRQHandler             /* HRTIM Fault global Interrupt   */ 
+	.word     DFSDM1_FLT0_IRQHandler            /* DFSDM Filter0 Interrupt        */
+	.word     DFSDM1_FLT1_IRQHandler            /* DFSDM Filter1 Interrupt        */     
+	.word     DFSDM1_FLT2_IRQHandler            /* DFSDM Filter2 Interrupt        */    
+	.word     DFSDM1_FLT3_IRQHandler            /* DFSDM Filter3 Interrupt        */   
+	.word     SAI3_IRQHandler                   /* SAI3 global Interrupt          */   
+	.word     SWPMI1_IRQHandler                 /* Serial Wire Interface 1 global interrupt */
+	.word     TIM15_IRQHandler                  /* TIM15 global Interrupt      */        
+	.word     TIM16_IRQHandler                  /* TIM16 global Interrupt      */      
+	.word     TIM17_IRQHandler                  /* TIM17 global Interrupt      */      
+	.word     MDIOS_WKUP_IRQHandler             /* MDIOS Wakeup  Interrupt     */     
+	.word     MDIOS_IRQHandler                  /* MDIOS global Interrupt      */    
+	.word     JPEG_IRQHandler                   /* JPEG global Interrupt       */    
+	.word     MDMA_IRQHandler                   /* MDMA global Interrupt       */    
+	.word     0                                 /* Reserved                    */    
+	.word     SDMMC2_IRQHandler                 /* SDMMC2 global Interrupt     */    
+	.word     HSEM1_IRQHandler                  /* HSEM1 global Interrupt      */    
+	.word     0                                 /* Reserved                    */    
+	.word     ADC3_IRQHandler                   /* ADC3 global Interrupt       */    
+	.word     DMAMUX2_OVR_IRQHandler            /* DMAMUX Overrun interrupt    */    
+	.word     BDMA_Channel0_IRQHandler          /* BDMA Channel 0 global Interrupt */
+	.word     BDMA_Channel1_IRQHandler          /* BDMA Channel 1 global Interrupt */ 
+	.word     BDMA_Channel2_IRQHandler          /* BDMA Channel 2 global Interrupt */ 
+	.word     BDMA_Channel3_IRQHandler          /* BDMA Channel 3 global Interrupt */ 
+	.word     BDMA_Channel4_IRQHandler          /* BDMA Channel 4 global Interrupt */ 
+	.word     BDMA_Channel5_IRQHandler          /* BDMA Channel 5 global Interrupt */ 
+	.word     BDMA_Channel6_IRQHandler          /* BDMA Channel 6 global Interrupt */ 
+	.word     BDMA_Channel7_IRQHandler          /* BDMA Channel 7 global Interrupt */ 
+	.word     COMP1_IRQHandler                  /* COMP1 global Interrupt     */          
+	.word     LPTIM2_IRQHandler                 /* LP TIM2 global interrupt   */      
+	.word     LPTIM3_IRQHandler                 /* LP TIM3 global interrupt   */     
+	.word     LPTIM4_IRQHandler                 /* LP TIM4 global interrupt   */     
+	.word     LPTIM5_IRQHandler                 /* LP TIM5 global interrupt   */     
+	.word     LPUART1_IRQHandler                /* LP UART1 interrupt         */     
+	.word     0                                 /* Reserved                   */     
+	.word     CRS_IRQHandler                    /* Clock Recovery Global Interrupt */ 
+	.word     0                                 /* Reserved                   */     
+	.word     SAI4_IRQHandler                   /* SAI4 global interrupt      */      
+	.word     0                                 /* Reserved                   */      
+	.word     0                                 /* Reserved                   */      
+	.word     WAKEUP_PIN_IRQHandler             /* Interrupt for all 6 wake-up pins */
 
+	
+	
 Reset_Handler:
     @@ reload the stack pointer as there's no returning to the loader
     ldr     sp, =__initial_sp
@@ -413,10 +511,10 @@ __Vectors:
     .long     DMA1_Stream5_IRQHandler           @ DMA1 Stream 5
     .long     DMA1_Stream6_IRQHandler           @ DMA1 Stream 6
     .long     ADC_IRQHandler                    @ ADC1, ADC2 and ADC3s
-    .long     CAN1_TX_IRQHandler                @ CAN1 TX
-    .long     CAN1_RX0_IRQHandler               @ CAN1 RX0
-    .long     CAN1_RX1_IRQHandler               @ CAN1 RX1
-    .long     CAN1_SCE_IRQHandler               @ CAN1 SCE
+    .long     FDCAN1_IT0_IRQHandler             @ FDCAN1 line 0
+    .long     FDCAN2_IT0_IRQHandler				@ FDCAN2 line 0 
+    .long     FDCAN1_IT1_IRQHandler             @ FDCAN1 line 1
+    .long     FDCAN2_IT1_IRQHandler				@ FDCAN2 line 1
     .long     EXTI9_5_IRQHandler                @ External Line[9:5]s
     .long     TIM1_BRK_TIM9_IRQHandler          @ TIM1 Break and TIM9
     .long     TIM1_UP_TIM10_IRQHandler          @ TIM1 Update and TIM10
@@ -436,14 +534,14 @@ __Vectors:
     .long     USART3_IRQHandler                 @ USART3
     .long     EXTI15_10_IRQHandler              @ External Line[15:10]s
     .long     RTC_Alarm_IRQHandler              @ RTC Alarm (A and B) through EXTI Line
-    .long     OTG_FS_WKUP_IRQHandler            @ USB OTG FS Wakeup through EXTI line
+    .long     0						            @ RESERVED
     .long     TIM8_BRK_TIM12_IRQHandler         @ TIM8 Break and TIM12
     .long     TIM8_UP_TIM13_IRQHandler          @ TIM8 Update and TIM13
     .long     TIM8_TRG_COM_TIM14_IRQHandler     @ TIM8 Trigger and Commutation and TIM14
     .long     TIM8_CC_IRQHandler                @ TIM8 Capture Compare
     .long     DMA1_Stream7_IRQHandler           @ DMA1 Stream7
     .long     FMC_IRQHandler                    @ FMC
-    .long     SDMMC1_IRQHandler                  @ SDMMC1
+    .long     SDMMC1_IRQHandler                 @ SDMMC1
     .long     TIM5_IRQHandler                   @ TIM5
     .long     SPI3_IRQHandler                   @ SPI3
     .long     UART4_IRQHandler                  @ UART4
@@ -457,11 +555,11 @@ __Vectors:
     .long     DMA2_Stream4_IRQHandler           @ DMA2 Stream 4
     .long     ETH_IRQHandler                    @ Ethernet
     .long     ETH_WKUP_IRQHandler               @ Ethernet Wakeup through EXTI line
-    .long     CAN2_TX_IRQHandler                @ CAN2 TX
-    .long     CAN2_RX0_IRQHandler               @ CAN2 RX0
-    .long     CAN2_RX1_IRQHandler               @ CAN2 RX1
-    .long     CAN2_SCE_IRQHandler               @ CAN2 SCE
-    .long     OTG_FS_IRQHandler                 @ USB OTG FS
+    .long     FDCAN_CAL_IRQHandler              @ CAN2 TX
+    .long     0               					@ Reserved
+    .long     0               					@ Reserved
+    .long     0               					@ Reserved
+    .long     0					                @ Reserved
     .long     DMA2_Stream5_IRQHandler           @ DMA2 Stream 5
     .long     DMA2_Stream6_IRQHandler           @ DMA2 Stream 6
     .long     DMA2_Stream7_IRQHandler           @ DMA2 Stream 7
@@ -492,5 +590,58 @@ __Vectors:
     .long     I2C4_EV_IRQHandler                @ I2C4 Event
     .long     I2C4_ER_IRQHandler                @ I2C4 Error
     .long     SPDIF_RX_IRQHandler               @ SPDIF_RX
+
+	.long     OTG_FS_EP1_OUT_IRQHandler         /* USB OTG FS End Point 1 Out   */   
+	.long     OTG_FS_EP1_IN_IRQHandler          /* USB OTG FS End Point 1 In    */   
+	.long     OTG_FS_WKUP_IRQHandler            /* USB OTG FS Wakeup through EXTI */  
+	.long     OTG_FS_IRQHandler                 /* USB OTG FS                   */
+	.long     DMAMUX1_OVR_IRQHandler            /* DMAMUX1 Overrun interrupt    */  
+	.long     HRTIM1_Master_IRQHandler          /* HRTIM Master Timer global Interrupt */
+	.long     HRTIM1_TIMA_IRQHandler            /* HRTIM Timer A global Interrupt */  
+	.long     HRTIM1_TIMB_IRQHandler            /* HRTIM Timer B global Interrupt */  
+	.long     HRTIM1_TIMC_IRQHandler            /* HRTIM Timer C global Interrupt */  
+	.long     HRTIM1_TIMD_IRQHandler            /* HRTIM Timer D global Interrupt */  
+	.long     HRTIM1_TIME_IRQHandler            /* HRTIM Timer E global Interrupt */  
+	.long     HRTIM1_FLT_IRQHandler             /* HRTIM Fault global Interrupt   */ 
+	.long     DFSDM1_FLT0_IRQHandler            /* DFSDM Filter0 Interrupt        */
+	.long     DFSDM1_FLT1_IRQHandler            /* DFSDM Filter1 Interrupt        */     
+	.long     DFSDM1_FLT2_IRQHandler            /* DFSDM Filter2 Interrupt        */    
+	.long     DFSDM1_FLT3_IRQHandler            /* DFSDM Filter3 Interrupt        */   
+	.long     SAI3_IRQHandler                   /* SAI3 global Interrupt          */   
+	.long     SWPMI1_IRQHandler                 /* Serial Wire Interface 1 global interrupt */
+	.long     TIM15_IRQHandler                  /* TIM15 global Interrupt      */        
+	.long     TIM16_IRQHandler                  /* TIM16 global Interrupt      */      
+	.long     TIM17_IRQHandler                  /* TIM17 global Interrupt      */      
+	.long     MDIOS_WKUP_IRQHandler             /* MDIOS Wakeup  Interrupt     */     
+	.long     MDIOS_IRQHandler                  /* MDIOS global Interrupt      */    
+	.long     JPEG_IRQHandler                   /* JPEG global Interrupt       */    
+	.long     MDMA_IRQHandler                   /* MDMA global Interrupt       */    
+	.long     0                                 /* Reserved                    */    
+	.long     SDMMC2_IRQHandler                 /* SDMMC2 global Interrupt     */    
+	.long     HSEM1_IRQHandler                  /* HSEM1 global Interrupt      */    
+	.long     0                                 /* Reserved                    */    
+	.long     ADC3_IRQHandler                   /* ADC3 global Interrupt       */    
+	.long     DMAMUX2_OVR_IRQHandler            /* DMAMUX Overrun interrupt    */    
+	.long     BDMA_Channel0_IRQHandler          /* BDMA Channel 0 global Interrupt */
+	.long     BDMA_Channel1_IRQHandler          /* BDMA Channel 1 global Interrupt */ 
+	.long     BDMA_Channel2_IRQHandler          /* BDMA Channel 2 global Interrupt */ 
+	.long     BDMA_Channel3_IRQHandler          /* BDMA Channel 3 global Interrupt */ 
+	.long     BDMA_Channel4_IRQHandler          /* BDMA Channel 4 global Interrupt */ 
+	.long     BDMA_Channel5_IRQHandler          /* BDMA Channel 5 global Interrupt */ 
+	.long     BDMA_Channel6_IRQHandler          /* BDMA Channel 6 global Interrupt */ 
+	.long     BDMA_Channel7_IRQHandler          /* BDMA Channel 7 global Interrupt */ 
+	.long     COMP1_IRQHandler                  /* COMP1 global Interrupt     */          
+	.long     LPTIM2_IRQHandler                 /* LP TIM2 global interrupt   */      
+	.long     LPTIM3_IRQHandler                 /* LP TIM3 global interrupt   */     
+	.long     LPTIM4_IRQHandler                 /* LP TIM4 global interrupt   */     
+	.long     LPTIM5_IRQHandler                 /* LP TIM5 global interrupt   */     
+	.long     LPUART1_IRQHandler                /* LP UART1 interrupt         */     
+	.long     0                                 /* Reserved                   */     
+	.long     CRS_IRQHandler                    /* Clock Recovery Global Interrupt */ 
+	.long     0                                 /* Reserved                   */     
+	.long     SAI4_IRQHandler                   /* SAI4 global interrupt      */      
+	.long     0                                 /* Reserved                   */      
+	.long     0                                 /* Reserved                   */      
+	.long     WAKEUP_PIN_IRQHandler             /* Interrupt for all 6 wake-up pins */
 
 .end
