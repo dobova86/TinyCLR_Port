@@ -10,3 +10,5 @@ Original code done by GHI: https://github.com/ghi-electronics/TinyCLR-Ports
 
 <b>NOTE: 0.12.0 changes many code and code organization. The Disco-F746/F769 are working with included SDRAM heap for TinyCLR,
 but SDRAM initialization must be implemented better. Added NUCLEO-F767 first release.</b>
+
+I've started porting TinyCLR to STM32H7 product line. I simply work on a Nucleo144-STM32H743ZI. At the moment no working code to compile is available. 
