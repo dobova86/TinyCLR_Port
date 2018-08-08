@@ -3,6 +3,6 @@ Build/
 Core/TinyCLR*
 Core/License.txt
 CMSIS/
-
+smt32h7_error.log
 # Visual Studio
 .vs/

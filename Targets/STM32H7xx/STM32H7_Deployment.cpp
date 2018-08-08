@@ -35,28 +35,28 @@
 #define FLASH_PSIZE_DOUBLE_WORD    ((uint32_t)FLASH_CR_PSIZE)
 #define CR_PSIZE_MASK              ((uint32_t)0xFFFFFCFF)
 
-  /*******************  Bits definition for FLASH_SR register  ******************/
-#define FLASH_SR_EOP_Pos              (0U)
-#define FLASH_SR_EOP_Msk              (0x1U << FLASH_SR_EOP_Pos)               /*!< 0x00000001 */
-#define FLASH_SR_EOP                  FLASH_SR_EOP_Msk
-#define FLASH_SR_OPERR_Pos            (1U)
-#define FLASH_SR_OPERR_Msk            (0x1U << FLASH_SR_OPERR_Pos)             /*!< 0x00000002 */
-#define FLASH_SR_OPERR                FLASH_SR_OPERR_Msk
-#define FLASH_SR_WRPERR_Pos           (4U)
-#define FLASH_SR_WRPERR_Msk           (0x1U << FLASH_SR_WRPERR_Pos)            /*!< 0x00000010 */
-#define FLASH_SR_WRPERR               FLASH_SR_WRPERR_Msk
-#define FLASH_SR_PGAERR_Pos           (5U)
-#define FLASH_SR_PGAERR_Msk           (0x1U << FLASH_SR_PGAERR_Pos)            /*!< 0x00000020 */
-#define FLASH_SR_PGAERR               FLASH_SR_PGAERR_Msk
-#define FLASH_SR_PGPERR_Pos           (6U)
-#define FLASH_SR_PGPERR_Msk           (0x1U << FLASH_SR_PGPERR_Pos)            /*!< 0x00000040 */
-#define FLASH_SR_PGPERR               FLASH_SR_PGPERR_Msk
-#define FLASH_SR_ERSERR_Pos           (7U)
-#define FLASH_SR_ERSERR_Msk           (0x1U << FLASH_SR_ERSERR_Pos)            /*!< 0x00000080 */
-#define FLASH_SR_ERSERR               FLASH_SR_ERSERR_Msk
-#define FLASH_SR_BSY_Pos              (16U)
-#define FLASH_SR_BSY_Msk              (0x1U << FLASH_SR_BSY_Pos)               /*!< 0x00010000 */
-#define FLASH_SR_BSY                  FLASH_SR_BSY_Msk
+  /*******************  Bits definition for FLASH_SR1 register  ******************/
+//#define FLASH_SR_EOP_Pos              (0U)
+//#define FLASH_SR_EOP_Msk              (0x1U << FLASH_SR_EOP_Pos)               /*!< 0x00000001 */
+//#define FLASH_SR_EOP                  FLASH_SR_EOP_Msk
+//#define FLASH_SR_OPERR_Pos            (1U)
+//#define FLASH_SR_OPERR_Msk            (0x1U << FLASH_SR_OPERR_Pos)             /*!< 0x00000002 */
+//#define FLASH_SR_OPERR                FLASH_SR_OPERR_Msk
+//#define FLASH_SR_WRPERR_Pos           (4U)
+//#define FLASH_SR_WRPERR_Msk           (0x1U << FLASH_SR_WRPERR_Pos)            /*!< 0x00000010 */
+//#define FLASH_SR_WRPERR               FLASH_SR_WRPERR_Msk
+//#define FLASH_SR_PGAERR_Pos           (5U)
+//#define FLASH_SR_PGAERR_Msk           (0x1U << FLASH_SR_PGAERR_Pos)            /*!< 0x00000020 */
+//#define FLASH_SR_PGAERR               FLASH_SR_PGAERR_Msk
+//#define FLASH_SR_PGPERR_Pos           (6U)
+//#define FLASH_SR_PGPERR_Msk           (0x1U << FLASH_SR_PGPERR_Pos)            /*!< 0x00000040 */
+//#define FLASH_SR_PGPERR               FLASH_SR_PGPERR_Msk
+//#define FLASH_SR_ERSERR_Pos           (7U)
+//#define FLASH_SR_ERSERR_Msk           (0x1U << FLASH_SR_ERSERR_Pos)            /*!< 0x00000080 */
+//#define FLASH_SR_ERSERR               FLASH_SR_ERSERR_Msk
+//#define FLASH_SR_BSY_Pos              (16U)
+//#define FLASH_SR_BSY_Msk              (0x1U << FLASH_SR_BSY_Pos)               /*!< 0x00010000 */
+//#define FLASH_SR_BSY                  FLASH_SR_BSY_Msk
 
 
 #define SECTOR_MASK               ((uint32_t)0xFFFFFF07)
@@ -145,12 +145,12 @@ TinyCLR_Result __section("SectionForFlashOperations") STM32H7_Flash_Write(const 
     if (STM32H7_Flash_GetSectorSizeForAddress(self, address, bytePerSector) != TinyCLR_Result::Success)
         return TinyCLR_Result::IndexOutOfRange;
 
-    STM32H7_FLASH->KEYR = STM32H7_FLASH_KEY1;
-    STM32H7_FLASH->KEYR = STM32H7_FLASH_KEY2;
+    STM32H7_FLASH->KEYR1 = STM32H7_FLASH_KEY1;
+    STM32H7_FLASH->KEYR1 = STM32H7_FLASH_KEY2;
 
-    while (STM32H7_FLASH->SR & FLASH_SR_BSY);
+    while (STM32H7_FLASH->SR1 & FLASH_SR_BSY);
 
-    STM32H7_FLASH->SR = (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_PGPERR | FLASH_SR_ERSERR);
+    STM32H7_FLASH->SR1 = (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR | FLASH_SR_PGSERR | FLASH_SR_PGSERR | FLASH_SR_ERSERR);
 
     CHIP_WORD* ChipAddress = (CHIP_WORD *)address;
     CHIP_WORD* EndAddress = (CHIP_WORD *)(address + length);
@@ -160,10 +160,10 @@ TinyCLR_Result __section("SectionForFlashOperations") STM32H7_Flash_Write(const 
     while (ChipAddress < EndAddress) {
         if (*ChipAddress != *pBuf) {
 
-            STM32H7_FLASH->CR &= CR_PSIZE_MASK;
-            STM32H7_FLASH->CR |= FLASH_PSIZE_WORD;
-            STM32H7_FLASH->CR |= FLASH_CR_EOPIE;
-            STM32H7_FLASH->CR |= FLASH_CR_PG;
+            STM32H7_FLASH->CR1 &= CR_PSIZE_MASK;
+            STM32H7_FLASH->CR1 |= FLASH_PSIZE_WORD;
+            STM32H7_FLASH->CR1 |= FLASH_CR_EOPIE;
+            STM32H7_FLASH->CR1 |= FLASH_CR_PG;
 
             // write data
             *ChipAddress = *pBuf;
@@ -171,7 +171,7 @@ TinyCLR_Result __section("SectionForFlashOperations") STM32H7_Flash_Write(const 
             __DSB();
 
             // wait for completion
-            while (((STM32H7_FLASH->SR & FLASH_SR_EOP) == 0) || (STM32H7_FLASH->SR & FLASH_SR_BSY)) {
+            while (((STM32H7_FLASH->SR1 & FLASH_SR_EOP) == 0) || (STM32H7_FLASH->SR1 & FLASH_SR_BSY)) {
                 STM32H7_Time_Delay(nullptr, 1); // asure host recognizes reattach
                 timeout--;
 
@@ -179,7 +179,7 @@ TinyCLR_Result __section("SectionForFlashOperations") STM32H7_Flash_Write(const 
                     return TinyCLR_Result::InvalidOperation;
             }
 
-            STM32H7_FLASH->SR |= FLASH_SR_EOP;
+            STM32H7_FLASH->SR1 |= FLASH_SR_EOP;
 
             if (*ChipAddress != *pBuf) {
                 return TinyCLR_Result::InvalidOperation;
@@ -190,10 +190,10 @@ TinyCLR_Result __section("SectionForFlashOperations") STM32H7_Flash_Write(const 
         pBuf++;
     }
 
-    STM32H7_FLASH->CR &= (~FLASH_CR_PG);
+    STM32H7_FLASH->CR1 &= (~FLASH_CR_PG);
 
     // reset & lock the controller
-    STM32H7_FLASH->CR |= FLASH_CR_LOCK;
+    STM32H7_FLASH->CR1 |= FLASH_CR_LOCK;
 
     STM32H7_Startup_CacheEnable();
 
@@ -237,27 +237,27 @@ TinyCLR_Result __section("SectionForFlashOperations") STM32H7_Flash_EraseSector(
 
     STM32H7_Startup_CacheDisable();
 
-    STM32H7_FLASH->KEYR = STM32H7_FLASH_KEY1;
-    STM32H7_FLASH->KEYR = STM32H7_FLASH_KEY2;
+    STM32H7_FLASH->KEYR1 = STM32H7_FLASH_KEY1;
+    STM32H7_FLASH->KEYR1 = STM32H7_FLASH_KEY2;
 
-    STM32H7_FLASH->SR = (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_PGPERR | FLASH_SR_ERSERR);
+    STM32H7_FLASH->SR1 = (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_PGSERR | FLASH_SR_ERSERR);
 
-    STM32H7_FLASH->CR = FLASH_PSIZE_WORD;
-    STM32H7_FLASH->CR |= FLASH_CR_EOPIE;
-    STM32H7_FLASH->CR |= (num << 3);
-    STM32H7_FLASH->CR |= FLASH_CR_SER;
+    STM32H7_FLASH->CR1 = FLASH_PSIZE_WORD;
+    STM32H7_FLASH->CR1 |= FLASH_CR_EOPIE;
+    STM32H7_FLASH->CR1 |= (num << 3);
+    STM32H7_FLASH->CR1 |= FLASH_CR_SER;
 
-    STM32H7_FLASH->CR |= FLASH_CR_STRT;
+    STM32H7_FLASH->CR1 |= FLASH_CR_STRT;
 
     __DSB();
     // wait for completion
-    while (((STM32H7_FLASH->SR & FLASH_SR_EOP) == 0) || (STM32H7_FLASH->SR & FLASH_SR_BSY));
+    while (((STM32H7_FLASH->SR1 & FLASH_SR_EOP) == 0) || (STM32H7_FLASH->SR1 & FLASH_SR_BSY));
 
-    STM32H7_FLASH->CR &= (~FLASH_CR_SER);
-    STM32H7_FLASH->CR &= SECTOR_MASK;
+    STM32H7_FLASH->CR1 &= (~FLASH_CR_SER);
+    STM32H7_FLASH->CR1 &= SECTOR_MASK;
 
     // reset & lock the controller
-    STM32H7_FLASH->CR |= FLASH_CR_LOCK;
+    STM32H7_FLASH->CR1 |= FLASH_CR_LOCK;
 
     STM32H7_Startup_CacheEnable();
 

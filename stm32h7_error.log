@@ -1,152 +1,33 @@
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:39:0: warning: "FLASH_SR_EOP_Pos" redefined
- #define FLASH_SR_EOP_Pos              (0U)
- 
-In file included from H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\inc/stm32h7xx.h:116:0,
-                 from H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7.h:20,
-                 from H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:22:
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\inc/stm32h743xx.h:10213:0: note: this is the location of the previous definition
- #define FLASH_SR_EOP_Pos                     (16U)
- 
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:42:0: warning: "FLASH_SR_OPERR_Pos" redefined
- #define FLASH_SR_OPERR_Pos            (1U)
- 
-In file included from H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\inc/stm32h7xx.h:116:0,
-                 from H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7.h:20,
-                 from H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:22:
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\inc/stm32h743xx.h:10228:0: note: this is the location of the previous definition
- #define FLASH_SR_OPERR_Pos                   (22U)
- 
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:45:0: warning: "FLASH_SR_WRPERR_Pos" redefined
- #define FLASH_SR_WRPERR_Pos           (4U)
- 
-In file included from H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\inc/stm32h7xx.h:116:0,
-                 from H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7.h:20,
-                 from H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:22:
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\inc/stm32h743xx.h:10216:0: note: this is the location of the previous definition
- #define FLASH_SR_WRPERR_Pos                  (17U)
- 
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:57:0: warning: "FLASH_SR_BSY_Pos" redefined
- #define FLASH_SR_BSY_Pos              (16U)
- 
-In file included from H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\inc/stm32h7xx.h:116:0,
-                 from H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7.h:20,
-                 from H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:22:
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\inc/stm32h743xx.h:10199:0: note: this is the location of the previous definition
- #define FLASH_SR_BSY_Pos                     (0U)
- 
 H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp: In function 'TinyCLR_Result STM32H7_Flash_Write(const TinyCLR_Deployment_Provider*, uint32_t, size_t, const uint8_t*)':
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:148:20: error: 'struct FLASH_TypeDef' has no member named 'KEYR'; did you mean 'KEYR1'?
-     STM32H7_FLASH->KEYR = STM32H7_FLASH_KEY1;
-                    ^~~~
-                    KEYR1
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:149:20: error: 'struct FLASH_TypeDef' has no member named 'KEYR'; did you mean 'KEYR1'?
-     STM32H7_FLASH->KEYR = STM32H7_FLASH_KEY2;
-                    ^~~~
-                    KEYR1
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:151:27: error: 'struct FLASH_TypeDef' has no member named 'SR'; did you mean 'SR1'?
-     while (STM32H7_FLASH->SR & FLASH_SR_BSY);
-                           ^~
-                           SR1
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:153:20: error: 'struct FLASH_TypeDef' has no member named 'SR'; did you mean 'SR1'?
-     STM32H7_FLASH->SR = (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_PGPERR | FLASH_SR_ERSERR);
-                    ^~
-                    SR1
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:163:28: error: 'struct FLASH_TypeDef' has no member named 'CR'; did you mean 'ACR'?
-             STM32H7_FLASH->CR &= CR_PSIZE_MASK;
-                            ^~
-                            ACR
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:164:28: error: 'struct FLASH_TypeDef' has no member named 'CR'; did you mean 'ACR'?
-             STM32H7_FLASH->CR |= FLASH_PSIZE_WORD;
-                            ^~
-                            ACR
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:165:28: error: 'struct FLASH_TypeDef' has no member named 'CR'; did you mean 'ACR'?
-             STM32H7_FLASH->CR |= FLASH_CR_EOPIE;
-                            ^~
-                            ACR
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:166:28: error: 'struct FLASH_TypeDef' has no member named 'CR'; did you mean 'ACR'?
-             STM32H7_FLASH->CR |= FLASH_CR_PG;
-                            ^~
-                            ACR
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:174:37: error: 'struct FLASH_TypeDef' has no member named 'SR'; did you mean 'SR1'?
-             while (((STM32H7_FLASH->SR & FLASH_SR_EOP) == 0) || (STM32H7_FLASH->SR & FLASH_SR_BSY)) {
-                                     ^~
-                                     SR1
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:174:81: error: 'struct FLASH_TypeDef' has no member named 'SR'; did you mean 'SR1'?
-             while (((STM32H7_FLASH->SR & FLASH_SR_EOP) == 0) || (STM32H7_FLASH->SR & FLASH_SR_BSY)) {
-                                                                                 ^~
-                                                                                 SR1
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:182:28: error: 'struct FLASH_TypeDef' has no member named 'SR'; did you mean 'SR1'?
-             STM32H7_FLASH->SR |= FLASH_SR_EOP;
-                            ^~
-                            SR1
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:193:20: error: 'struct FLASH_TypeDef' has no member named 'CR'; did you mean 'ACR'?
-     STM32H7_FLASH->CR &= (~FLASH_CR_PG);
-                    ^~
-                    ACR
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:196:20: error: 'struct FLASH_TypeDef' has no member named 'CR'; did you mean 'ACR'?
-     STM32H7_FLASH->CR |= FLASH_CR_LOCK;
-                    ^~
-                    ACR
+H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:153:113: error: 'FLASH_SR_ERSERR' was not declared in this scope
+     STM32H7_FLASH->SR1 = (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR | FLASH_SR_PGSERR | FLASH_SR_PGSERR | FLASH_SR_ERSERR);
+                                                                                                                 ^~~~~~~~~~~~~~~
+H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:153:113: note: suggested alternative: 'FLASH_SR_WRPERR'
+     STM32H7_FLASH->SR1 = (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR | FLASH_SR_PGSERR | FLASH_SR_PGSERR | FLASH_SR_ERSERR);
+                                                                                                                 ^~~~~~~~~~~~~~~
+                                                                                                                 FLASH_SR_WRPERR
 H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp: In function 'TinyCLR_Result STM32H7_Flash_EraseSector(const TinyCLR_Deployment_Provider*, uint32_t)':
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:240:20: error: 'struct FLASH_TypeDef' has no member named 'KEYR'; did you mean 'KEYR1'?
-     STM32H7_FLASH->KEYR = STM32H7_FLASH_KEY1;
-                    ^~~~
-                    KEYR1
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:241:20: error: 'struct FLASH_TypeDef' has no member named 'KEYR'; did you mean 'KEYR1'?
-     STM32H7_FLASH->KEYR = STM32H7_FLASH_KEY2;
-                    ^~~~
-                    KEYR1
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:243:20: error: 'struct FLASH_TypeDef' has no member named 'SR'; did you mean 'SR1'?
-     STM32H7_FLASH->SR = (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_PGPERR | FLASH_SR_ERSERR);
-                    ^~
-                    SR1
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:245:20: error: 'struct FLASH_TypeDef' has no member named 'CR'; did you mean 'ACR'?
-     STM32H7_FLASH->CR = FLASH_PSIZE_WORD;
-                    ^~
-                    ACR
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:246:20: error: 'struct FLASH_TypeDef' has no member named 'CR'; did you mean 'ACR'?
-     STM32H7_FLASH->CR |= FLASH_CR_EOPIE;
-                    ^~
-                    ACR
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:247:20: error: 'struct FLASH_TypeDef' has no member named 'CR'; did you mean 'ACR'?
-     STM32H7_FLASH->CR |= (num << 3);
-                    ^~
-                    ACR
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:248:20: error: 'struct FLASH_TypeDef' has no member named 'CR'; did you mean 'ACR'?
-     STM32H7_FLASH->CR |= FLASH_CR_SER;
-                    ^~
-                    ACR
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:250:20: error: 'struct FLASH_TypeDef' has no member named 'CR'; did you mean 'ACR'?
-     STM32H7_FLASH->CR |= FLASH_CR_STRT;
-                    ^~
-                    ACR
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:250:26: error: 'FLASH_CR_STRT' was not declared in this scope
-     STM32H7_FLASH->CR |= FLASH_CR_STRT;
-                          ^~~~~~~~~~~~~
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:250:26: note: suggested alternative: 'FLASH_CR_START'
-     STM32H7_FLASH->CR |= FLASH_CR_STRT;
-                          ^~~~~~~~~~~~~
-                          FLASH_CR_START
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:254:29: error: 'struct FLASH_TypeDef' has no member named 'SR'; did you mean 'SR1'?
-     while (((STM32H7_FLASH->SR & FLASH_SR_EOP) == 0) || (STM32H7_FLASH->SR & FLASH_SR_BSY));
-                             ^~
-                             SR1
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:254:73: error: 'struct FLASH_TypeDef' has no member named 'SR'; did you mean 'SR1'?
-     while (((STM32H7_FLASH->SR & FLASH_SR_EOP) == 0) || (STM32H7_FLASH->SR & FLASH_SR_BSY));
-                                                                         ^~
-                                                                         SR1
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:256:20: error: 'struct FLASH_TypeDef' has no member named 'CR'; did you mean 'ACR'?
-     STM32H7_FLASH->CR &= (~FLASH_CR_SER);
-                    ^~
-                    ACR
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:257:20: error: 'struct FLASH_TypeDef' has no member named 'CR'; did you mean 'ACR'?
-     STM32H7_FLASH->CR &= SECTOR_MASK;
-                    ^~
-                    ACR
-H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:260:20: error: 'struct FLASH_TypeDef' has no member named 'CR'; did you mean 'ACR'?
-     STM32H7_FLASH->CR |= FLASH_CR_LOCK;
-                    ^~
-                    ACR
+H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:243:77: error: 'FLASH_SR_PGAERR' was not declared in this scope
+     STM32H7_FLASH->SR1 = (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_PGSERR | FLASH_SR_ERSERR);
+                                                                             ^~~~~~~~~~~~~~~
+H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:243:77: note: suggested alternative: 'FLASH_SR_PGSERR'
+     STM32H7_FLASH->SR1 = (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_PGSERR | FLASH_SR_ERSERR);
+                                                                             ^~~~~~~~~~~~~~~
+                                                                             FLASH_SR_PGSERR
+H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:243:113: error: 'FLASH_SR_ERSERR' was not declared in this scope
+     STM32H7_FLASH->SR1 = (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_PGSERR | FLASH_SR_ERSERR);
+                                                                                                                 ^~~~~~~~~~~~~~~
+H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:243:113: note: suggested alternative: 'FLASH_SR_WRPERR'
+     STM32H7_FLASH->SR1 = (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_PGSERR | FLASH_SR_ERSERR);
+                                                                                                                 ^~~~~~~~~~~~~~~
+                                                                                                                 FLASH_SR_WRPERR
+H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:250:27: error: 'FLASH_CR_STRT' was not declared in this scope
+     STM32H7_FLASH->CR1 |= FLASH_CR_STRT;
+                           ^~~~~~~~~~~~~
+H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_Deployment.cpp:250:27: note: suggested alternative: 'FLASH_CR_START'
+     STM32H7_FLASH->CR1 |= FLASH_CR_STRT;
+                           ^~~~~~~~~~~~~
+                           FLASH_CR_START
 H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_GPIO.cpp: In function 'void STM32H7_Gpio_ISR(int)':
 H:\TinyCLR\TinyCLR_PORT\TinyCLR_Port\Targets\STM32H7xx\STM32H7_GPIO.cpp:104:11: error: 'struct EXTI_TypeDef' has no member named 'PR'
      EXTI->PR = bit;   // reset pending bit

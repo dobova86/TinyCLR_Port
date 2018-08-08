@@ -149,7 +149,7 @@
 #define STM32F7_USB_ENDPOINT_COUNT		4
 #define STM32F7_USB_PIPE_COUNT			4
 
-// NOTE: To USE discovery board for STM32F769 OTG_HS, you need both defines:
+// NOTE: To USE discovery board for STM32F769 OTG_HS + ULPI, you need both defines:
 #define OTG_USE_HS						1
 #define OTG_USE_HS_ULPI					1
 
