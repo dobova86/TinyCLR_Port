@@ -1,26 +1,22 @@
 #include <TinyCLR.h>
 #include "Device.h"
 #include "../../Drivers/UsbClient/UsbClient.h"
-#include "../../Drivers/DevicesInterop/GHIElectronics_TinyCLR_Devices.h"
-#include "../../Drivers/DevicesInterop/GHIElectronics_TinyCLR_Devices_GHIElectronics_TinyCLR_Devices_Interop.h"
+#include "../../Drivers/DevicesInterop/GHIElectronics_TinyCLR_InteropUtil.h"
 
 extern void SDRAM_Init(uint8_t databits);
 extern void STM32F7_Display_Initialize(void);
-//extern void STM32F7_WriteHello(void);
+#ifdef INCLUDE_DISPLAY_DSI
 extern TinyCLR_Api_Info* STM32F7_DsiDisplay_GetApi();
+#endif
 
-void STM32F7_Startup_OnSoftResetDevice(const TinyCLR_Api_Provider* apiProvider, const TinyCLR_Interop_Provider* interopProvider) {
+void STM32F7_Startup_OnSoftResetDevice(const TinyCLR_Api_Manager* apiProvider, const TinyCLR_Interop_Manager* interopManager) {
 
-//#ifdef SDRAM_32BIT // Init SDRAM
-//	SDRAM_Init(32);
-//#endif
-
-	interopProvider->Add(interopProvider, &Interop_GHIElectronics_TinyCLR_Devices);
-
+	//STM32F7_DebugLed(LED_DEBUG, true);	
+	DevicesInterop_Add(interopManager);
+	//STM32F7_Display_Enable((TinyCLR_Display_Controller*)apiProvider);
 
 #ifdef INCLUDE_DISPLAY_DSI
 	apiProvider->Add(apiProvider, STM32F7_DsiDisplay_GetApi());
-	apiProvider->SetDefaultSelector(apiProvider, TinyCLR_Api_Type::DisplayProvider, STM32F7_DsiDisplay_GetApi()->Name);
 #pragma message "Using DSI Display interface"
 #endif
 

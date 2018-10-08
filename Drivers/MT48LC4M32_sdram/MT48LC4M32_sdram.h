@@ -53,7 +53,7 @@ SDRAM for DISCO-STM32F746NG
 #define AFMASKL(pin)	((uint32_t)~(15 << (pin * 4)))
 #define AFMASKH(pin)	((uint32_t)~(15 << ((pin - 8) * 4)))
 
-extern void STM32F7_DebugLed(uint16_t pin, bool onoff);
+//extern void STM32F7_DebugLed(uint16_t pin, bool onoff);
 //=================================================================================================
 // PinsInit function
 //=================================================================================================

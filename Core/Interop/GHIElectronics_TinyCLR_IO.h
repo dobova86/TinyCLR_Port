@@ -20,9 +20,11 @@ struct Interop_GHIElectronics_TinyCLR_IO_System_IO_FileSystemManager__FileRecord
 };
 
 struct Interop_GHIElectronics_TinyCLR_IO_GHIElectronics_TinyCLR_IO_FileSystem {
-    static TinyCLR_Result FlushAll___STATIC___VOID__I__I4(const TinyCLR_Interop_MethodData md);
-    static TinyCLR_Result Initialize___STATIC___VOID__I__I4__STRING(const TinyCLR_Interop_MethodData md);
-    static TinyCLR_Result Uninitialize___STATIC___BOOLEAN__I__I4(const TinyCLR_Interop_MethodData md);
+    static const size_t FIELD_STATIC___mounted___mscorlibSystemCollectionsIDictionary = 5;
+
+    static TinyCLR_Result FlushAll___STATIC___VOID__I(const TinyCLR_Interop_MethodData md);
+    static TinyCLR_Result Initialize___STATIC___VOID__I__STRING(const TinyCLR_Interop_MethodData md);
+    static TinyCLR_Result Uninitialize___STATIC___BOOLEAN__I(const TinyCLR_Interop_MethodData md);
 };
 
 struct Interop_GHIElectronics_TinyCLR_IO_GHIElectronics_TinyCLR_IO_FileSystemEntry {
@@ -86,8 +88,8 @@ struct Interop_GHIElectronics_TinyCLR_IO_System_IO_FileSystemInfo {
 };
 
 struct Interop_GHIElectronics_TinyCLR_IO_System_IO_DriveInfo {
-    static const size_t FIELD_STATIC___driveProviders___mscorlibSystemCollectionsHashtable = 5;
-    static const size_t FIELD_STATIC___driveNames___mscorlibSystemCollectionsStack = 6;
+    static const size_t FIELD_STATIC___driveProviders___mscorlibSystemCollectionsHashtable = 6;
+    static const size_t FIELD_STATIC___driveNames___mscorlibSystemCollectionsStack = 7;
 
     static const size_t FIELD___provider___GHIElectronicsTinyCLRIOIDriveProvider = 1;
     static const size_t FIELD___Name__BackingField___STRING = 2;
@@ -120,9 +122,9 @@ struct Interop_GHIElectronics_TinyCLR_IO_System_IO_FileStream {
 };
 
 struct Interop_GHIElectronics_TinyCLR_IO_System_IO_Path {
-    static const size_t FIELD_STATIC___DirectorySeparatorChar___CHAR = 7;
-    static const size_t FIELD_STATIC___InvalidPathChars___SZARRAY_CHAR = 8;
-    static const size_t FIELD_STATIC___m_illegalCharacters___SZARRAY_CHAR = 9;
+    static const size_t FIELD_STATIC___DirectorySeparatorChar___CHAR = 8;
+    static const size_t FIELD_STATIC___InvalidPathChars___SZARRAY_CHAR = 9;
+    static const size_t FIELD_STATIC___m_illegalCharacters___SZARRAY_CHAR = 10;
 };
 
 struct Interop_GHIElectronics_TinyCLR_IO_System_IO_StreamReader {

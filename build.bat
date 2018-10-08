@@ -34,11 +34,11 @@ IF NOT "%BuildConfiguration%" == "debug" IF NOT "%BuildConfiguration%" == "relea
 )
 
 IF NOT EXIST "%GccDirectory%" SET GccDirectory=H:\GNU Tools ARM Embedded\7 2018-q2-update
-IF NOT EXIST "%GccDirectory%" SET GccDirectory=H:\GNU Tools ARM Embedded\7 2017-q4-major
-IF NOT EXIST "%GccDirectory%" SET GccDirectory=C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/Linux/gcc_arm/
+rem IF NOT EXIST "%GccDirectory%" SET GccDirectory=H:\GNU Tools ARM Embedded\7 2017-q4-major
+IF NOT EXIST "%GccDirectory%" SET GccDirectory=C:\Program Files\GNU Tools ARM Embedded\7 2018-q2-update
 
 IF NOT EXIST "%GccDirectory%" (
-    ECHO Cannot find GCC. Try passing the directory explicitly like `build.bat device build release normal "C:\Program Files (x86)\GNU Tools ARM Embedded\6 2017-q2-update"`
+    ECHO Cannot find GCC. Try passing the directory explicitly like `build.bat device build release normal "C:\Program Files (x86)\GNU Tools ARM Embedded\7 2018-q2-update"`
     GOTO :EOF
 )
 
@@ -88,7 +88,7 @@ IF "%NeedCmsis%" == "1" (
     )
 )
 
-SET AdditionalIncludes=%AdditionalIncludes% -I"%GccDirectory%\lib\gcc\arm-none-eabi\7.2.1\include"
+SET AdditionalIncludes=%AdditionalIncludes% -I"%GccDirectory%\lib\gcc\arm-none-eabi\7.3.1\include"
 SET AdditionalIncludes=%AdditionalIncludes% -I"%ScriptRoot%\Targets\%TargetName%"
 SET AdditionalIncludes=%AdditionalIncludes% -I"%ScriptRoot%\Devices\%DeviceName%"
 SET AdditionalIncludes=%AdditionalIncludes% -I"%ScriptRoot%\Core"
@@ -141,19 +141,13 @@ IF "%DoBuild%" == "1" (
 
     SET CompilePaths="%ScriptRoot%\Targets\%TargetName%", "%ScriptRoot%\Devices\%DeviceName%", "%ScriptRoot%\Main"
 
-    IF NOT "%AdditionalDrivers%" == "" (
-        FOR %%A IN (!AdditionalDrivers!) DO SET CompilePaths=!CompilePaths!, "%ScriptRoot%\Drivers\%%A"
-    )
-
-	IF NOT "%AdditionalTargetDrivers%" == "" (
+    IF NOT "%AdditionalTargetDrivers%" == "" (
         FOR %%A IN (!AdditionalTargetDrivers!) DO SET CompilePaths=!CompilePaths!, "%ScriptRoot%\Drivers\%%A"
     )
 
     IF NOT "%AdditionalDeviceDrivers%" == "" (
         FOR %%A IN (!AdditionalDeviceDrivers!) DO SET CompilePaths=!CompilePaths!, "%ScriptRoot%\Drivers\%%A"
     )
-
-
 
     FOR %%A IN (!CompilePaths!) DO (
         PUSHD "%%A"
@@ -167,13 +161,13 @@ IF "%DoBuild%" == "1" (
         FOR /R %%B IN ("*.cpp") DO (
             ECHO %%B
 
-            "%GccDirectory%\bin\arm-none-eabi-g++.exe" -std=c++11 -xc++ %AdditionalCompilerArguments% -mcpu=%MCpu% -fpermissive -mlittle-endian %FloatCompileArguments% %AdditionalDefines% %AdditionalIncludes% -o "%OutputDirectory%\%%~nB.obj" -c "%%B"
+            "%GccDirectory%\bin\arm-none-eabi-g++.exe" -std=c++11 -xc++ %AdditionalCompilerArguments% -mcpu=%MCpu% -mlittle-endian %FloatCompileArguments% %AdditionalDefines% %AdditionalIncludes% -o "%OutputDirectory%\%%~nB.obj" -c "%%B"
         )
 
         POPD
     )
 
-    "%GccDirectory%\bin\arm-none-eabi-g++.exe" -mcpu=%MCpu% -fpermissive -mlittle-endian -nostartfiles %FloatCompileArguments% -Xlinker %AdditionalCompilerArguments% -L "%GccLibrary%" -Wl,-static,--gc-sections,--no-wchar-size-warning,-Map="%OutputDirectory%\%DeviceName% Firmware.map" -specs="%GccLibrary%\nano.specs" -T"%ScriptRoot%\Devices\%DeviceName%\Scatterfile.gcc.ldf" "%OutputDirectory%\*.obj" "%CoreLibraryFile%" -o "%OutputDirectory%\%DeviceName% Firmware.axf"
+    "%GccDirectory%\bin\arm-none-eabi-g++.exe" -mcpu=%MCpu% -mlittle-endian -nostartfiles %FloatCompileArguments% -Xlinker %AdditionalCompilerArguments% -L "%GccLibrary%" -Wl,-static,--gc-sections,--no-wchar-size-warning,-Map="%OutputDirectory%\%DeviceName% Firmware.map" -specs="%GccLibrary%\nano.specs" -T"%ScriptRoot%\Devices\%DeviceName%\Scatterfile.gcc.ldf" "%OutputDirectory%\*.obj" "%CoreLibraryFile%" -o "%OutputDirectory%\%DeviceName% Firmware.axf"
 
     "%GccDirectory%\bin\arm-none-eabi-objcopy.exe" -S -j ER_FLASH -j ER_RAM_RO -j ER_RAM_RW -O binary "%OutputDirectory%\%DeviceName% Firmware.axf" "%OutputDirectory%\%DeviceName% Firmware.bin"
     "%GccDirectory%\bin\arm-none-eabi-objcopy.exe" -S -R ER_DAT -R ER_CONFIG -O ihex "%OutputDirectory%\%DeviceName% Firmware.axf" "%OutputDirectory%\%DeviceName% Firmware.hex"

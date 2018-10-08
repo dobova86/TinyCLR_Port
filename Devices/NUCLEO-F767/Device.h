@@ -23,7 +23,7 @@
 #define DEVICE_TARGET STM32F7
 #define DEVICE_NAME "NUCLEO-F767"
 #define DEVICE_MANUFACTURER "Nucleo STM32F767"
-#define DEVICE_VERSION ((0ULL << 48) | (12ULL << 32) | (0ULL << 16) | (0ULL << 0))
+#define DEVICE_VERSION ((1ULL << 48) | (0ULL << 32) | (0ULL << 16) | (10001ULL << 0))
 
 #define USB_DEBUGGER_VENDOR_ID 0x1B9F
 #define USB_DEBUGGER_PRODUCT_ID 0x5000
@@ -34,7 +34,7 @@
 //#define DEBUGGER_SELECTOR_PIN PIN(B, 13)
 //#define DEBUGGER_SELECTOR_PULL TinyCLR_Gpio_PinDriveMode::InputPullUp
 //#define DEBUGGER_SELECTOR_USB_STATE TinyCLR_Gpio_PinValue::High
-#define DEBUGGER_FORCE_API STM32F7_UsbClient_GetApi()
+#define DEBUGGER_FORCE_API STM32F7_UsbDevice_GetRequiredApi()
 //#define DEBUGGER_FORCE_API STM32F7_Uart_GetApi()
 #define DEBUGGER_FORCE_INDEX USB_DEBUGGER_INDEX
 
@@ -43,6 +43,9 @@
 //#define RUN_APP_PULL TinyCLR_Gpio_PinDriveMode::InputPullUp
 //#define RUN_APP_STATE TinyCLR_Gpio_PinValue::High
 #define RUN_APP_FORCE_STATE true
+
+#define DEVICE_MEMORY_PROFILE_FACTOR 9
+
 
 #define DEPLOYMENT_SECTORS 	{\
 								{ 0x06, 0x08080000, 0x00040000 }, { 0x07, 0x080C0000, 0x00040000 },\
@@ -62,6 +65,7 @@
 #define INCLUDE_ADC
 
 #define INCLUDE_CAN
+#define TOTAL_CAN_CONTROLLERS 1
 #define STM32F7_CAN_BUFFER_DEFAULT_SIZE { 128 }
 #define STM32F7_CAN_TX_PINS { { PIN(D, 1), AF(9) } }
 #define STM32F7_CAN_RX_PINS { { PIN(D, 0), AF(9) } }
@@ -84,10 +88,12 @@
 						  }
 
 #define INCLUDE_I2C			// NOTE: I2C1 on Nucleo is not connected to CN9 by default (see Nucleo-144 user guide)
+#define TOTAL_I2C_CONTROLLERS 2
 #define STM32F7_I2C_SCL_PINS { { PIN(B, 8), AF(4) }, { PIN(F, 1), AF(4) } }
 #define STM32F7_I2C_SDA_PINS { { PIN(B, 9), AF(4) }, { PIN(F, 0), AF(4) } }
 
 #define INCLUDE_PWM
+#define TOTAL_PWM_CONTROLLERS 14
 #define STM32F7_PWM_PINS {/* CH         1                          2                        3                        4                       */\
 						  /* TIM1  */ { { PIN(E,  9), AF(1)   }, { PIN(E, 11), AF(1)   }, { PIN(E, 13), AF(1)   }, { PIN_NONE  , AF_NONE } },\
 						  /* TIM2  */ { { PIN(A,  0), AF(1)   }, { PIN_NONE  , AF_NONE }, { PIN(B, 10), AF(1)   }, { PIN(B, 11), AF(1)   } },\
@@ -105,12 +111,16 @@
 						  /* TIM14 */ { { PIN(A,  7), AF(9)   }, { PIN_NONE  , AF_NONE }, { PIN_NONE  , AF_NONE }, { PIN_NONE  , AF_NONE } },\
 						 }
 
+#define INCLUDE_SIGNALS
+
 #define INCLUDE_SPI
+#define TOTAL_SPI_CONTROLLERS 2
 #define STM32F7_SPI_SCLK_PINS { { PIN(A, 5), AF(5) }, { PIN(A,12), AF(5) } } //, { PIN(B, 10), AF(5) } }
 #define STM32F7_SPI_MISO_PINS { { PIN(A, 6), AF(5) }, { PIN(B,14), AF(5) } } //, { PIN(C,  2), AF(5) } }
 #define STM32F7_SPI_MOSI_PINS { { PIN(A, 7), AF(5) }, { PIN(B,15), AF(5) } } //, { PIN(C,  3), AF(5) } }
 
 #define INCLUDE_UART
+#define TOTAL_UART_CONTROLLERS 6
 #define STM32F7_UART_DEFAULT_TX_BUFFER_SIZE  { 256, 256, 256, 256, 256, 256 }
 #define STM32F7_UART_DEFAULT_RX_BUFFER_SIZE  { 512, 512, 512, 512, 512, 512 }
 #define STM32F7_UART_TX_PINS  { { PIN_NONE , AF_NONE }, { PIN(D,  5), AF(7)  },{ PIN(D, 8) , AF(7) },{ PIN_NONE , AF_NONE },{ PIN_NONE , AF_NONE }, { PIN(G,14), AF(8) } }
@@ -137,6 +147,8 @@
 #define STM32F7_SD_DATA0_PINS { { PIN(C, 8), AF(12) } }
 #define STM32F7_SD_DATA1_PINS { { PIN(C, 9), AF(12) } }
 #define STM32F7_SD_DATA2_PINS { { PIN(C,10), AF(12) } }
-#define STM32F7_SD_DATA3_PINS { { PIN(c,11), AF(12) } }
+#define STM32F7_SD_DATA3_PINS { { PIN(C,11), AF(12) } }
 #define STM32F7_SD_CLK_PINS   { { PIN(C,12), AF(12) } }
 #define STM32F7_SD_CMD_PINS   { { PIN(D, 2), AF(12) } }
+
+#define INCLUDE_STORAGE

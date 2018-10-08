@@ -16,44 +16,82 @@
 
 #include "STM32F4.h"
 
-static TinyCLR_Power_Provider powerProvider;
-static TinyCLR_Api_Info powerApi;
+#define TOTAL_POWER_CONTROLLERS 1
 
-const TinyCLR_Api_Info* STM32F4_Power_GetApi() {
-    powerProvider.Parent = &powerApi;
-    powerProvider.Acquire = &STM32F4_Power_Acquire;
-    powerProvider.Release = &STM32F4_Power_Release;
-    powerProvider.Reset = &STM32F4_Power_Reset;
-    powerProvider.Sleep = &STM32F4_Power_Sleep;
+struct PowerState {
+    uint32_t controllerIndex;
+    bool tableInitialized;
+};
 
-    powerApi.Author = "GHI Electronics, LLC";
-    powerApi.Name = "GHIElectronics.TinyCLR.NativeApis.STM32F4.PowerProvider";
-    powerApi.Type = TinyCLR_Api_Type::PowerProvider;
-    powerApi.Version = 0;
-    powerApi.Implementation = &powerProvider;
+const char* powerApiNames[TOTAL_POWER_CONTROLLERS] = {
+    "GHIElectronics.TinyCLR.NativeApis.STM32F4.PowerController\\0"
+};
 
-    return &powerApi;
+static TinyCLR_Power_Controller powerControllers[TOTAL_POWER_CONTROLLERS];
+static TinyCLR_Api_Info powerApi[TOTAL_POWER_CONTROLLERS];
+static PowerState powerStates[TOTAL_POWER_CONTROLLERS];
+
+void STM32F4_Power_EnsureTableInitialized() {
+    for (auto i = 0; i < TOTAL_POWER_CONTROLLERS; i++) {
+        if (powerStates[i].tableInitialized)
+            continue;
+
+        powerControllers[i].ApiInfo = &powerApi[i];
+        powerControllers[i].Initialize = &STM32F4_Power_Initialize;
+        powerControllers[i].Uninitialize = &STM32F4_Power_Uninitialize;
+        powerControllers[i].Reset = &STM32F4_Power_Reset;
+        powerControllers[i].Sleep = &STM32F4_Power_Sleep;
+
+        powerApi[i].Author = "GHI Electronics, LLC";
+        powerApi[i].Name = powerApiNames[i];
+        powerApi[i].Type = TinyCLR_Api_Type::PowerController;
+        powerApi[i].Version = 0;
+        powerApi[i].Implementation = &powerControllers[i];
+        powerApi[i].State = &powerStates[i];
+
+        powerStates[i].controllerIndex = i;
+        powerStates[i].tableInitialized = true;
+    }
 }
 
-void STM32F4_Power_Sleep(const TinyCLR_Power_Provider* self, TinyCLR_Power_SleepLevel level) {
-    switch (level) {
-    case TinyCLR_Power_SleepLevel::Hibernate:
-        //TODO
-        return;
+const TinyCLR_Api_Info* STM32F4_Power_GetRequiredApi() {
+    STM32F4_Power_EnsureTableInitialized();
 
-    case TinyCLR_Power_SleepLevel::Off:
-        // TODO
-        return;
+    return &powerApi[0];
+}
+
+void STM32F4_Power_AddApi(const TinyCLR_Api_Manager* apiManager) {
+    STM32F4_Power_EnsureTableInitialized();
+
+    for (auto i = 0; i < TOTAL_POWER_CONTROLLERS; i++) {
+        apiManager->Add(apiManager, &powerApi[i]);
+    }
+
+    apiManager->SetDefaultName(apiManager, TinyCLR_Api_Type::PowerController, powerApi[0].Name);
+}
+
+TinyCLR_Result STM32F4_Power_Sleep(const TinyCLR_Power_Controller* self, TinyCLR_Power_SleepLevel level, TinyCLR_Power_SleepWakeSource wakeSource) {
+    switch (level) {
+    case TinyCLR_Power_SleepLevel::Level1:
+    case TinyCLR_Power_SleepLevel::Level2:
+    case TinyCLR_Power_SleepLevel::Level3:
+    case TinyCLR_Power_SleepLevel::Level4:
+        //TODO
+        return TinyCLR_Result::NotSupported;
+
+    case TinyCLR_Power_SleepLevel::Level0:
+        if (wakeSource != TinyCLR_Power_SleepWakeSource::Gpio && wakeSource != TinyCLR_Power_SleepWakeSource::SystemTimer)
+            return TinyCLR_Result::NotSupported;
 
     default:
         PWR->CR |= PWR_CR_CWUF;
 
         __WFI(); // sleep and wait for interrupt
-        return;
+        return TinyCLR_Result::Success;
     }
 }
 
-void STM32F4_Power_Reset(const TinyCLR_Power_Provider* self, bool runCoreAfter) {
+TinyCLR_Result STM32F4_Power_Reset(const TinyCLR_Power_Controller* self, bool runCoreAfter) {
 #if defined BOOTLOADER_HOLD_VALUE && defined BOOTLOADER_HOLD_ADDRESS && BOOTLOADER_HOLD_ADDRESS > 0
     if (!runCoreAfter)
         *((uint32_t*)BOOTLOADER_HOLD_ADDRESS) = BOOTLOADER_HOLD_VALUE;
@@ -63,12 +101,14 @@ void STM32F4_Power_Reset(const TinyCLR_Power_Provider* self, bool runCoreAfter) 
         | (1 << SCB_AIRCR_SYSRESETREQ_Pos); // reset request
 
     while (1); // wait for reset
+
+    TinyCLR_Result::InvalidOperation;
 }
 
-TinyCLR_Result STM32F4_Power_Acquire(const TinyCLR_Power_Provider* self) {
+TinyCLR_Result STM32F4_Power_Initialize(const TinyCLR_Power_Controller* self) {
     return TinyCLR_Result::Success;
 }
 
-TinyCLR_Result STM32F4_Power_Release(const TinyCLR_Power_Provider* self) {
+TinyCLR_Result STM32F4_Power_Uninitialize(const TinyCLR_Power_Controller* self) {
     return TinyCLR_Result::Success;
 }

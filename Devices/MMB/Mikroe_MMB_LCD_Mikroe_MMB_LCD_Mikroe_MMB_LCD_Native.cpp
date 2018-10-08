@@ -25,7 +25,7 @@ TinyCLR_Result Interop_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Native::Writ
 
 TinyCLR_Result Interop_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Native::DrawRect___VOID__U2__U2__U2__U2__U2__BOOLEAN(const TinyCLR_Interop_MethodData md) {
 
-	auto ip = reinterpret_cast<const TinyCLR_Interop_Provider*>(md.ApiProvider.FindDefault(&md.ApiProvider, TinyCLR_Api_Type::InteropProvider));
+	auto ip = reinterpret_cast<const TinyCLR_Interop_Manager*>(md.ApiManager->FindDefault(md.ApiManager, TinyCLR_Api_Type::ApiManager));
 	TinyCLR_Interop_ClrValue x, y, fill;
 	TinyCLR_Interop_ClrValue width, height, color;
 
@@ -43,7 +43,7 @@ TinyCLR_Result Interop_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Native::Draw
 
 TinyCLR_Result Interop_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Native::DrawLine___VOID__U2__U2__U2__U2__U2__U2(const TinyCLR_Interop_MethodData md) {
 
-	auto ip = reinterpret_cast<const TinyCLR_Interop_Provider*>(md.ApiProvider.FindDefault(&md.ApiProvider, TinyCLR_Api_Type::InteropProvider));
+	auto ip = reinterpret_cast<const TinyCLR_Interop_Manager*>(md.ApiManager->FindDefault(md.ApiManager, TinyCLR_Api_Type::ApiManager));
 	TinyCLR_Interop_ClrValue x, y, x1, y1, color;
 
 	ip->GetArgument(ip, md.Stack, 1, x);
@@ -58,7 +58,7 @@ TinyCLR_Result Interop_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Native::Draw
 
 TinyCLR_Result Interop_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Native::DrawCircle___VOID__U2__U2__U2__U2__BOOLEAN(const TinyCLR_Interop_MethodData md) {
 
-	auto ip = reinterpret_cast<const TinyCLR_Interop_Provider*>(md.ApiProvider.FindDefault(&md.ApiProvider, TinyCLR_Api_Type::InteropProvider));
+	auto ip = reinterpret_cast<const TinyCLR_Interop_Manager*>(md.ApiManager->FindDefault(md.ApiManager, TinyCLR_Api_Type::ApiManager));
 	TinyCLR_Interop_ClrValue x, y, radius, color;
 	ip->GetArgument(ip, md.Stack, 1, x);
 	ip->GetArgument(ip, md.Stack, 2, y);
@@ -76,7 +76,7 @@ TinyCLR_Result Interop_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Native::Draw
 	/*
 	NOTE: The implementation need to be moved to LCD.cpp !!!!
 	*/
-	auto ip = reinterpret_cast<const TinyCLR_Interop_Provider*>(md.ApiProvider.FindDefault(&md.ApiProvider, TinyCLR_Api_Type::InteropProvider));
+	auto ip = reinterpret_cast<const TinyCLR_Interop_Manager*>(md.ApiManager->FindDefault(md.ApiManager, TinyCLR_Api_Type::ApiManager));
 	TinyCLR_Interop_ClrValue x, y, xWidth, yHeight, xSrc, ySrc, dwidth, dheight;
 	TinyCLR_Interop_ClrValue bitmap;
 
@@ -109,7 +109,7 @@ TinyCLR_Result Interop_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Native::Draw
 
 TinyCLR_Result Interop_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Native::DrawText___VOID__STRING__U2__U2__U2__U4(const TinyCLR_Interop_MethodData md) {
 
-	auto ip = reinterpret_cast<const TinyCLR_Interop_Provider*>(md.ApiProvider.FindDefault(&md.ApiProvider, TinyCLR_Api_Type::InteropProvider));
+	auto ip = reinterpret_cast<const TinyCLR_Interop_Manager*>(md.ApiManager->FindDefault(md.ApiManager, TinyCLR_Api_Type::ApiManager));
 	TinyCLR_Interop_ClrValue text, x, y, color;
 	
 	ip->GetArgument(ip, md.Stack, 1, text);
@@ -122,7 +122,7 @@ TinyCLR_Result Interop_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Native::Draw
 
 TinyCLR_Result Interop_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Mikroe_MMB_LCD_Native::ClearDisplay___VOID__U4(const TinyCLR_Interop_MethodData md) {
 
-	auto ip = reinterpret_cast<const TinyCLR_Interop_Provider*>(md.ApiProvider.FindDefault(&md.ApiProvider, TinyCLR_Api_Type::InteropProvider));
+	auto ip = reinterpret_cast<const TinyCLR_Interop_Manager*>(md.ApiManager->FindDefault(md.ApiManager, TinyCLR_Api_Type::ApiManager));
 	TinyCLR_Interop_ClrValue color;
 	ip->GetArgument(ip, md.Stack, 1, color);
 	LCD_Clear(color.Data.Numeric->U4);

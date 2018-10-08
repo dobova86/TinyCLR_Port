@@ -322,29 +322,6 @@ struct Interop_mscorlib_System_Diagnostics_ConditionalAttribute {
     static const size_t FIELD___m_conditionString___STRING = 1;
 };
 
-struct Interop_mscorlib_System_Diagnostics_Contracts_ContractClassAttribute {
-    static const size_t FIELD____typeWithContracts___SystemType = 1;
-};
-
-struct Interop_mscorlib_System_Diagnostics_Contracts_ContractClassForAttribute {
-    static const size_t FIELD____typeIAmAContractFor___SystemType = 1;
-};
-
-struct Interop_mscorlib_System_Diagnostics_Contracts_ContractOptionAttribute {
-    static const size_t FIELD____category___STRING = 1;
-    static const size_t FIELD____setting___STRING = 2;
-    static const size_t FIELD____enabled___BOOLEAN = 3;
-    static const size_t FIELD____value___STRING = 4;
-};
-
-struct Interop_mscorlib_System_Diagnostics_Contracts_ContractPublicPropertyNameAttribute {
-    static const size_t FIELD____publicName___STRING = 1;
-};
-
-struct Interop_mscorlib_System_Diagnostics_Contracts_ContractVerificationAttribute {
-    static const size_t FIELD____value___BOOLEAN = 1;
-};
-
 struct Interop_mscorlib_System_Diagnostics_Debugger {
     static TinyCLR_Result get_IsAttached___STATIC___BOOLEAN(const TinyCLR_Interop_MethodData md);
     static TinyCLR_Result Break___STATIC___VOID(const TinyCLR_Interop_MethodData md);
@@ -698,62 +675,12 @@ struct Interop_mscorlib_System_Runtime_CompilerServices_RuntimeHelpers {
     static TinyCLR_Result get_OffsetToStringData___STATIC___I4(const TinyCLR_Interop_MethodData md);
 };
 
-struct Interop_mscorlib_System_Runtime_InteropServices_Api {
-    static const size_t FIELD___Author__BackingField___STRING = 1;
-    static const size_t FIELD___Name__BackingField___STRING = 2;
-    static const size_t FIELD___Version__BackingField___U8 = 3;
-    static const size_t FIELD___Type__BackingField___SystemRuntimeInteropServicesApiType = 4;
-    static const size_t FIELD___Implementation__BackingField___I = 5;
-    static const size_t FIELD___State__BackingField___I = 6;
-
-    static TinyCLR_Result Add___STATIC___VOID__I(const TinyCLR_Interop_MethodData md);
-    static TinyCLR_Result Remove___STATIC___VOID__I(const TinyCLR_Interop_MethodData md);
-    static TinyCLR_Result Find___STATIC___SystemRuntimeInteropServicesApi__STRING__SystemRuntimeInteropServicesApiType(const TinyCLR_Interop_MethodData md);
-    static TinyCLR_Result GetDefaultSelector___STATIC___STRING__SystemRuntimeInteropServicesApiType(const TinyCLR_Interop_MethodData md);
-    static TinyCLR_Result SetDefaultSelector___STATIC___VOID__SystemRuntimeInteropServicesApiType__STRING(const TinyCLR_Interop_MethodData md);
-    static TinyCLR_Result FindAll___STATIC___SZARRAY_SystemRuntimeInteropServicesApi(const TinyCLR_Interop_MethodData md);
-};
-
 struct Interop_mscorlib_System_Runtime_InteropServices_ComVisibleAttribute {
     static const size_t FIELD____val___BOOLEAN = 1;
 };
 
-struct Interop_mscorlib_System_Runtime_InteropServices_DeviceInformation {
-    static const size_t FIELD_STATIC___DeviceName__BackingField___STRING = 22;
-    static const size_t FIELD_STATIC___ManufacturerName__BackingField___STRING = 23;
-    static const size_t FIELD_STATIC___Version__BackingField___U8 = 24;
-
-    static TinyCLR_Result cctor___STATIC___VOID(const TinyCLR_Interop_MethodData md);
-};
-
 struct Interop_mscorlib_System_Runtime_InteropServices_GuidAttribute {
     static const size_t FIELD____val___STRING = 1;
-};
-
-struct Interop_mscorlib_System_Runtime_InteropServices_Interop {
-    static const size_t FIELD___Name__BackingField___STRING = 1;
-    static const size_t FIELD___Checksum__BackingField___U4 = 2;
-    static const size_t FIELD___Methods__BackingField___I = 3;
-
-    static TinyCLR_Result Add___STATIC___VOID__I(const TinyCLR_Interop_MethodData md);
-    static TinyCLR_Result Remove___STATIC___VOID__I(const TinyCLR_Interop_MethodData md);
-    static TinyCLR_Result RaiseEvent___STATIC___VOID__STRING__STRING__U4__U8__U8__I(const TinyCLR_Interop_MethodData md);
-    static TinyCLR_Result FindAll___STATIC___SZARRAY_SystemRuntimeInteropServicesInterop(const TinyCLR_Interop_MethodData md);
-};
-
-struct Interop_mscorlib_System_Runtime_InteropServices_NativeEventDispatcher {
-    static const size_t FIELD_STATIC___instances___SystemCollectionsHashtable = 25;
-
-    static const size_t FIELD___m_threadSpawn___SystemRuntimeInteropServicesNativeEventHandler = 1;
-    static const size_t FIELD___m_callbacks___SystemRuntimeInteropServicesNativeEventHandler = 2;
-    static const size_t FIELD___m_disposed___BOOLEAN = 3;
-    static const size_t FIELD___m_NativeEventDispatcher___OBJECT = 4;
-    static const size_t FIELD___name___STRING = 5;
-
-    static TinyCLR_Result ctor___VOID__STRING(const TinyCLR_Interop_MethodData md);
-    static TinyCLR_Result EnableInterrupt___VOID(const TinyCLR_Interop_MethodData md);
-    static TinyCLR_Result DisableInterrupt___VOID(const TinyCLR_Interop_MethodData md);
-    static TinyCLR_Result Dispose___VOID__BOOLEAN(const TinyCLR_Interop_MethodData md);
 };
 
 struct Interop_mscorlib_System_Runtime_InteropServices_StructLayoutAttribute {
@@ -761,10 +688,6 @@ struct Interop_mscorlib_System_Runtime_InteropServices_StructLayoutAttribute {
     static const size_t FIELD___Pack___I4 = 2;
     static const size_t FIELD___Size___I4 = 3;
     static const size_t FIELD___CharSet___SystemRuntimeInteropServicesCharSet = 4;
-};
-
-struct Interop_mscorlib_System_Runtime_InteropServices_SystemTime {
-    static TinyCLR_Result SetSystemTime___STATIC___VOID__U8__I4(const TinyCLR_Interop_MethodData md);
 };
 
 struct Interop_mscorlib_System_Runtime_Remoting_RemotingServices {
@@ -819,7 +742,7 @@ struct Interop_mscorlib_System_Single {
 };
 
 struct Interop_mscorlib_System_String {
-    static const size_t FIELD_STATIC___Empty___STRING = 26;
+    static const size_t FIELD_STATIC___Empty___STRING = 22;
 
     static TinyCLR_Result CompareTo___I4__OBJECT(const TinyCLR_Interop_MethodData md);
     static TinyCLR_Result get_Chars___CHAR__I4(const TinyCLR_Interop_MethodData md);
@@ -958,9 +881,9 @@ struct Interop_mscorlib_System_Threading_Timer {
 };
 
 struct Interop_mscorlib_System_TimeSpan {
-    static const size_t FIELD_STATIC___Zero___SystemTimeSpan = 27;
-    static const size_t FIELD_STATIC___MaxValue___SystemTimeSpan = 28;
-    static const size_t FIELD_STATIC___MinValue___SystemTimeSpan = 29;
+    static const size_t FIELD_STATIC___Zero___SystemTimeSpan = 23;
+    static const size_t FIELD_STATIC___MaxValue___SystemTimeSpan = 24;
+    static const size_t FIELD_STATIC___MinValue___SystemTimeSpan = 25;
 
     static const size_t FIELD___m_ticks___I8 = 1;
 
@@ -988,7 +911,7 @@ struct Interop_mscorlib_System_UInt64 {
 };
 
 struct Interop_mscorlib_System_UIntPtr {
-    static const size_t FIELD_STATIC___Zero___U = 30;
+    static const size_t FIELD_STATIC___Zero___U = 26;
 
     static const size_t FIELD___value___U4 = 1;
 };

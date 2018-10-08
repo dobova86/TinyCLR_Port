@@ -18,12 +18,10 @@
 
 #include <STM32F7.h>
 
-
-
 #define DEVICE_TARGET STM32F7
 #define DEVICE_NAME "DISCO-F769NI"
 #define DEVICE_MANUFACTURER "STM32F769Disco"
-#define DEVICE_VERSION ((0ULL << 48) | (12ULL << 32) | (0ULL << 16) | (0ULL << 0))
+#define DEVICE_VERSION ((1ULL << 48) | (0ULL << 32) | (0ULL << 16) | (10001ULL << 0))
 
 #define USB_DEBUGGER_VENDOR_ID 0x1B9F
 #define USB_DEBUGGER_PRODUCT_ID 0x5000
@@ -34,17 +32,18 @@
 //#define DEBUGGER_SELECTOR_PIN PIN(B, 13)
 //#define DEBUGGER_SELECTOR_PULL TinyCLR_Gpio_PinDriveMode::InputPullUp
 //#define DEBUGGER_SELECTOR_USB_STATE TinyCLR_Gpio_PinValue::High
-#define DEBUGGER_FORCE_API STM32F7_UsbClient_GetApi()
+#define DEBUGGER_FORCE_API STM32F7_UsbDevice_GetRequiredApi()
 //#define DEBUGGER_FORCE_API STM32F7_Uart_GetApi()
 #define DEBUGGER_FORCE_INDEX USB_DEBUGGER_INDEX
 
+#define DEVICE_MEMORY_PROFILE_FACTOR 9
 
 //#define RUN_APP_PIN PIN(E, 4)
 //#define RUN_APP_PULL TinyCLR_Gpio_PinDriveMode::InputPullUp
 //#define RUN_APP_STATE TinyCLR_Gpio_PinValue::High
 #define RUN_APP_FORCE_STATE true
 
-#define SDRAM_DATABITS		32
+#define SDRAM_DATABITS	32
 #define SDRAM_32BIT		32 // SDRAM_16BIT for Disco-F746, SDRAM_32BIT for Disco-F769 [SDRAM_8BIT not used]
 #define USE_SDRAM_HEAP
 #define SDRAM_PINS {/* FMC bus pins (A0..12, D0-31) + CTRL Pins */\
@@ -66,6 +65,7 @@
 								{ 0x0A, 0x08180000, 0x00040000 }, { 0x0B, 0x081C0000, 0x00040000 }\
 							 } //,
 
+//#define DEPLOYMENT_SECTORS { { 0x14, 0x08180000, 0x00020000 }, { 0x15, 0x081A0000, 0x00020000 }, { 0x16, 0x081C0000, 0x00020000 }, { 0x17, 0x081E0000, 0x00020000 } }
 
 
 #define STM32F7_SYSTEM_CLOCK_HZ 216000000	 // 168000000 // 180000000 // 216000000
@@ -76,6 +76,7 @@
 #define STM32F7_SUPPLY_VOLTAGE_MV 3300
 
 #define INCLUDE_ADC
+#define INCLUDE_POWER
 
 //#define INCLUDE_CAN
 #define STM32F7_CAN_BUFFER_DEFAULT_SIZE { 128 , 128 }
@@ -100,10 +101,12 @@
 						  }
 
 #define INCLUDE_I2C
+#define TOTAL_I2C_CONTROLLERS 1
 #define STM32F7_I2C_SCL_PINS { { PIN(B, 8), AF(4) } }
 #define STM32F7_I2C_SDA_PINS { { PIN(B, 9), AF(4) } }
 
 #define INCLUDE_PWM
+#define TOTAL_PWM_CONTROLLERS 14
 #define STM32F7_PWM_PINS {/* CH         1                          2                        3                        4                       */\
 						  /* TIM1  */ { { PIN_NONE  , AF_NONE }, { PIN_NONE  , AF_NONE }, { PIN_NONE  , AF_NONE }, { PIN(A, 11), AF(1)   } },\
 						  /* TIM2  */ { { PIN_NONE  , AF_NONE }, { PIN_NONE  , AF_NONE }, { PIN_NONE  , AF_NONE }, { PIN_NONE  , AF_NONE } },\
@@ -122,11 +125,13 @@
 						 }
 
 #define INCLUDE_SPI
+#define TOTAL_SPI_CONTROLLERS 2
 #define STM32F7_SPI_SCLK_PINS { { PIN(B, 3), AF(5) }, { PIN(A,12), AF(5) } } //, { PIN(B, 10), AF(5) } }
 #define STM32F7_SPI_MISO_PINS { { PIN(B, 4), AF(5) }, { PIN(B,14), AF(5) } } //, { PIN(C,  2), AF(5) } }
 #define STM32F7_SPI_MOSI_PINS { { PIN(B, 5), AF(5) }, { PIN(B,15), AF(5) } } //, { PIN(C,  3), AF(5) } }
 
 #define INCLUDE_UART
+#define TOTAL_UART_CONTROLLERS 6
 #define STM32F7_UART_DEFAULT_TX_BUFFER_SIZE  { 256, 256, 256, 256, 256, 256 }
 #define STM32F7_UART_DEFAULT_RX_BUFFER_SIZE  { 512, 512, 512, 512, 512, 512 }
 #define STM32F7_UART_TX_PINS  { { PIN(A, 9), AF(7) }, { PIN(C, 12), AF(8)  },{ PIN_NONE , AF_NONE },{ PIN_NONE , AF_NONE },{ PIN_NONE , AF_NONE }, { PIN(C, 6), AF(8) } }
@@ -134,8 +139,9 @@
 #define STM32F7_UART_CTS_PINS { { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE, AF_NONE } }
 #define STM32F7_UART_RTS_PINS { { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE, AF_NONE } }
 
-#define INCLUDE_DISPLAY_DSI	// this enable code for DSI Display. NOT DEFINE INCLUDE_DISPLAY toghether
+//#define INCLUDE_DISPLAY_DSI	// this enable code for DSI Display. NOT DEFINE INCLUDE_DISPLAY toghether
 //#define INCLUDE_DISPLAY
+#define TOTAL_DISPLAY_CONTROLLERS	 1
 #define STM32F7_DISPLAY_BACKLIGHT_PIN		{ PIN(I, 14), AF_NONE } // LCD Backlight control
 #define STM32F7_DISPLAY_ENABLE_PIN			{ PIN(J,  2), AF_NONE } // LCD Enable control
 #define STM32F7_DISPLAY_RESET_PIN			{ PIN(J, 15), AF_NONE } // this is DSI LCD RESET signal
@@ -164,7 +170,9 @@
 #define STM32F7_USB_VB_PINS { { PIN(A,  9), AF(10) } }
 #define STM32F7_USB_ID_PINS { { PIN(A, 10), AF(10) } }
 #endif // OTG_USE_HS
+
 #if defined(OTG_USE_HS_ULPI)
+//#define TOTAL_ULPI_PINS 12
 #define STM32F7_USB_ULPI_PINS {\
 			{ /* D0..D7   */ PIN(A, 3), AF(10) }, { PIN(B, 0), AF(10) },{ PIN(B, 1), AF(10) },{ PIN(B, 10), AF(10) },{ PIN(B, 11), AF(10) },{ PIN(B, 12), AF(10) },{ PIN(B, 13), AF(10) },{ PIN(B, 5), AF(10) },\
 			{ /* CTRL PIN */ PIN(A, 5), AF(10) },{ PIN(I, 11), AF(10) },{ PIN(C, 0), AF(10) },{ PIN(H, 4), AF(10) }\
@@ -180,3 +188,7 @@
 #define STM32F7_SD_DATA3_PINS { { PIN(B, 4), AF(10) } }
 #define STM32F7_SD_CLK_PINS   { { PIN(D, 6), AF(11) } }
 #define STM32F7_SD_CMD_PINS   { { PIN(D, 7), AF(11) } }
+
+#define INCLUDE_STORAGE
+
+#define INCLUDE_SIGNALS

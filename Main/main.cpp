@@ -17,113 +17,99 @@
 
 #define TARGET(a) CONCAT(DEVICE_TARGET, a)
 
-extern void STM32F4_DebugLed(uint16_t pin, bool onoff);
-extern void SDRAM_Init(uint8_t databits); // for Discovery F429ZI
+const TinyCLR_Api_Manager* apiManager = nullptr;
 
-const TinyCLR_Api_Provider* apiProvider = nullptr;
-
-void OnSoftReset(const TinyCLR_Api_Provider* apiProvider) {
-	::apiProvider = apiProvider;
+void OnSoftReset(const TinyCLR_Api_Manager* apiManager) {
+    ::apiManager = apiManager;
 
 #ifdef INCLUDE_ADC
-	apiProvider->Add(apiProvider, TARGET(_Adc_GetApi)());
-	apiProvider->SetDefaultSelector(apiProvider, TinyCLR_Api_Type::AdcProvider, TARGET(_Adc_GetApi)()->Name);
+    TARGET(_Adc_AddApi)(apiManager);
 #endif
 
 #ifdef INCLUDE_CAN
-	apiProvider->Add(apiProvider, TARGET(_Can_GetApi)());
-	apiProvider->SetDefaultSelector(apiProvider, TinyCLR_Api_Type::CanProvider, TARGET(_Can_GetApi)()->Name);
+    TARGET(_Can_AddApi)(apiManager);
 #endif
 
 #ifdef INCLUDE_DAC
-	apiProvider->Add(apiProvider, TARGET(_Dac_GetApi)());
-	apiProvider->SetDefaultSelector(apiProvider, TinyCLR_Api_Type::DacProvider, TARGET(_Dac_GetApi)()->Name);
+    TARGET(_Dac_AddApi)(apiManager);
 #endif
 
 #ifdef INCLUDE_DISPLAY
-	apiProvider->Add(apiProvider, TARGET(_Display_GetApi)());
-	apiProvider->SetDefaultSelector(apiProvider, TinyCLR_Api_Type::DisplayProvider, TARGET(_Display_GetApi)()->Name);
+    TARGET(_Display_AddApi)(apiManager);
 #endif
 
 #ifdef INCLUDE_GPIO
-	apiProvider->Add(apiProvider, TARGET(_Gpio_GetApi)());
-	apiProvider->SetDefaultSelector(apiProvider, TinyCLR_Api_Type::GpioProvider, TARGET(_Gpio_GetApi)()->Name);
+    TARGET(_Gpio_AddApi)(apiManager);
 #endif
 
 #ifdef INCLUDE_I2C
-	apiProvider->Add(apiProvider, TARGET(_I2c_GetApi)());
+    TARGET(_I2c_AddApi)(apiManager);
+#endif
+
+#ifdef INCLUDE_POWER
+    TARGET(_Power_AddApi)(apiManager);
 #endif
 
 #ifdef INCLUDE_PWM
-	apiProvider->Add(apiProvider, TARGET(_Pwm_GetApi)());
+    TARGET(_Pwm_AddApi)(apiManager);
 #endif
 
 #ifdef INCLUDE_RTC
-	apiProvider->Add(apiProvider, TARGET(_Rtc_GetApi)());
-	apiProvider->SetDefaultSelector(apiProvider, TinyCLR_Api_Type::RtcProvider, TARGET(_Rtc_GetApi)()->Name);
+    TARGET(_Rtc_AddApi)(apiManager);
 #endif
 
 #ifdef INCLUDE_SD
-	apiProvider->Add(apiProvider, TARGET(_SdCard_GetApi)());
-	apiProvider->SetDefaultSelector(apiProvider, TinyCLR_Api_Type::SdCardProvider, TARGET(_SdCard_GetApi)()->Name);
+    TARGET(_SdCard_AddApi)(apiManager);
 #endif
 
 #ifdef INCLUDE_SPI
-	apiProvider->Add(apiProvider, TARGET(_Spi_GetApi)());
+    TARGET(_Spi_AddApi)(apiManager);
 #endif
 
 #ifdef INCLUDE_UART
-	apiProvider->Add(apiProvider, TARGET(_Uart_GetApi)());
+    TARGET(_Uart_AddApi)(apiManager);
 #endif
 
 #ifdef INCLUDE_USBCLIENT
-	apiProvider->Add(apiProvider, TARGET(_UsbClient_GetApi)());
+    TARGET(_UsbDevice_AddApi)(apiManager);
 #endif
 
+    auto interopManager = reinterpret_cast<const TinyCLR_Interop_Manager*>(apiManager->FindDefault(apiManager, TinyCLR_Api_Type::InteropManager));
 
-	auto interopProvider = reinterpret_cast<const TinyCLR_Interop_Provider*>(apiProvider->FindDefault(apiProvider, TinyCLR_Api_Type::InteropProvider));
-
-	TARGET(_Startup_OnSoftReset)(apiProvider, interopProvider);
-	TARGET(_Startup_OnSoftResetDevice)(apiProvider, interopProvider);
-
-	//STM32F7_DebugLed(PIN(I, 1), true);
+    TARGET(_Startup_OnSoftReset)(apiManager, interopManager);
+    TARGET(_Startup_OnSoftResetDevice)(apiManager, interopManager);
 }
 
 int main() {
-	TARGET(_Startup_Initialize)();
+    apiManager = nullptr;
 
-	uint8_t* heapStart;
-	size_t heapLength;
+    TARGET(_Startup_Initialize)();
 
-#ifdef USE_SDRAM_HEAP
-	// Note: SDRAM_DATABITS is set in device.h
-	//SDRAM_Init(SDRAM_DATABITS); // Init MT48LC4M32 SDRAM for heap (Databits depend on hardware implementation)
-#endif
+    uint8_t* heapStart;
+    size_t heapLength;
 
-	TARGET(_Startup_GetHeap)(heapStart, heapLength);
-	TinyCLR_Startup_AddHeapRegion(heapStart, heapLength);
+    TARGET(_Startup_GetHeap)(heapStart, heapLength);
+    TinyCLR_Startup_AddHeapRegion(heapStart, heapLength);
+    TinyCLR_Startup_SetMemoryProfile(DEVICE_MEMORY_PROFILE_FACTOR);
 
-	const TinyCLR_Api_Info* debuggerApi;
-	size_t debuggerIndex;
+    const TinyCLR_Api_Info *debuggerApi, *deploymentApi;
+    const void* debuggerConfiguration;
+    const TinyCLR_Startup_DeploymentConfiguration* deploymentConfiguration;
 
-	const void* debuggerConfiguration;
+    TARGET(_Startup_GetDebuggerTransportApi)(debuggerApi, debuggerConfiguration);
+    TinyCLR_Startup_SetDebuggerTransportApi(debuggerApi, debuggerConfiguration);
 
-	apiProvider = nullptr;
+    TARGET(_Startup_GetDeploymentApi)(deploymentApi, deploymentConfiguration);
+    TinyCLR_Startup_AddDeploymentRegion(deploymentApi, deploymentConfiguration);
 
-	TARGET(_Startup_GetDebuggerTransportProvider)(debuggerApi, debuggerIndex, debuggerConfiguration);
-	TinyCLR_Startup_SetDebuggerTransportProvider(debuggerApi, debuggerIndex, debuggerConfiguration);
+    TinyCLR_Startup_SetDeviceInformation(DEVICE_NAME, DEVICE_MANUFACTURER, DEVICE_VERSION);
+    TinyCLR_Startup_SetRequiredApis(TARGET(_Interrupt_GetRequiredApi)(), TARGET(_Power_GetRequiredApi)(), TARGET(_Time_GetRequiredApi()));
+
+    auto runApp = true;
+
+    TARGET(_Startup_GetRunApp)(runApp);
+    TinyCLR_Startup_Start(&OnSoftReset, runApp);
 
 
-	TinyCLR_Startup_SetDeviceInformation(DEVICE_NAME, DEVICE_MANUFACTURER, DEVICE_VERSION);
-
-	TinyCLR_Startup_SetRequiredProviders(TARGET(_Deployment_GetApi)(), TARGET(_Interrupt_GetApi)(), TARGET(_Power_GetApi)(), TARGET(_Time_GetApi)());
-
-
-	auto runApp = true;
-
-	TARGET(_Startup_GetRunApp)(runApp);
-	
-	TinyCLR_Startup_Start(&OnSoftReset, runApp);
-
-	return 0;
+    return 0;
 }
