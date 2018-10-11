@@ -321,12 +321,12 @@ bool STM32F7_UsbDevice_Initialize(UsClientState* usClientState) {
 
 #ifdef OTG_USE_HS
 	RCC->AHB1ENR |= RCC_AHB1ENR_OTGHSEN;
-	RCC->AHB1LPENR |= RCC_AHB1LPENR_OTGHSLPEN;
 	// this is needed to enable the FS phy clock when the CPU is sleeping
+	RCC->AHB1LPENR |= RCC_AHB1LPENR_OTGHSLPEN;
 #ifdef OTG_USE_HS_ULPI
 	RCC->AHB1ENR |= RCC_AHB1ENR_OTGHSULPIEN;
-	//#else
-	//	RCC->AHB1ENR &= ~RCC_AHB1ENR_OTGHSULPIEN;
+	// this is needed to enable the HS ULPI phy clock when the CPU is sleeping
+	RCC->AHB1LPENR |= RCC_AHB1LPENR_OTGHSULPILPEN;
 #endif //OTG_USE_HS_ULPI
 #else 
 	RCC->AHB2ENR |= RCC_AHB2ENR_OTGFSEN;

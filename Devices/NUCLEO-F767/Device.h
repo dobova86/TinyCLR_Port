@@ -80,7 +80,7 @@
 						   /*PDx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
 						   /*PEx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
 						   /*PFx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
-						   /*PGx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
+						   /*PGx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), DEFAULT(),\
 						   /*PHx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
 						   /*PIx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
 						   /*PJx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
@@ -119,14 +119,15 @@
 #define STM32F7_SPI_MISO_PINS { { PIN(A, 6), AF(5) }, { PIN(B,14), AF(5) } } //, { PIN(C,  2), AF(5) } }
 #define STM32F7_SPI_MOSI_PINS { { PIN(A, 7), AF(5) }, { PIN(B,15), AF(5) } } //, { PIN(C,  3), AF(5) } }
 
+// UART note: PB6,PB7 mapped to UART1 can be used on CN1-CN2 connectors
 #define INCLUDE_UART
-#define TOTAL_UART_CONTROLLERS 6
+#define TOTAL_UART_CONTROLLERS 6	 /* ST-LINK USART3: TX-PD8, RX-PD9 (AF7) */
 #define STM32F7_UART_DEFAULT_TX_BUFFER_SIZE  { 256, 256, 256, 256, 256, 256 }
-#define STM32F7_UART_DEFAULT_RX_BUFFER_SIZE  { 512, 512, 512, 512, 512, 512 }
-#define STM32F7_UART_TX_PINS  { { PIN_NONE , AF_NONE }, { PIN(D,  5), AF(7)  },{ PIN(D, 8) , AF(7) },{ PIN_NONE , AF_NONE },{ PIN_NONE , AF_NONE }, { PIN(G,14), AF(8) } }
-#define STM32F7_UART_RX_PINS  { { PIN_NONE , AF_NONE }, { PIN(D,  6), AF(7)  },{ PIN(D, 9) , AF(7) },{ PIN_NONE , AF_NONE },{ PIN_NONE , AF_NONE }, { PIN(G, 9), AF(8) } }
-#define STM32F7_UART_CTS_PINS { { PIN_NONE , AF_NONE }, { PIN(D,  3), AF(7)  },{ PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE, AF_NONE } }
-#define STM32F7_UART_RTS_PINS { { PIN_NONE , AF_NONE }, { PIN(D,  4), AF(7)  },{ PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE, AF_NONE } }
+#define STM32F7_UART_DEFAULT_RX_BUFFER_SIZE  { 512, 512, 512, 512, 512, 512 }	
+#define STM32F7_UART_TX_PINS  { { PIN_NONE , AF_NONE }, { PIN(D,  5), AF(7)  }, { PIN(D, 8) , AF(7) }, { PIN(D, 1) , AF(8)  }, { PIN_NONE , AF_NONE }, { PIN(G,14), AF(8) } }
+#define STM32F7_UART_RX_PINS  { { PIN_NONE , AF_NONE }, { PIN(D,  6), AF(7)  }, { PIN(D, 9) , AF(7) }, { PIN(D, 0) , AF(8)  }, { PIN_NONE , AF_NONE }, { PIN(G, 9), AF(8) } }
+#define STM32F7_UART_CTS_PINS { { PIN_NONE , AF_NONE }, { PIN(D,  3), AF(7)  }, { PIN_NONE , AF_NONE },{ PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE, AF_NONE } }
+#define STM32F7_UART_RTS_PINS { { PIN_NONE , AF_NONE }, { PIN(D,  4), AF(7)  }, { PIN_NONE , AF_NONE },{ PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE, AF_NONE } }
 
 #define INCLUDE_USBCLIENT
 #define STM32F7_TOTAL_USB_CONTROLLERS	1

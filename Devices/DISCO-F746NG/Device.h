@@ -144,7 +144,7 @@ extern void STM32F7_DebugLed(uint16_t pin, bool onoff);
 #define STM32F7_UART_RTS_PINS { { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE, AF_NONE } }
 
 
-#define INCLUDE_SD
+//#define INCLUDE_SD
 #define STM32F7_SD_DATA0_PINS { { PIN(C, 8), AF(12) } }
 #define STM32F7_SD_DATA1_PINS { { PIN(C, 9), AF(12) } }
 #define STM32F7_SD_DATA2_PINS { { PIN(C, 10), AF(12) } }
@@ -152,7 +152,7 @@ extern void STM32F7_DebugLed(uint16_t pin, bool onoff);
 #define STM32F7_SD_CLK_PINS { { PIN(C, 12), AF(12) } }
 #define STM32F7_SD_CMD_PINS { { PIN(C, 13), AF(12) } }
 
-#define INCLUDE_STORAGE
+//#define INCLUDE_STORAGE
 
 #define INCLUDE_RTC
 
