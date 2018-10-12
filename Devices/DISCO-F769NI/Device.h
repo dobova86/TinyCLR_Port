@@ -60,7 +60,7 @@
 			}
 
 #define DEPLOYMENT_SECTORS 	{\
-								{ 0x06, 0x08080000, 0x00040000 }, { 0x07, 0x080C0000, 0x00040000 },\
+								/* { 0x06, 0x08080000, 0x00040000 },*/ { 0x07, 0x080C0000, 0x00040000 },\
 								{ 0x08, 0x08100000, 0x00040000 }, { 0x09, 0x08140000, 0x00040000 },\
 								{ 0x0A, 0x08180000, 0x00040000 }, { 0x0B, 0x081C0000, 0x00040000 }\
 							 } //,
@@ -181,7 +181,7 @@
 
 #define INCLUDE_RTC
 
-#define USE_SDMMC2
+#define USE_SDMMC2			// Use SDMMC2 needed for Discovery-F769 
 #define INCLUDE_SD
 #define STM32F7_SD_DATA0_PINS { { PIN(G, 9), AF(11) } }
 #define STM32F7_SD_DATA1_PINS { { PIN(G,10), AF(11) } }

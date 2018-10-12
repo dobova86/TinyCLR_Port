@@ -237,11 +237,11 @@
 #ifdef USE_SDMMC2
 #define SDMMC_BASE SDMMC2_BASE
 #define SDMMC_EN	( 1 << 7 )
-#define SDMMC_REG	SDMMC2
+#define SDMMC_REG	((SDMMC_TypeDef *) SDMMC2_BASE)
 #else
 #define SDMMC_BASE SDMMC1_BASE
 #define SDMMC_EN	( 1 << 11 )
-#define SDMMC_REG	SDMMC1
+#define SDMMC_REG	((SDMMC_TypeDef *) SDMMC1_BASE)
 #endif
 
 /* --- CLKCR Register ---*/
