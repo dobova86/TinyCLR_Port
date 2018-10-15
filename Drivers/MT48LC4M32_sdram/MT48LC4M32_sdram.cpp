@@ -97,7 +97,7 @@ void SDRAM_Init(uint8_t databits)
 	while (FMC_Bank5_6->SDSR & FMC_SDSR_BUSY);
 	
 	// now remap SDRAM to 0x60000000 : this is a cached area, so we can avoid MPU registers programming
-	SYSCFG->MEMRMP |= SYSCFG_MEMRMP_SWP_FMC_0;
+	//SYSCFG->MEMRMP |= SYSCFG_MEMRMP_SWP_FMC_0;
 
 	// Clear SDRAM
 	//for (ptr = SDRAM_BASE; ptr < (SDRAM_BASE + SDRAM_SIZE); ptr += 4) {

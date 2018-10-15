@@ -263,6 +263,15 @@ void STM32F7_Startup_OnSoftReset(const TinyCLR_Api_Manager* apiManager, const Ti
 
 extern "C" {
 	void __section("SectionForBootstrapOperations") SystemInit() {
+		// Disable cahce
+		STM32F7_Startup_CacheDisable();
+
+		//Reset MPU
+		STM32F7_Mpu_Reset();
+
+		// Config MPU
+		STM32F7_Startup_MpuConfiguration();
+
 		// Enable cahce
 		STM32F7_Startup_CacheEnable();
 
@@ -332,13 +341,14 @@ extern "C" {
 		RCC->CR &= ~RCC_CR_HSION;
 #endif
 
-		// remove Flash remap to Boot area to avoid problems with Monitor_Execute
-		SYSCFG->MEMRMP = 1; // map System memory to Boot area
-
 #ifdef USE_SDRAM_HEAP
 		// Note: SDRAM_DATABITS is set in device.h
 		SDRAM_Init(SDRAM_DATABITS); // Init MT48LC4M32 SDRAM for heap (Databits depend on hardware implementation)
 #endif
+
+		// remove Flash remap to Boot area to avoid problems with Monitor_Execute
+		SYSCFG->MEMRMP = 1; // map System memory to Boot area
+
 
 		// GPIO port A to D is always present
 		RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN | RCC_AHB1ENR_GPIOCEN | RCC_AHB1ENR_GPIODEN;

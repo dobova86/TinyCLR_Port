@@ -6,3 +6,4 @@ CMSIS/
 
 # Visual Studio
 .vs/
+/Targets/STM32F7xx/STM32F7.h.OLD
