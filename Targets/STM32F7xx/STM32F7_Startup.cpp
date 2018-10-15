@@ -263,8 +263,10 @@ void STM32F7_Startup_OnSoftReset(const TinyCLR_Api_Manager* apiManager, const Ti
 
 extern "C" {
 	void __section("SectionForBootstrapOperations") SystemInit() {
+
+
 		// Disable cahce
-		STM32F7_Startup_CacheDisable();
+		//STM32F7_Startup_CacheDisable();
 
 		//Reset MPU
 		STM32F7_Mpu_Reset();
@@ -272,7 +274,7 @@ extern "C" {
 		// Config MPU
 		STM32F7_Startup_MpuConfiguration();
 
-		// Enable cahce
+		// Enable cache
 		STM32F7_Startup_CacheEnable();
 
 		// enable FPU coprocessors (CP10, CP11)
@@ -342,7 +344,7 @@ extern "C" {
 #endif
 
 #ifdef USE_SDRAM_HEAP
-		// Note: SDRAM_DATABITS is set in device.h
+//		// Note: SDRAM_DATABITS is set in device.h
 		SDRAM_Init(SDRAM_DATABITS); // Init MT48LC4M32 SDRAM for heap (Databits depend on hardware implementation)
 #endif
 

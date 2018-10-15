@@ -7,7 +7,7 @@ SDRAM code implementation
 // Author : Domenico Bova, from Radoslaw Kwiecien work
 // Date : 16/03/2018
 //=================================================================================================
-#include "stm32f7.h"
+#include "STM32F7.h"
 
 //#include "gpiof4.h"
 #include "MT48LC4M32_sdram.h"

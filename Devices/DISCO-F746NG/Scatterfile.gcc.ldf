@@ -3,7 +3,7 @@ MEMORY
 {
 	IRAM (rw) : ORIGIN = 0x20000000, LENGTH = 0x50000 /* end: 0x2004FFF */
 	LR_FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 1024k /* 0xF7C00    */
-	SDRAM (rwx) : ORIGIN = 0x60000000, LENGTH = 16m /* 0x800000 */
+	SDRAM (rwx) : ORIGIN = 0xC0000000, LENGTH = 16m /* 0x800000 */
 }
 SECTIONS
 {
@@ -68,7 +68,7 @@ SECTIONS
 		* (.ARM.extab*)
 	}
 
-	/************************NORMAL HEAP ALLOCATION in MCU SRAM***************************
+	/************************NORMAL HEAP ALLOCATION in MCU SRAM***************************/
 	ER_HEAP_BEGIN 0x20009000 :
 	{
 		* (SectionForHeapBegin)
@@ -79,20 +79,20 @@ SECTIONS
 	{
 		* (SectionForHeapEnd)
 	}>IRAM
-	************************************************************************************/
+	/************************************************************************************/
 		
-	/***********************External SDRAM Allocation ***********************************/
-	ER_HEAP_BEGIN 0x60000000 :
+	/***********************External SDRAM Allocation ***********************************
+	ER_HEAP_BEGIN 0xC0000000 :
 	{
 		* (SectionForHeapBegin)
 	}>SDRAM
 
 	
-	ER_HEAP_END 0x60800000 - 0x08 :
+	ER_HEAP_END 0xC0800000 - 0x08 :
 	{
 		* (SectionForHeapEnd)
 	}>SDRAM
-	/*************************************************************************************/
+	*************************************************************************************/
 
 	ER_RLP_BEGIN 0x2004A000 :
 	{
