@@ -13,3 +13,9 @@ void STM32F7_Startup_OnSoftResetDevice(const TinyCLR_Api_Manager* apiProvider, c
 
 
 }
+
+void STM32F7_Startup_MpuConfiguration() {
+#ifdef USE_SDRAM_HEAP
+	STM32F7_Mpu_Configuration(reinterpret_cast<uint32_t>(reinterpret_cast<uint32_t*>(&HeapBegin)), STM32F7_Mpu_RegionSize::Size_32MBytes, STM32F7_Mpu_RegionNumber::Region0, true);
+#endif
+}
