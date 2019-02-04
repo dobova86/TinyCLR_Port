@@ -17,6 +17,8 @@
 #include "STM32F7.h"
 #include <stdio.h>
 
+extern void SDRAM_Init(uint8_t databits);
+
 void STM32F7_Startup_OnSoftReset(const TinyCLR_Api_Manager* apiManager, const TinyCLR_Interop_Manager* interopProvider) {
 #ifdef INCLUDE_ADC
     STM32F7_Adc_Reset();
@@ -356,7 +358,12 @@ extern "C" {
 #ifdef RCC_AHB1ENR_GPIOKEN
         RCC->AHB1ENR |= RCC_AHB1ENR_GPIOKEN;
 #endif
+
+#ifdef USE_SDRAM_HEAP
+	SDRAM_Init(SDRAM_DATABITS);
+#endif
     }
+
 }
 
 extern "C" {
