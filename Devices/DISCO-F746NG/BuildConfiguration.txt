@@ -1,3 +1,4 @@
 TargetName:STM32F7xx
-OptimizeLevel:-Os
-AdditionalDeviceDrivers:MT48LC4M32_sdram
+OptimizeLevel:-speed
+AdditionalCompilerArguments:!AdditionalCompilerArguments! -mlong-calls
+AdditionalDeviceDrivers:MT48LC4M32_sdram SWO_Debug

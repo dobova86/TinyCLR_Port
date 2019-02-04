@@ -17,55 +17,39 @@
 #include "STM32F7.h"
 #include <stdio.h>
 
-
-#ifdef USE_SDRAM_HEAP // use EXTERNAL SDRAM
-#if defined(SDRAM_32BIT)
-#define SDRAM_DATABITS	32 //FMC_SDCR1_MWID_1
-#elif defined(SDRAM_16BIT)
-#define SDRAM_DATABITS	16 //FMC_SDCR1_MWID_0
-#elif defined(SDRAM_8BIT)
-#define SDRAM_DATABITS	8
-#else
-#error "ERROR : SDRAM_32BIT,SDRAM_16BIT or SDRAM_8BIT (number of bit) for SDRAM data bus Must be defined in Device.h!"
-#endif
-extern void SDRAM_Init(uint8_t databits);
-
-#endif //USE_SDRAM_HEAP
-
-
 void STM32F7_Startup_OnSoftReset(const TinyCLR_Api_Manager* apiManager, const TinyCLR_Interop_Manager* interopProvider) {
 #ifdef INCLUDE_ADC
-	STM32F7_Adc_Reset();
+    STM32F7_Adc_Reset();
 #endif
 #ifdef INCLUDE_CAN
-	STM32F7_Can_Reset();
+    STM32F7_Can_Reset();
 #endif
 #ifdef INCLUDE_DAC
-	STM32F7_Dac_Reset();
+    STM32F7_Dac_Reset();
 #endif
 #ifdef INCLUDE_DISPLAY
-	STM32F7_Display_Reset();
+    STM32F7_Display_Reset();
 #endif
 #ifdef INCLUDE_GPIO
-	STM32F7_Gpio_Reset();
+    STM32F7_Gpio_Reset();
 #endif
 #ifdef INCLUDE_I2C
-	STM32F7_I2c_Reset();
+    STM32F7_I2c_Reset();
 #endif
 #ifdef INCLUDE_PWM
-	STM32F7_Pwm_Reset();
+    STM32F7_Pwm_Reset();
 #endif
 #ifdef INCLUDE_SD
-	STM32F7_SdCard_Reset();
+    STM32F7_SdCard_Reset();
 #endif
 #ifdef INCLUDE_SPI
-	STM32F7_Spi_Reset();
+    STM32F7_Spi_Reset();
 #endif
 #ifdef INCLUDE_UART
-	STM32F7_Uart_Reset();
+    STM32F7_Uart_Reset();
 #endif
 #ifdef INCLUDE_USBCLIENT
-	STM32F7_UsbDevice_Reset();
+    STM32F7_UsbDevice_Reset();
 #endif
 }
 
@@ -119,8 +103,8 @@ void STM32F7_Startup_OnSoftReset(const TinyCLR_Api_Manager* apiManager, const Ti
 #define RCC_PLLCFGR_PLLP_BITS (RCC_PLLCFGR_PLLP_0 | RCC_PLLCFGR_PLLP_1)  // P = 8
 #define RCC_PLLCFGR_PLLQ_BITS (STM32F7_SYSTEM_CLOCK_HZ * 8 / 48000000 * RCC_PLLCFGR_PLLQ_0)
 #elif (STM32F7_SYSTEM_CLOCK_HZ * 2 >= 192000000)\
-	&& (STM32F7_SYSTEM_CLOCK_HZ * 2 <= 432000000)\
-	&& (STM32F7_SYSTEM_CLOCK_HZ * 4 % 48000000 == 0)
+    && (STM32F7_SYSTEM_CLOCK_HZ * 2 <= 432000000)\
+    && (STM32F7_SYSTEM_CLOCK_HZ * 4 % 48000000 == 0)
 #define RCC_PLLCFGR_PLLM_BITS (STM32F7_EXT_CRYSTAL_CLOCK_HZ / ONE_MHZ / RCC_PLLCFGR_PLLM_1 * RCC_PLLCFGR_PLLM_0)
 #define RCC_PLLCFGR_PLLN_BITS (STM32F7_SYSTEM_CLOCK_HZ *2 / ONE_MHZ * RCC_PLLCFGR_PLLN_0)
 #define RCC_PLLCFGR_PLLP_BITS (RCC_PLLCFGR_PLLP_0 )
@@ -130,10 +114,10 @@ void STM32F7_Startup_OnSoftReset(const TinyCLR_Api_Manager* apiManager, const Ti
 #endif
 
 #define RCC_PLLCFGR_PLL_BITS (RCC_PLLCFGR_PLLM_BITS \
-							| RCC_PLLCFGR_PLLN_BITS \
-							| RCC_PLLCFGR_PLLP_BITS \
-							| RCC_PLLCFGR_PLLQ_BITS \
-							| RCC_PLLCFGR_PLLS_BITS)
+                            | RCC_PLLCFGR_PLLN_BITS \
+                            | RCC_PLLCFGR_PLLP_BITS \
+                            | RCC_PLLCFGR_PLLQ_BITS \
+                            | RCC_PLLCFGR_PLLS_BITS)
 
 #if STM32F7_SYSTEM_CLOCK_HZ == STM32F7_AHB_CLOCK_HZ * 1
 #define RCC_CFGR_HPRE_DIV_BITS RCC_CFGR_HPRE_DIV1
@@ -254,273 +238,260 @@ void STM32F7_Startup_OnSoftReset(const TinyCLR_Api_Manager* apiManager, const Ti
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_3WS // 3 wait states
 #elif STM32F7_AHB_CLOCK_HZ <= 150000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_4WS // 4 wait states
-#else
+#elif STM32F7_AHB_CLOCK_HZ <= 180000000
 #define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_5WS // 5 wait states
+#elif STM32F7_AHB_CLOCK_HZ <= 210000000
+#define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_6WS // 6 wait states
+#else
+#define FLASH_ACR_LATENCY_BITS FLASH_ACR_LATENCY_7WS // 7 wait states
 #endif
 #endif
 
 #pragma arm section code = "SectionForBootstrapOperations"
 
 extern "C" {
-	void __section("SectionForBootstrapOperations") SystemInit() {
+    void __section("SectionForBootstrapOperations") SystemInit() {
+        //Reset MPU
+        STM32F7_Mpu_Reset();
 
+        // Config MPU
+        STM32F7_Startup_MpuConfiguration();
 
-		// Disable cahce
-		//STM32F7_Startup_CacheDisable();
+        // Enable cahce
+        STM32F7_Startup_CacheEnable();
 
-		//Reset MPU
-		STM32F7_Mpu_Reset();
-
-		// Config MPU
-		STM32F7_Startup_MpuConfiguration();
-
-		// Enable cache
-		STM32F7_Startup_CacheEnable();
-
-		// enable FPU coprocessors (CP10, CP11)
-		SCB->CPACR |= 0x3 << 2 * 10 | 0x3 << 2 * 11; // full access
+        // enable FPU coprocessors (CP10, CP11)
+        SCB->CPACR |= 0x3 << 2 * 10 | 0x3 << 2 * 11; // full access
 
 #if DEBUG || _DEBUG
 // configure jtag debug support
-		DBGMCU->CR = DBGMCU_CR_DBG_SLEEP;
+        DBGMCU->CR = DBGMCU_CR_DBG_SLEEP;
 #endif
 
-		// allow unaligned memory access and do not enforce 8 byte stack alignment
-		SCB->CCR &= ~(SCB_CCR_UNALIGN_TRP_Msk | SCB_CCR_STKALIGN_Msk);
+        // allow unaligned memory access and do not enforce 8 byte stack alignment
+        SCB->CCR &= ~(SCB_CCR_UNALIGN_TRP_Msk | SCB_CCR_STKALIGN_Msk);
 
-		// for clock configuration the cpu has to run on the internal 16MHz oscillator
-		RCC->CR |= RCC_CR_HSION;
-		while (!(RCC->CR & RCC_CR_HSIRDY));
+        // for clock configuration the cpu has to run on the internal 16MHz oscillator
+        RCC->CR |= RCC_CR_HSION;
+        while (!(RCC->CR & RCC_CR_HSIRDY));
 
-		RCC->CFGR = RCC_CFGR_SW_HSI;         // sysclk = AHB = APB1 = APB2 = HSI (16MHz)
-		RCC->CR &= ~(RCC_CR_PLLON | RCC_CR_PLLI2SON); // pll off
+        RCC->CFGR = RCC_CFGR_SW_HSI;         // sysclk = AHB = APB1 = APB2 = HSI (16MHz)
+        RCC->CR &= ~(RCC_CR_PLLON | RCC_CR_PLLI2SON); // pll off
 
 #if RCC_PLLCFGR_PLLS_BITS == RCC_PLLCFGR_PLLSRC_HSE
 // turn HSE on
-		RCC->CR |= RCC_CR_HSEON;
-		while (!(RCC->CR & RCC_CR_HSERDY));
-#endif
-#ifdef OVERDRIVE_MODE // by D.B for test on F746
-		PWR->CR1 |= PWR_CR1_ODEN;
-		while ( !(PWR->CSR1 & PWR_CSR1_ODRDY) );
-		PWR->CR1 |= PWR_CR1_ODSWEN;
-		while ( !(PWR->CSR1 & PWR_CSR1_ODSWRDY) );
+        RCC->CR |= RCC_CR_HSEON;
+        while (!(RCC->CR & RCC_CR_HSERDY));
 #endif
 
-		// Set flash access time and enable caches & prefetch buffer
-		// The prefetch buffer must not be enabled on rev A devices.
-		// Rev A cannot be read from revision field (another rev A error!).
-		// The wrong device field (411=F2) must be used instead!
-		if ((DBGMCU->IDCODE & 0xFF) != 0x11) {
-			FLASH->ACR = FLASH_ACR_PRFTEN | FLASH_ACR_LATENCY_BITS | FLASH_ACR_ARTEN;
-		}
+        // Set flash access time and enable caches & prefetch buffer
+        // The prefetch buffer must not be enabled on rev A devices.
+        // Rev A cannot be read from revision field (another rev A error!).
+        // The wrong device field (411=F2) must be used instead!
+        if ((DBGMCU->IDCODE & 0xFF) != 0x11) {
+            FLASH->ACR = FLASH_ACR_PRFTEN | FLASH_ACR_LATENCY_BITS | FLASH_ACR_ARTEN;
+        }
 
-		// setup PLL
-		RCC->PLLCFGR = RCC_PLLCFGR_PLL_BITS; // pll multipliers
-		RCC->CR |= RCC_CR_PLLON;             // pll on
-		while (!(RCC->CR & RCC_CR_PLLRDY));
+        // setup PLL
+        RCC->PLLCFGR = RCC_PLLCFGR_PLL_BITS; // pll multipliers
+        RCC->CR |= RCC_CR_PLLON;             // pll on
+        while (!(RCC->CR & RCC_CR_PLLRDY));
 
-		// final clock setup
-		RCC->CFGR = RCC_CFGR_SW_PLL          // sysclk = pll out (STM32F7_SYSTEM_CLOCK_HZ)
-			| RCC_CFGR_HPRE_DIV_BITS   // AHB clock
-			| RCC_CFGR_PPRE1_DIV_BITS  // APB1 clock
-			| RCC_CFGR_PPRE2_DIV_BITS; // APB2 clock
+        // final clock setup
+        RCC->CFGR = RCC_CFGR_SW_PLL          // sysclk = pll out (STM32F7_SYSTEM_CLOCK_HZ)
+            | RCC_CFGR_HPRE_DIV_BITS   // AHB clock
+            | RCC_CFGR_PPRE1_DIV_BITS  // APB1 clock
+            | RCC_CFGR_PPRE2_DIV_BITS; // APB2 clock
 
-		// wait for PLL ready
-		while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);
+        // wait for PLL ready
+        while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);
 
 
-		// minimal peripheral clocks
+        // minimal peripheral clocks
 #ifdef RCC_AHB1ENR_DTCMRAMEN
-		RCC->AHB1ENR |= RCC_AHB1ENR_DTCMRAMEN; // 64k RAM (CCM)
+        RCC->AHB1ENR |= RCC_AHB1ENR_DTCMRAMEN; // 64k RAM (CCM)
 #endif
 
-		RCC->APB1ENR |= RCC_APB1ENR_PWREN;    // PWR clock used for sleep;
-		RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN; // SYSCFG clock used for IO;
+        RCC->APB1ENR |= RCC_APB1ENR_PWREN;    // PWR clock used for sleep;
+        RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN; // SYSCFG clock used for IO;
 
-		// stop HSI clock
+        // stop HSI clock
 #if RCC_PLLCFGR_PLLS_BITS == RCC_PLLCFGR_PLLSRC_HSE
-		RCC->CR &= ~RCC_CR_HSION;
+        RCC->CR &= ~RCC_CR_HSION;
 #endif
 
-#ifdef USE_SDRAM_HEAP
-//		// Note: SDRAM_DATABITS is set in device.h
-		SDRAM_Init(SDRAM_DATABITS); // Init MT48LC4M32 SDRAM for heap (Databits depend on hardware implementation)
-#endif
+        // remove Flash remap to Boot area to avoid problems with Monitor_Execute
+        SYSCFG->MEMRMP = SYSCFG_MEMRMP_MEM_BOOT; // map System memory to Boot area. 
 
-		// remove Flash remap to Boot area to avoid problems with Monitor_Execute
-		SYSCFG->MEMRMP = 1; // map System memory to Boot area
+        //Swap FMC address
+        SYSCFG->MEMRMP |= SYSCFG_MEMRMP_SWP_FMC_0; 
 
-
-		// GPIO port A to D is always present
-		RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN | RCC_AHB1ENR_GPIOCEN | RCC_AHB1ENR_GPIODEN;
+        // GPIO port A to D is always present
+        RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN | RCC_AHB1ENR_GPIOCEN | RCC_AHB1ENR_GPIODEN;
 
 #ifdef RCC_AHB1ENR_GPIOEEN
-		RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;
+        RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;
 #endif
 
 #ifdef RCC_AHB1ENR_GPIOFEN
-		RCC->AHB1ENR |= RCC_AHB1ENR_GPIOFEN;
+        RCC->AHB1ENR |= RCC_AHB1ENR_GPIOFEN;
 #endif
 
 #ifdef RCC_AHB1ENR_GPIOGEN
-		RCC->AHB1ENR |= RCC_AHB1ENR_GPIOGEN;
+        RCC->AHB1ENR |= RCC_AHB1ENR_GPIOGEN;
 #endif
 
 #ifdef RCC_AHB1ENR_GPIOHEN
-		RCC->AHB1ENR |= RCC_AHB1ENR_GPIOHEN;
+        RCC->AHB1ENR |= RCC_AHB1ENR_GPIOHEN;
 #endif
 
 #ifdef RCC_AHB1ENR_GPIOIEN
-		RCC->AHB1ENR |= RCC_AHB1ENR_GPIOIEN;
+        RCC->AHB1ENR |= RCC_AHB1ENR_GPIOIEN;
 #endif
 
 #ifdef RCC_AHB1ENR_GPIOJEN
-		RCC->AHB1ENR |= RCC_AHB1ENR_GPIOJEN;
+        RCC->AHB1ENR |= RCC_AHB1ENR_GPIOJEN;
 #endif
 
 #ifdef RCC_AHB1ENR_GPIOKEN
-		RCC->AHB1ENR |= RCC_AHB1ENR_GPIOKEN;
+        RCC->AHB1ENR |= RCC_AHB1ENR_GPIOKEN;
 #endif
-
-		//STM32F7_DebugLed(LED_DEBUG, true);
-
-	}
+    }
 }
 
 extern "C" {
-	extern int HeapBegin;
-	extern int HeapEnd;
+    extern int HeapBegin;
+    extern int HeapEnd;
 
-	extern uint32_t Load$$ER_RAM_RW$$Base;
-	extern uint32_t Image$$ER_RAM_RW$$Base;
-	extern uint32_t Image$$ER_RAM_RW$$Length;
+    extern uint32_t Load$$ER_RAM_RW$$Base;
+    extern uint32_t Image$$ER_RAM_RW$$Base;
+    extern uint32_t Image$$ER_RAM_RW$$Length;
 
-	extern uint32_t Image$$ER_RAM_RW$$ZI$$Base;
-	extern uint32_t Image$$ER_RAM_RW$$ZI$$Length;
+    extern uint32_t Image$$ER_RAM_RW$$ZI$$Base;
+    extern uint32_t Image$$ER_RAM_RW$$ZI$$Length;
 
-	extern uint32_t Load$$ER_RAM_RO$$Base;
-	extern uint32_t Image$$ER_RAM_RO$$Base;
-	extern uint32_t Image$$ER_RAM_RO$$Length;
+    extern uint32_t Load$$ER_RAM_RO$$Base;
+    extern uint32_t Image$$ER_RAM_RO$$Base;
+    extern uint32_t Image$$ER_RAM_RO$$Length;
 }
 
 #pragma arm section code = "SectionForBootstrapOperations"
 
 static void __section("SectionForBootstrapOperations") Prepare_Copy(uint32_t* src, uint32_t* dst, uint32_t len) {
-	if (dst != src) {
-		int32_t extraLen = len & 0x00000003;
-		len = len & 0xFFFFFFFC;
+    if (dst != src) {
+        int32_t extraLen = len & 0x00000003;
+        len = len & 0xFFFFFFFC;
 
-		while (len != 0) {
-			*dst++ = *src++;
+        while (len != 0) {
+            *dst++ = *src++;
 
-			len -= 4;
-		}
+            len -= 4;
+        }
 
-		// thumb2 code can be multiples of 2...
+        // thumb2 code can be multiples of 2...
 
-		uint8_t *dst8 = (uint8_t*)dst, *src8 = (uint8_t*)src;
+        uint8_t *dst8 = (uint8_t*)dst, *src8 = (uint8_t*)src;
 
-		while (extraLen > 0) {
-			*dst8++ = *src8++;
+        while (extraLen > 0) {
+            *dst8++ = *src8++;
 
-			extraLen--;
-		}
-	}
+            extraLen--;
+        }
+    }
 }
 
 static void __section("SectionForBootstrapOperations") Prepare_Zero(uint32_t* dst, uint32_t len) {
-	int32_t extraLen = len & 0x00000003;
-	len = len & 0xFFFFFFFC;
+    int32_t extraLen = len & 0x00000003;
+    len = len & 0xFFFFFFFC;
 
-	while (len != 0) {
-		*dst++ = 0;
+    while (len != 0) {
+        *dst++ = 0;
 
-		len -= 4;
-	}
+        len -= 4;
+    }
 
-	// thumb2 code can be multiples of 2...
+    // thumb2 code can be multiples of 2...
 
-	uint8_t *dst8 = (uint8_t*)dst;
+    uint8_t *dst8 = (uint8_t*)dst;
 
-	while (extraLen > 0) {
-		*dst8++ = 0;
+    while (extraLen > 0) {
+        *dst8++ = 0;
 
-		extraLen--;
-	}
+        extraLen--;
+    }
 }
 
 void STM32F7_Startup_GetHeap(uint8_t*& start, size_t& length) {
-	start = (uint8_t*)&HeapBegin;
-	length = (size_t)(((int)&HeapEnd) - ((int)&HeapBegin));
+    start = (uint8_t*)&HeapBegin;
+    length = (size_t)(((int)&HeapEnd) - ((int)&HeapBegin));
 }
 
 void STM32F7_Startup_Initialize() {
-	//
-	// Copy RAM RO regions into proper location.
-	//
-	{
-		uint32_t* src = (uint32_t*)((uint32_t)&Load$$ER_RAM_RO$$Base);
-		uint32_t* dst = (uint32_t*)((uint32_t)&Image$$ER_RAM_RO$$Base);
-		uint32_t  len = (uint32_t)((uint32_t)&Image$$ER_RAM_RO$$Length);
+    //
+    // Copy RAM RO regions into proper location.
+    //
+    {
+        uint32_t* src = (uint32_t*)((uint32_t)&Load$$ER_RAM_RO$$Base);
+        uint32_t* dst = (uint32_t*)((uint32_t)&Image$$ER_RAM_RO$$Base);
+        uint32_t  len = (uint32_t)((uint32_t)&Image$$ER_RAM_RO$$Length);
 
-		if (len != 0) // only copy if len is not 0
-			Prepare_Copy(src, dst, len);
-	}
+        if (len != 0) // only copy if len is not 0
+            Prepare_Copy(src, dst, len);
+    }
 
-	//
-	// Copy RAM RW regions into proper location.
-	//
-	{
-		uint32_t* src = (uint32_t*)((uint32_t)&Load$$ER_RAM_RW$$Base);
-		uint32_t* dst = (uint32_t*)((uint32_t)&Image$$ER_RAM_RW$$Base);
-		uint32_t  len = (uint32_t)((uint32_t)&Image$$ER_RAM_RW$$Length);
+    //
+    // Copy RAM RW regions into proper location.
+    //
+    {
+        uint32_t* src = (uint32_t*)((uint32_t)&Load$$ER_RAM_RW$$Base);
+        uint32_t* dst = (uint32_t*)((uint32_t)&Image$$ER_RAM_RW$$Base);
+        uint32_t  len = (uint32_t)((uint32_t)&Image$$ER_RAM_RW$$Length);
 
-		if (len != 0) // only copy if len is not zero or not compress RW data
-			Prepare_Copy(src, dst, len);
-	}
+        if (len != 0) // only copy if len is not zero or not compress RW data
+            Prepare_Copy(src, dst, len);
+    }
 
-	//
-	// Initialize RAM ZI regions.
-	//
-	{
-		uint32_t* dst = (uint32_t*)((uint32_t)&Image$$ER_RAM_RW$$ZI$$Base);
-		uint32_t  len = (uint32_t)((uint32_t)&Image$$ER_RAM_RW$$ZI$$Length);
+    //
+    // Initialize RAM ZI regions.
+    //
+    {
+        uint32_t* dst = (uint32_t*)((uint32_t)&Image$$ER_RAM_RW$$ZI$$Base);
+        uint32_t  len = (uint32_t)((uint32_t)&Image$$ER_RAM_RW$$ZI$$Length);
 
-		Prepare_Zero(dst, len);
-	}
+        Prepare_Zero(dst, len);
+    }
 
 }
 
 const TinyCLR_Startup_UsbDebuggerConfiguration STM32F7_Startup_UsbDebuggerConfiguration = {
-	USB_DEBUGGER_VENDOR_ID,
-	USB_DEBUGGER_PRODUCT_ID,
-	CONCAT(L,DEVICE_MANUFACTURER),
-	CONCAT(L,DEVICE_NAME),
-	0
+    USB_DEBUGGER_VENDOR_ID,
+    USB_DEBUGGER_PRODUCT_ID,
+    CONCAT(L,DEVICE_MANUFACTURER),
+    CONCAT(L,DEVICE_NAME),
+    0
 };
 
 void STM32F7_Startup_GetDebuggerTransportApi(const TinyCLR_Api_Info*& api, const void*& configuration) {
 #if defined(DEBUGGER_SELECTOR_PIN) && defined(DEBUGGER_SELECTOR_PULL) && defined(DEBUGGER_SELECTOR_USB_STATE)
-	TinyCLR_Gpio_PinValue value;
-	auto provider = static_cast<const TinyCLR_Gpio_Controller*>(STM32F7_Gpio_GetRequiredApi()->Implementation);
+    TinyCLR_Gpio_PinValue value;
+    auto provider = static_cast<const TinyCLR_Gpio_Controller*>(STM32F7_Gpio_GetRequiredApi()->Implementation);
 
-	provider->OpenPin(provider, DEBUGGER_SELECTOR_PIN);
-	provider->SetDriveMode(provider, DEBUGGER_SELECTOR_PIN, DEBUGGER_SELECTOR_PULL);
-	provider->Read(provider, DEBUGGER_SELECTOR_PIN, value);
-	provider->ClosePin(provider, DEBUGGER_SELECTOR_PIN);
+    provider->OpenPin(provider, DEBUGGER_SELECTOR_PIN);
+    provider->SetDriveMode(provider, DEBUGGER_SELECTOR_PIN, DEBUGGER_SELECTOR_PULL);
+    provider->Read(provider, DEBUGGER_SELECTOR_PIN, value);
+    provider->ClosePin(provider, DEBUGGER_SELECTOR_PIN);
 
-	if (value == DEBUGGER_SELECTOR_USB_STATE) {
-		api = STM32F7_UsbDevice_GetRequiredApi();
-		configuration = (const void*)&STM32F7_Startup_UsbDebuggerConfiguration;
-	}
-	else {
-		api = STM32F7_Uart_GetRequiredApi();
-
-	}
+    if (value == DEBUGGER_SELECTOR_USB_STATE) {
+        api = STM32F7_UsbDevice_GetRequiredApi();
+        configuration = (const void*)&STM32F7_Startup_UsbDebuggerConfiguration;
+    }
+    else {
+        api = STM32F7_Uart_GetRequiredApi();
+    }
 #elif defined(DEBUGGER_FORCE_API) && defined(DEBUGGER_FORCE_INDEX)
+    api = DEBUGGER_FORCE_API;
 	configuration = (const void*)&STM32F7_Startup_UsbDebuggerConfiguration;
-	api = DEBUGGER_FORCE_API;
+
 #else
 #error You must specify a debugger mode pin or specify the API explicitly.
 #endif
@@ -528,44 +499,39 @@ void STM32F7_Startup_GetDebuggerTransportApi(const TinyCLR_Api_Info*& api, const
 
 void STM32F7_Startup_GetRunApp(bool& runApp) {
 #if defined(RUN_APP_PIN) && defined(RUN_APP_PULL) && defined(RUN_APP_STATE)
-	TinyCLR_Gpio_PinValue value;
-	auto provider = static_cast<const TinyCLR_Gpio_Controller*>(STM32F7_Gpio_GetRequiredApi()->Implementation);
-	provider->OpenPin(provider, RUN_APP_PIN);
-	provider->SetDriveMode(provider, RUN_APP_PIN, RUN_APP_PULL);
-	provider->Read(provider, RUN_APP_PIN, value);
-	provider->ClosePin(provider, RUN_APP_PIN);
-	runApp = value == RUN_APP_STATE;
+    TinyCLR_Gpio_PinValue value;
+    auto provider = static_cast<const TinyCLR_Gpio_Controller*>(STM32F7_Gpio_GetRequiredApi()->Implementation);
+
+    provider->OpenPin(provider, RUN_APP_PIN);
+    provider->SetDriveMode(provider, RUN_APP_PIN, RUN_APP_PULL);
+    provider->Read(provider, RUN_APP_PIN, value);
+    provider->ClosePin(provider, RUN_APP_PIN);
+
+    runApp = value == RUN_APP_STATE;
 #elif defined(RUN_APP_FORCE_STATE)
-	runApp = RUN_APP_FORCE_STATE;
+    runApp = RUN_APP_FORCE_STATE;
 #else
-	runApp = true;
+    runApp = true;
 #endif
 }
 
 void STM32F7_Startup_CacheEnable(void) {
-	/* Enable I-Cache */
-	SCB_EnableICache();
+    /* Enable I-Cache */
+    SCB_EnableICache();
 
-	/* Enable D-Cache */
-	SCB_EnableDCache();
+    /* Enable D-Cache */
+    SCB_EnableDCache();
 }
 
 void STM32F7_Startup_CacheDisable(void) {
-	/* Enable I-Cache */
-	SCB_DisableICache();
+    /* Enable I-Cache */
+    SCB_DisableICache();
 
-	/* Enable D-Cache */
-	SCB_DisableDCache();
+    /* Enable D-Cache */
+    SCB_DisableDCache();
 }
 
 void STM32F7_Startup_GetDeploymentApi(const TinyCLR_Api_Info*& api, const TinyCLR_Startup_DeploymentConfiguration*& configuration) {
-	STM32F7_Flash_GetDeploymentApi(api, configuration);
+    STM32F7_Flash_GetDeploymentApi(api, configuration);
 }
 
-void STM32F7_DebugLed(uint16_t pin, bool onoff)
-{
-	STM32F7_GpioInternal_ConfigurePin(pin, STM32F7_Gpio_PortMode::GeneralPurposeOutput, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, STM32F7_Gpio_AlternateFunction::AF0);
-	STM32F7_GpioInternal_OpenPin(pin);
-	STM32F7_GpioInternal_WritePin(pin, onoff);
-	//STM32F7_GpioInternal_ClosePin(pin);
-}

@@ -23,7 +23,7 @@
 #define DEVICE_TARGET STM32F7
 #define DEVICE_NAME "NUCLEO-F767"
 #define DEVICE_MANUFACTURER "Nucleo STM32F767"
-#define DEVICE_VERSION ((1ULL << 48) | (0ULL << 32) | (0ULL << 16) | (10001ULL << 0))
+#define DEVICE_VERSION ((1ULL << 48) | (0ULL << 32) | (0ULL << 16) | (10003ULL << 0))
 
 #define USB_DEBUGGER_VENDOR_ID 0x1B9F
 #define USB_DEBUGGER_PRODUCT_ID 0x5000
@@ -38,6 +38,9 @@
 //#define DEBUGGER_FORCE_API STM32F7_Uart_GetApi()
 #define DEBUGGER_FORCE_INDEX USB_DEBUGGER_INDEX
 
+#define SWO_DEBUG   1
+#define SWO_BITMASK 0x01 // For Port 0 enable
+#define SWO_PORT  0		// stimulus port used
 
 //#define RUN_APP_PIN PIN(E, 4)
 //#define RUN_APP_PULL TinyCLR_Gpio_PinDriveMode::InputPullUp
@@ -45,7 +48,6 @@
 #define RUN_APP_FORCE_STATE true
 
 #define DEVICE_MEMORY_PROFILE_FACTOR 9
-
 
 #define DEPLOYMENT_SECTORS 	{\
 								{ 0x06, 0x08080000, 0x00040000 }, { 0x07, 0x080C0000, 0x00040000 },\
@@ -67,8 +69,9 @@
 #define INCLUDE_CAN
 #define TOTAL_CAN_CONTROLLERS 1
 #define STM32F7_CAN_BUFFER_DEFAULT_SIZE { 128 }
-#define STM32F7_CAN_TX_PINS { { PIN(D, 1), AF(9) } }
-#define STM32F7_CAN_RX_PINS { { PIN(D, 0), AF(9) } }
+#define STM32F7_CAN_PINS {  /*         TX                     RX                    */\
+							/*CAN0*/ { { PIN(D, 1), AF(9) }, { PIN(D,  0), AF(9) } }, \
+						 }
 
 #define INCLUDE_DAC
 
@@ -80,7 +83,7 @@
 						   /*PDx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
 						   /*PEx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
 						   /*PFx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
-						   /*PGx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), DEFAULT(),\
+						   /*PGx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
 						   /*PHx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
 						   /*PIx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
 						   /*PJx*/ NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(), NO_INIT(),\
@@ -89,8 +92,10 @@
 
 #define INCLUDE_I2C			// NOTE: I2C1 on Nucleo is not connected to CN9 by default (see Nucleo-144 user guide)
 #define TOTAL_I2C_CONTROLLERS 2
-#define STM32F7_I2C_SCL_PINS { { PIN(B, 8), AF(4) }, { PIN(F, 1), AF(4) } }
-#define STM32F7_I2C_SDA_PINS { { PIN(B, 9), AF(4) }, { PIN(F, 0), AF(4) } }
+#define STM32F7_I2C_PINS {				/* SDA				  SCL */			\
+							/*I2C1*/ { { PIN(B, 9), AF(4) }, { PIN(B, 8), AF(4) } },\
+							/*I2C2*/ { { PIN(F, 0), AF(4) }, { PIN(F, 1), AF(4) } } \
+						 }
 
 #define INCLUDE_PWM
 #define TOTAL_PWM_CONTROLLERS 14
@@ -115,19 +120,26 @@
 
 #define INCLUDE_SPI
 #define TOTAL_SPI_CONTROLLERS 2
-#define STM32F7_SPI_SCLK_PINS { { PIN(A, 5), AF(5) }, { PIN(A,12), AF(5) } } //, { PIN(B, 10), AF(5) } }
-#define STM32F7_SPI_MISO_PINS { { PIN(A, 6), AF(5) }, { PIN(B,14), AF(5) } } //, { PIN(C,  2), AF(5) } }
-#define STM32F7_SPI_MOSI_PINS { { PIN(A, 7), AF(5) }, { PIN(B,15), AF(5) } } //, { PIN(C,  3), AF(5) } }
+#define STM32F7_SPI_PINS {	/* MOSI					 MISO				   CLK */			\
+				/* SPIx*/ { { PIN(A, 7), AF(5) }, { PIN(A, 6), AF(5) }, { PIN(A, 5), AF(5) } },\
+				/* SPIy*/ { { PIN(B,15), AF(5) }, { PIN(B,14), AF(5) }, { PIN(A,12), AF(5) } } \
+						 }
 
-// UART note: PB6,PB7 mapped to UART1 can be used on CN1-CN2 connectors
 #define INCLUDE_UART
-#define TOTAL_UART_CONTROLLERS 6	 /* ST-LINK USART3: TX-PD8, RX-PD9 (AF7) */
-#define STM32F7_UART_DEFAULT_TX_BUFFER_SIZE  { 256, 256, 256, 256, 256, 256 }
-#define STM32F7_UART_DEFAULT_RX_BUFFER_SIZE  { 512, 512, 512, 512, 512, 512 }	
-#define STM32F7_UART_TX_PINS  { { PIN_NONE , AF_NONE }, { PIN(D,  5), AF(7)  }, { PIN(D, 8) , AF(7) }, { PIN(D, 1) , AF(8)  }, { PIN_NONE , AF_NONE }, { PIN(G,14), AF(8) } }
-#define STM32F7_UART_RX_PINS  { { PIN_NONE , AF_NONE }, { PIN(D,  6), AF(7)  }, { PIN(D, 9) , AF(7) }, { PIN(D, 0) , AF(8)  }, { PIN_NONE , AF_NONE }, { PIN(G, 9), AF(8) } }
-#define STM32F7_UART_CTS_PINS { { PIN_NONE , AF_NONE }, { PIN(D,  3), AF(7)  }, { PIN_NONE , AF_NONE },{ PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE, AF_NONE } }
-#define STM32F7_UART_RTS_PINS { { PIN_NONE , AF_NONE }, { PIN(D,  4), AF(7)  }, { PIN_NONE , AF_NONE },{ PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE, AF_NONE } }
+#define TOTAL_UART_CONTROLLERS 7
+#define STM32F7_UART_DEFAULT_TX_BUFFER_SIZE { 16*1024, 16*1024, 16*1024, 16*1024, 16*1024, 16*1024, 16*1024 }
+#define STM32F7_UART_DEFAULT_RX_BUFFER_SIZE { 16*1024, 16*1024, 16*1024, 16*1024, 16*1024, 16*1024, 16*1024 }
+
+#define STM32F7_UART_PINS	{/*		      TX                      RX                       RTS                      CTS*/  	\
+							/*UART0*/ { { PIN_NONE, AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE } },\
+							/*UART1*/ { { PIN(D, 5), AF(7)  }, { PIN(D,  6), AF(7)  }, { PIN(D,  3), AF(7)  }, { PIN(D,  4), AF(7)  } },\
+							/*UART2*/ { { PIN(D, 8), AF(7)  }, { PIN(D, 9) , AF(7)  }, { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE } },\
+							/*UART3*/ { { PIN_NONE, AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE } },\
+							/*UART4*/ { { PIN_NONE, AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE } },\
+							/*UART5*/ { { PIN(G,14), AF(8)  }, { PIN(G, 9), AF(8)   }, { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE } },\
+							/*UART6*/ { { PIN_NONE, AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE } } \
+							}
+
 
 #define INCLUDE_USBCLIENT
 #define STM32F7_TOTAL_USB_CONTROLLERS	1
@@ -137,19 +149,15 @@
 #define STM32F7_USB_ENDPOINT_COUNT		4
 #define STM32F7_USB_PIPE_COUNT			4
 
-#define STM32F7_USB_DM_PINS { { PIN(A, 11), AF(10) } }
-#define STM32F7_USB_DP_PINS { { PIN(A, 12), AF(10) } }
-#define STM32F7_USB_VB_PINS { { PIN(A,  9), AF(10) } }
-#define STM32F7_USB_ID_PINS { { PIN(A, 10), AF(10) } }
+#define STM32F7_USB_PINS {/*          DM                      DP                      VB                      ID*/                   \
+                          /*USBC0*/{ { PIN(A, 11), AF(10) }, { PIN(A, 12), AF(10) }, { PIN(A,  9), AF(10) }, { PIN(A, 10), AF(10) } }\
+                         }
 
 #define INCLUDE_RTC
 
 #define INCLUDE_SD	// SD connectione are on CN8 (no embedded socket on nucleo)
-#define STM32F7_SD_DATA0_PINS { { PIN(C, 8), AF(12) } }
-#define STM32F7_SD_DATA1_PINS { { PIN(C, 9), AF(12) } }
-#define STM32F7_SD_DATA2_PINS { { PIN(C,10), AF(12) } }
-#define STM32F7_SD_DATA3_PINS { { PIN(C,11), AF(12) } }
-#define STM32F7_SD_CLK_PINS   { { PIN(C,12), AF(12) } }
-#define STM32F7_SD_CMD_PINS   { { PIN(D, 2), AF(12) } }
+#define STM32F7_SD_PINS {  /*          DATA 0                 DATA 1                 DATA 2                  DATA 3                  CLK                      CMD                  */\
+                          /*SDCARD0*/{ { PIN(C, 8), AF(12) }, { PIN(C, 9), AF(12) }, { PIN(C, 10), AF(12) }, { PIN(C, 11), AF(12) }, { PIN(C, 12), AF(12) },  { PIN(D, 2), AF(12) } }\
+                        }
 
 #define INCLUDE_STORAGE

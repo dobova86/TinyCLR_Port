@@ -1,3 +1,5 @@
 TargetName:STM32F7xx
-OptimizeLevel:-Os
+OptimizeLevel:-speed
+AdditionalCompilerArguments:!AdditionalCompilerArguments! -mlong-calls
+AdditionalDeviceDrivers:SWO_Debug
 

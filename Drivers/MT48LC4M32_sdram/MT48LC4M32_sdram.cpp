@@ -79,8 +79,8 @@ void SDRAM_Init(uint8_t databits)
 	// Initialization step 3	
 	while (FMC_Bank5_6->SDSR & FMC_SDSR_BUSY);
 
-	FMC_Bank5_6->SDCMR = 1 | FMC_SDCMR_CTB1 | (1 << 5);
 	// Initialization step 4
+	FMC_Bank5_6->SDCMR = 1 | FMC_SDCMR_CTB1 | (1 << 5);
 	for (i = 0; i < 1000000; i++);
 	// Initialization step 5
 	while (FMC_Bank5_6->SDSR & FMC_SDSR_BUSY);

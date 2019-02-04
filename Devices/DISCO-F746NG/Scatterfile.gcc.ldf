@@ -2,8 +2,8 @@ ENTRY(EntryPoint)
 MEMORY
 {
 	IRAM (rw) : ORIGIN = 0x20000000, LENGTH = 0x50000 /* end: 0x2004FFF */
-	LR_FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 1024k /* 0xF7C00    */
-	SDRAM (rwx) : ORIGIN = 0xC0000000, LENGTH = 16m /* 0x800000 */
+	LR_FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 1024k 
+	SDRAM (rwx) : ORIGIN = 0x60000000, LENGTH = 16m /* 0x800000 */
 }
 SECTIONS
 {
@@ -82,13 +82,13 @@ SECTIONS
 	/************************************************************************************/
 		
 	/***********************External SDRAM Allocation ***********************************
-	ER_HEAP_BEGIN 0xC0000000 :
+	ER_HEAP_BEGIN 0x60000000 :
 	{
 		* (SectionForHeapBegin)
 	}>SDRAM
 
 	
-	ER_HEAP_END 0xC0800000 - 0x08 :
+	ER_HEAP_END 0x60800000 - 0x08 :
 	{
 		* (SectionForHeapEnd)
 	}>SDRAM
@@ -99,12 +99,13 @@ SECTIONS
 		* (SectionForRlpBegin)
 	}>IRAM
 
-	ER_RLP_END 0x2004B000 - 0x08 :
+	ER_RLP_END 0x2004C000 - 0x08 :
 	{
 		* (SectionForRlpEnd)
 	}>IRAM
 
-	ER_STACK_BOTTOM 0x2004B000 :
+	/* STACK POINTER */
+	ER_STACK_BOTTOM 0x2004C000 :
 	{
 		* (SectionForStackBottom)
 	}>IRAM

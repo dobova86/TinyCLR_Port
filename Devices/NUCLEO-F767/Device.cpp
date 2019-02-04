@@ -2,20 +2,24 @@
 #include "Device.h"
 #include "../../Drivers/DevicesInterop/GHIElectronics_TinyCLR_InteropUtil.h"
 
-//extern void STM32F7_WriteHello(void);
-extern TinyCLR_Api_Info* STM32F7_DsiDisplay_GetApi();
+extern void SWO_PrintString(const char *s, uint8_t portNumber);
+
+extern "C" {
+	extern int HeapBegin;
+	extern uint32_t Image$$ER_RAM_RW$$Base;
+	extern uint32_t __Vectors;
+}
 
 void STM32F7_Startup_OnSoftResetDevice(const TinyCLR_Api_Manager* apiProvider, const TinyCLR_Interop_Manager* interopManager) {
 
 	DevicesInterop_Add(interopManager);
-
-	//interopProvider->Add(interopProvider, &Interop_GHIElectronics_TinyCLR_Devices);
-
+	SWO_PrintString("SoftResetDevice END\r\n", SWO_PORT);
 
 }
 
 void STM32F7_Startup_MpuConfiguration() {
-#ifdef USE_SDRAM_HEAP
-	STM32F7_Mpu_Configuration(reinterpret_cast<uint32_t>(reinterpret_cast<uint32_t*>(&HeapBegin)), STM32F7_Mpu_RegionSize::Size_32MBytes, STM32F7_Mpu_RegionNumber::Region0, true);
-#endif
+	STM32F7_Mpu_Configuration(reinterpret_cast<uint32_t>(&__Vectors), STM32F7_Mpu_RegionSize::Size_64KBytes, STM32F7_Mpu_RegionNumber::Region0, true);
+	STM32F7_Mpu_Configuration(reinterpret_cast<uint32_t>(&Image$$ER_RAM_RW$$Base), STM32F7_Mpu_RegionSize::Size_256KBytes, STM32F7_Mpu_RegionNumber::Region1, true);
+	STM32F7_Mpu_Configuration(reinterpret_cast<uint32_t>(reinterpret_cast<uint32_t*>(&HeapBegin)), STM32F7_Mpu_RegionSize::Size_32MBytes, STM32F7_Mpu_RegionNumber::Region2, true);
 }
+

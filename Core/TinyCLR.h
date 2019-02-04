@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Version 1.0.0-rtw
 
 #pragma once
 
@@ -72,15 +74,17 @@ enum class TinyCLR_Api_Type : uint32_t {
     GpioController = 6 | 0x40000000,
     I2cController = 7 | 0x40000000,
     I2sController = 8 | 0x40000000,
-    PwmController = 9 | 0x40000000,
-    RtcController = 10 | 0x40000000,
-    SaiController = 11 | 0x40000000,
-    SpiController = 12 | 0x40000000,
-    StorageController = 13 | 0x40000000,
-    UartController = 14 | 0x40000000,
-    UsbClientController = 15 | 0x40000000,
-    UsbHostController = 16 | 0x40000000,
-    WatchdogController = 17 | 0x40000000,
+    OneWireController = 9 | 0x40000000,
+    PwmController = 10 | 0x40000000,
+    RtcController = 11 | 0x40000000,
+    SaiController = 12 | 0x40000000,
+    SpiController = 13 | 0x40000000,
+    StorageController = 14 | 0x40000000,
+    TouchController = 15 | 0x40000000,
+    UartController = 16 | 0x40000000,
+    UsbClientController = 17 | 0x40000000,
+    UsbHostController = 18 | 0x40000000,
+    WatchdogController = 19 | 0x40000000,
     Custom = 0 | 0x80000000,
 };
 
@@ -261,25 +265,29 @@ struct TinyCLR_Interrupt_Controller {
 ////////////////////////////////////////////////////////////////////////////////
 //Power
 ////////////////////////////////////////////////////////////////////////////////
-enum class TinyCLR_Power_SleepLevel : uint32_t {
-    Level0 = 0,
-    Level1 = 1,
-    Level2 = 2,
-    Level3 = 3,
-    Level4 = 4,
-    Custom = 0 | 0x80000000,
+enum class TinyCLR_Power_Level : uint32_t {
+    Active = 0,
+    Idle = 1,
+    Off = 2,
+    Sleep1 = 3,
+    Sleep2 = 4,
+    Sleep3 = 5,
+    Custom = 0 | 0x80000000
 };
 
-enum class TinyCLR_Power_SleepWakeSource : uint32_t {
-    Gpio = 0,
-    Rtc = 1,
-    SystemTimer = 2,
-    Timer = 4,
-    Network = 8,
-    Can = 16,
-    Uart = 32,
-    UsbClient = 64,
-    UsbHost = 128,
+enum class TinyCLR_Power_WakeSource : uint64_t {
+    Interrupt = 1,
+    Gpio = 2,
+    Rtc = 4,
+    SystemTimer = 8,
+    Timer = 16,
+    Ethernet = 32,
+    WiFi = 64,
+    Can = 128,
+    Uart = 256,
+    UsbClient = 512,
+    UsbHost = 1024,
+    Charger = 2048,
     Custom = 0 | 0x80000000,
 };
 
@@ -289,7 +297,7 @@ struct TinyCLR_Power_Controller {
     TinyCLR_Result(*Initialize)(const TinyCLR_Power_Controller* self);
     TinyCLR_Result(*Uninitialize)(const TinyCLR_Power_Controller* self);
     TinyCLR_Result(*Reset)(const TinyCLR_Power_Controller* self, bool runCoreAfter);
-    TinyCLR_Result(*Sleep)(const TinyCLR_Power_Controller* self, TinyCLR_Power_SleepLevel level, TinyCLR_Power_SleepWakeSource wakeSource);
+    TinyCLR_Result(*SetLevel)(const TinyCLR_Power_Controller* self, TinyCLR_Power_Level level, TinyCLR_Power_WakeSource wakeSource, uint64_t data);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -524,8 +532,8 @@ enum class TinyCLR_Gpio_PinValue : uint32_t {
 };
 
 enum class TinyCLR_Gpio_PinChangeEdge : uint32_t {
-    FallingEdge = 0x01,
-    RisingEdge = 0x02,
+    FallingEdge = 1,
+    RisingEdge = 2,
 };
 
 struct TinyCLR_Gpio_Controller;
@@ -693,10 +701,6 @@ struct TinyCLR_Storage_Descriptor {
     const size_t* RegionSizes;
 };
 
-struct TinyCLR_Storage_Controller;
-
-typedef void(*TinyCLR_Storage_PresenceChangedHandler)(const TinyCLR_Storage_Controller* self, bool present, uint64_t timestamp);
-
 struct TinyCLR_Storage_Controller {
     const TinyCLR_Api_Info* ApiInfo;
 
@@ -704,13 +708,11 @@ struct TinyCLR_Storage_Controller {
     TinyCLR_Result(*Release)(const TinyCLR_Storage_Controller* self);
     TinyCLR_Result(*Open)(const TinyCLR_Storage_Controller* self);
     TinyCLR_Result(*Close)(const TinyCLR_Storage_Controller* self);
-    TinyCLR_Result(*IsPresent)(const TinyCLR_Storage_Controller* self, bool& present);
     TinyCLR_Result(*Read)(const TinyCLR_Storage_Controller* self, uint64_t address, size_t& count, uint8_t* data, uint64_t timeout);
     TinyCLR_Result(*Write)(const TinyCLR_Storage_Controller* self, uint64_t address, size_t& count, const uint8_t* data, uint64_t timeout);
     TinyCLR_Result(*Erase)(const TinyCLR_Storage_Controller* self, uint64_t address, size_t& count, uint64_t timeout);
     TinyCLR_Result(*IsErased)(const TinyCLR_Storage_Controller* self, uint64_t address, size_t count, bool& erased);
     TinyCLR_Result(*GetDescriptor)(const TinyCLR_Storage_Controller* self, const TinyCLR_Storage_Descriptor*& descriptor);
-    TinyCLR_Result(*SetPresenceChangedHandler)(const TinyCLR_Storage_Controller* self, TinyCLR_Storage_PresenceChangedHandler handler);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -871,7 +873,18 @@ struct TinyCLR_UsbClient_SetupPacket {
     uint16_t Length;
 };
 
+enum class TinyCLR_UsbClient_DeviceState {
+    Detached = 0,
+    Attached = 1,
+    Powered = 2,
+    Default = 3,
+    Address = 4,
+    Configured = 5,
+    Suspended = 6
+};
+
 typedef void(*TinyCLR_UsbClient_DataReceivedHandler)(const TinyCLR_UsbClient_Controller* self, uint64_t timestamp);
+typedef void(*TinyCLR_UsbClient_DeviceStateChangedHandler)(const TinyCLR_UsbClient_Controller* self, TinyCLR_UsbClient_DeviceState deviceState, uint64_t timestamp);
 typedef TinyCLR_Result(*TinyCLR_UsbClient_RequestHandler)(const TinyCLR_UsbClient_Controller* self, const TinyCLR_UsbClient_SetupPacket* setupPacket, const uint8_t*& responsePayload, size_t& responsePayloadLength, uint64_t timestamp);
 
 struct TinyCLR_UsbClient_Controller {
@@ -888,6 +901,8 @@ struct TinyCLR_UsbClient_Controller {
     TinyCLR_Result(*SetGetDescriptorHandler)(const TinyCLR_UsbClient_Controller* self, TinyCLR_UsbClient_RequestHandler handler);
     TinyCLR_Result(*SetVendorClassRequestHandler)(const TinyCLR_UsbClient_Controller* self, TinyCLR_UsbClient_RequestHandler handler);
     TinyCLR_Result(*SetDataReceivedHandler)(const TinyCLR_UsbClient_Controller* self, TinyCLR_UsbClient_DataReceivedHandler handler);
+    TinyCLR_Result(*SetDeviceStateChangedHandler)(const TinyCLR_UsbClient_Controller* self, TinyCLR_UsbClient_DeviceStateChangedHandler handler);
+    TinyCLR_Result(*GetDeviceState)(const TinyCLR_UsbClient_Controller* self, TinyCLR_UsbClient_DeviceState& deviceState);
     size_t(*GetBytesToWrite)(const TinyCLR_UsbClient_Controller* self, uint32_t pipe);
     size_t(*GetBytesToRead)(const TinyCLR_UsbClient_Controller* self, uint32_t pipe);
     TinyCLR_Result(*ClearWriteBuffer)(const TinyCLR_UsbClient_Controller* self, uint32_t pipe);

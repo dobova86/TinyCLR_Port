@@ -34,7 +34,6 @@ IF NOT "%BuildConfiguration%" == "debug" IF NOT "%BuildConfiguration%" == "relea
 )
 
 IF NOT EXIST "%GccDirectory%" SET GccDirectory=H:\GNU Tools ARM Embedded\7 2018-q2-update
-rem IF NOT EXIST "%GccDirectory%" SET GccDirectory=H:\GNU Tools ARM Embedded\7 2017-q4-major
 IF NOT EXIST "%GccDirectory%" SET GccDirectory=C:\Program Files\GNU Tools ARM Embedded\7 2018-q2-update
 
 IF NOT EXIST "%GccDirectory%" (
@@ -94,7 +93,7 @@ SET AdditionalIncludes=%AdditionalIncludes% -I"%ScriptRoot%\Devices\%DeviceName%
 SET AdditionalIncludes=%AdditionalIncludes% -I"%ScriptRoot%\Core"
 
 SET AdditionalDefines=%AdditionalDefines% -DGCC
-SET AdditionalCompilerArguments=-mstructure-size-boundary=8 -fno-exceptions -ffunction-sections -fdata-sections -fshort-wchar -funsigned-char -mlong-calls
+SET AdditionalCompilerArguments=%AdditionalCompilerArguments% -mstructure-size-boundary=8 -fno-exceptions -ffunction-sections -fdata-sections -fshort-wchar
 
 IF "%BuildConfiguration%" == "debug" (
     SET AdditionalDefines=%AdditionalDefines% -DDEBUG -D_DEBUG
@@ -103,7 +102,14 @@ IF "%BuildConfiguration%" == "debug" (
 ) ELSE (
     SET AdditionalDefines=%AdditionalDefines%
     SET AssemblerCompileArguments=%AdditionalAssemblerArguments%
-    SET AdditionalCompilerArguments=%OptimizeLevel% %AdditionalCompilerArguments%
+
+    IF "%OptimizeLevel%" == "-size" (
+        SET OptimizeLevel=-Os
+    ) ELSE (
+        SET OptimizeLevel=-Ofast
+    )
+
+    SET AdditionalCompilerArguments=!OptimizeLevel! %AdditionalCompilerArguments%
 )
 
 SET OutputDirectory=%ScriptRoot%\Build\%BuildConfiguration%\%DeviceName%
@@ -167,10 +173,9 @@ IF "%DoBuild%" == "1" (
         POPD
     )
 
-    "%GccDirectory%\bin\arm-none-eabi-g++.exe" -mcpu=%MCpu% -mlittle-endian -nostartfiles %FloatCompileArguments% -Xlinker %AdditionalCompilerArguments% -L "%GccLibrary%" -Wl,-static,--gc-sections,--no-wchar-size-warning,-Map="%OutputDirectory%\%DeviceName% Firmware.map" -specs="%GccLibrary%\nano.specs" -T"%ScriptRoot%\Devices\%DeviceName%\Scatterfile.gcc.ldf" "%OutputDirectory%\*.obj" "%CoreLibraryFile%" -o "%OutputDirectory%\%DeviceName% Firmware.axf"
+    "%GccDirectory%\bin\arm-none-eabi-g++.exe" -mcpu=%MCpu% -mlittle-endian -nostartfiles %FloatCompileArguments% -Xlinker %AdditionalCompilerArguments% -L "%GccLibrary%" -Wl,--gc-sections,--no-wchar-size-warning,-Map="%OutputDirectory%\%DeviceName% Firmware.map" -specs="%GccLibrary%\nano.specs" -T"%ScriptRoot%\Devices\%DeviceName%\Scatterfile.gcc.ldf" "%OutputDirectory%\*.obj" "%CoreLibraryFile%" -o "%OutputDirectory%\%DeviceName% Firmware.axf"
 
     "%GccDirectory%\bin\arm-none-eabi-objcopy.exe" -S -j ER_FLASH -j ER_RAM_RO -j ER_RAM_RW -O binary "%OutputDirectory%\%DeviceName% Firmware.axf" "%OutputDirectory%\%DeviceName% Firmware.bin"
-    REM "%GccDirectory%\bin\arm-none-eabi-objcopy.exe" -S -R ER_DAT -R ER_CONFIG -O ihex "%OutputDirectory%\%DeviceName% Firmware.axf" "%OutputDirectory%\%DeviceName% Firmware.hex"
     "%GccDirectory%\bin\arm-none-eabi-objcopy.exe" -S -O ihex "%OutputDirectory%\%DeviceName% Firmware.axf" "%OutputDirectory%\%DeviceName% Firmware.hex"
 
     IF NOT "%ImageGenParameters%" == ""  "%ScriptRoot%\imagegen.exe" %ImageGenParameters% "%OutputDirectory%\%DeviceName% Firmware.bin"

@@ -48,7 +48,8 @@ struct Interop_GHIElectronics_TinyCLR_IO_GHIElectronics_TinyCLR_IO_NativeFileSys
 };
 
 struct Interop_GHIElectronics_TinyCLR_IO_GHIElectronics_TinyCLR_IO_FileSystem__NativeDriveProvider {
-    static const size_t FIELD___Name__BackingField___STRING = 1;
+    static const size_t FIELD___initialized___BOOLEAN = 1;
+    static const size_t FIELD___Name__BackingField___STRING = 2;
 
     static TinyCLR_Result get_DriveType___SystemIODriveType(const TinyCLR_Interop_MethodData md);
     static TinyCLR_Result get_DriveFormat___STRING(const TinyCLR_Interop_MethodData md);
@@ -76,9 +77,9 @@ struct Interop_GHIElectronics_TinyCLR_IO_GHIElectronics_TinyCLR_IO_FileSystem__N
     static TinyCLR_Result set_Length___VOID__I8(const TinyCLR_Interop_MethodData md);
     static TinyCLR_Result Close___VOID(const TinyCLR_Interop_MethodData md);
     static TinyCLR_Result Flush___VOID(const TinyCLR_Interop_MethodData md);
-    static TinyCLR_Result Read___I4__SZARRAY_U1__I4__I4__I4(const TinyCLR_Interop_MethodData md);
+    static TinyCLR_Result Read___I4__SZARRAY_U1__I4__I4__mscorlibSystemTimeSpan(const TinyCLR_Interop_MethodData md);
     static TinyCLR_Result Seek___I8__I8__mscorlibSystemIOSeekOrigin(const TinyCLR_Interop_MethodData md);
-    static TinyCLR_Result Write___I4__SZARRAY_U1__I4__I4__I4(const TinyCLR_Interop_MethodData md);
+    static TinyCLR_Result Write___I4__SZARRAY_U1__I4__I4__mscorlibSystemTimeSpan(const TinyCLR_Interop_MethodData md);
     static TinyCLR_Result ctor___VOID__STRING__I4(const TinyCLR_Interop_MethodData md);
 };
 
