@@ -18,7 +18,16 @@
 #include "STM32F7.h"
 #include "../../Drivers/USBClient/USBClient.h"
 
-#define OTG_FS_BASE           (0x50000000)
+//#define OTG_FS_BASE           (0x50000000)
+
+#ifdef OTG_USE_HS
+#pragma message "Using OTG_HS port!"
+#define OTG_FS_BASE			  (USB_OTG_HS_PERIPH_BASE)
+#else
+#define OTG_FS_BASE           (USB_OTG_FS_PERIPH_BASE)
+#endif
+
+
 #define OTG_FS                ((OTG_TypeDef *) OTG_FS_BASE)
 
 #define OTG_GUSBCFG_PHYSEL    (1<<6)
@@ -247,6 +256,13 @@ static const STM32F7_Gpio_Pin usbDevicePins[][4] = STM32F7_USB_PINS;
 void STM32F7_UsbDevice_ProtectPins(int32_t controllerIndex, bool On);
 void STM32F7_UsbDevice_Interrupt(void* param);
 
+#ifdef OTG_USE_HS_ULPI
+bool STM32F7_UsbDevice_ProtectUlpiPins(int32_t controller, bool On);
+static const STM32F7_Gpio_Pin g_STM32F7_Usb_Ulpi_Pins[] = STM32F7_USB_ULPI_PINS;
+static const int TOTAL_ULPI_PINS = SIZEOF_ARRAY(g_STM32F7_Usb_Ulpi_Pins);
+#endif
+
+
 /* usbClientState variables for the controllers */
 static UsbDeviceController usbDeviceControllers[STM32F7_TOTAL_USB_CONTROLLERS];
 
@@ -299,7 +315,23 @@ bool STM32F7_UsbDevice_Initialize(UsbClientState* usbClientState) {
 
     // Enable USB clock
     // FS on AHB2
-    RCC->AHB2ENR |= RCC_AHB2ENR_OTGFSEN;
+    //RCC->AHB2ENR |= RCC_AHB2ENR_OTGFSEN;
+
+#ifdef OTG_USE_HS
+	RCC->AHB1ENR |= RCC_AHB1ENR_OTGHSEN;
+	RCC->AHB1LPENR |= RCC_AHB1LPENR_OTGHSLPEN;
+	// this is needed to enable the FS phy clock when the CPU is sleeping
+#ifdef OTG_USE_HS_ULPI
+	RCC->AHB1ENR |= RCC_AHB1ENR_OTGHSULPIEN;
+	//#else
+	//	RCC->AHB1ENR &= ~RCC_AHB1ENR_OTGHSULPIEN;
+#endif //OTG_USE_HS_ULPI
+#else 
+	RCC->AHB2ENR |= RCC_AHB2ENR_OTGFSEN;
+	//auto rcc = RCC->AHB2ENR | RCC_AHB2ENR_OTGFSEN_Msk;
+	RCC->AHB2LPENR |= RCC_AHB2LPENR_OTGFSLPEN;
+#endif //OTG_USE_HS
+
 
     OTG_TypeDef* OTG = OTG_FS;
 
@@ -309,26 +341,69 @@ bool STM32F7_UsbDevice_Initialize(UsbClientState* usbClientState) {
     OTG->DCTL = OTG_DCTL_SDIS; // soft disconnect
 
     OTG->GAHBCFG = OTG_GAHBCFG_TXFELVL;     // int32_t on TxFifo completely empty, int32_t off
-    OTG->GUSBCFG = OTG_GUSBCFG_FDMOD        // force device mode
-        | STM32F7_USB_TRDT << 10   // turnaround time
-        | OTG_GUSBCFG_PHYSEL;      // internal PHY
 
-    OTG->GCCFG = OTG_GCCFG_VBUSBSEN       // B device Vbus sensing
-        | OTG_GCCFG_PWRDWN;        // transceiver enabled
+    //OTG->GUSBCFG = OTG_GUSBCFG_FDMOD        // force device mode
+    //    | STM32F7_USB_TRDT << 10   // turnaround time
+    //    | OTG_GUSBCFG_PHYSEL;      // internal PHY
 
-    OTG->DCFG |= OTG_DCFG_DSPD;           // device speed = HS
+    //OTG->GCCFG = OTG_GCCFG_VBUSBSEN       // B device Vbus sensing
+    //    | OTG_GCCFG_PWRDWN;        // transceiver enabled
 
-    if (STM32F7_USB_USE_VB_PIN(controllerIndex) == 0) { // no Vbus pin
-        OTG->GCCFG |= OTG_GCCFG_NOVBUSSENS; // disable vbus sense
-    }
+    //OTG->DCFG |= OTG_DCFG_DSPD;           // device speed = HS
 
-    STM32F7_Time_Delay(nullptr, 1000); // asure host recognizes reattach
+    //if (STM32F7_USB_USE_VB_PIN(controllerIndex) == 0) { // no Vbus pin
+    //    OTG->GCCFG |= OTG_GCCFG_NOVBUSSENS; // disable vbus sense
+    //}
 
-    // setup hardware
-    STM32F7_UsbDevice_ProtectPins(controllerIndex, true);
+    //STM32F7_Time_Delay(nullptr, 1000); // asure host recognizes reattach
 
-    STM32F7_InterruptInternal_Activate(OTG_FS_IRQn, (uint32_t*)&STM32F7_UsbDevice_Interrupt, 0);
-    STM32F7_InterruptInternal_Activate(OTG_FS_WKUP_IRQn, (uint32_t*)&STM32F7_UsbDevice_Interrupt, 0);
+    //// setup hardware
+    //STM32F7_UsbDevice_ProtectPins(controllerIndex, true);
+
+#ifdef OTG_USE_HS_ULPI
+	OTG->GCCFG &= ~(OTG_GCCFG_PWRDWN); // transceiver disabled external ULPI
+	OTG->GUSBCFG &= ~(USB_OTG_GUSBCFG_TSDPS | USB_OTG_GUSBCFG_ULPIFSLS | USB_OTG_GUSBCFG_PHYSEL);
+
+	OTG->GUSBCFG = OTG_GUSBCFG_FDMOD        // force device mode
+		| STM32F7_USB_TRDT << 10			// turnaround time
+		| 1 << 4;							// Use ULPI
+
+	OTG->DCFG = 0; // high speed
+
+#else
+
+	OTG->GUSBCFG = OTG_GUSBCFG_FDMOD        // force device mode
+		| STM32F7_USB_TRDT << 10   // turnaround time
+		| OTG_GUSBCFG_PHYSEL;      // internal PHY
+
+	OTG->GCCFG = OTG_GCCFG_VBUSBSEN       // B device Vbus sensing
+		| OTG_GCCFG_PWRDWN;        // transceiver enabled
+
+	OTG->DCFG |= OTG_DCFG_DSPD;           // device speed = HS
+#endif //OTG_USE_HS_ULPI
+
+	if (STM32F7_USB_USE_VB_PIN(controllerIndex) == 0) { // no Vbus pin
+		OTG->GCCFG |= OTG_GCCFG_NOVBUSSENS; // disable vbus sense
+	}
+
+	STM32F7_Time_Delay(nullptr, 1000); // asure host recognizes reattach
+
+	// setup hardware
+#ifdef OTG_USE_HS_ULPI
+	STM32F7_UsbDevice_ProtectUlpiPins(controllerIndex, true);
+#else
+	STM32F7_UsbDevice_ProtectPins(controllerIndex, true);
+#endif
+
+
+#ifdef OTG_USE_HS
+	STM32F7_InterruptInternal_Activate(OTG_HS_IRQn, (uint32_t*)&STM32F7_UsbDevice_Interrupt, 0);
+	STM32F7_InterruptInternal_Activate(OTG_HS_WKUP_IRQn, (uint32_t*)&STM32F7_UsbDevice_Interrupt, 0);
+#else
+	STM32F7_InterruptInternal_Activate(OTG_FS_IRQn, (uint32_t*)&STM32F7_UsbDevice_Interrupt, 0);
+	STM32F7_InterruptInternal_Activate(OTG_FS_WKUP_IRQn, (uint32_t*)&STM32F7_UsbDevice_Interrupt, 0);
+#endif
+
 
     // allow interrupts
     OTG->GINTSTS = 0xFFFFFFFF;           // clear all interrupts
@@ -342,15 +417,34 @@ bool STM32F7_UsbDevice_Initialize(UsbClientState* usbClientState) {
 }
 
 bool STM32F7_UsbDevice_Uninitialize(UsbClientState* usbClientState) {
-    STM32F7_InterruptInternal_Deactivate(OTG_FS_WKUP_IRQn);
-    STM32F7_InterruptInternal_Deactivate(OTG_FS_IRQn);
+#ifdef OTG_USE_HS
+	STM32F7_InterruptInternal_Deactivate(OTG_HS_WKUP_IRQn);
+	STM32F7_InterruptInternal_Deactivate(OTG_HS_IRQn);
+	RCC->AHB1ENR &= ~RCC_AHB1ENR_OTGHSEN;
 
-    RCC->AHB2ENR &= ~RCC_AHB2ENR_OTGFSEN;
+#else
+	STM32F7_InterruptInternal_Deactivate(OTG_FS_WKUP_IRQn);
+	STM32F7_InterruptInternal_Deactivate(OTG_FS_IRQn);
+	RCC->AHB2ENR &= ~RCC_AHB2ENR_OTGFSEN;
+#endif
+#ifdef OTG_USE_HS_ULPI
+	RCC->AHB1ENR &= ~RCC_AHB1ENR_OTGHSULPIEN;
 
-    if (usbClientState != nullptr) {
-        STM32F7_UsbDevice_ProtectPins(usbClientState->controllerIndex, false);
-        usbClientState->currentState = USB_DEVICE_STATE_UNINITIALIZED;
-    }
+	if (usbClientState != nullptr) {
+		STM32F7_UsbDevice_ProtectUlpiPins(usbClientState->controllerIndex, false);
+		usbClientState->currentState = USB_DEVICE_STATE_UNINITIALIZED;
+	}
+#elif defined(OTG_USE_HS)
+	if (usbClientState != nullptr) {
+		STM32F7_UsbDevice_ProtectPins(usbClientState->controllerIndex, false);
+		usbClientState->currentState = USB_DEVICE_STATE_UNINITIALIZED;
+	}
+#else 
+	if (usbClientState != nullptr) {
+		STM32F7_UsbDevice_ProtectPins(usbClientState->controllerIndex, false);
+		usbClientState->currentState = USB_DEVICE_STATE_UNINITIALIZED;
+	}
+#endif
 
     return true;
 }
@@ -735,6 +829,45 @@ void STM32F7_UsbDevice_ProtectPins(int32_t controllerIndex, bool on) {
 
     TinyCLR_UsbClient_StateCallback(usbClientState);
 }
+
+
+#ifdef OTG_USE_HS_ULPI
+bool STM32F7_UsbDevice_ProtectUlpiPins(int32_t controller, bool on)
+{
+	UsbClientState *usbClientState = usbDeviceControllers[controller].usbClientState;
+	int i = 0;
+	OTG_TypeDef* OTG = OTG_FS;
+
+	DISABLE_INTERRUPTS_SCOPED(irq);
+
+
+	if (on) {
+		for (i = 0; i < TOTAL_ULPI_PINS; i++) {
+			STM32F7_GpioInternal_ConfigurePin(g_STM32F7_Usb_Ulpi_Pins[i].number, STM32F7_Gpio_PortMode::AlternateFunction, STM32F7_Gpio_OutputType::PushPull, STM32F7_Gpio_OutputSpeed::VeryHigh, STM32F7_Gpio_PullDirection::None, g_STM32F7_Usb_Ulpi_Pins[i].alternateFunction);
+		}
+		OTG->DCTL &= ~OTG_DCTL_SDIS; // remove soft disconnect
+	}
+	else {
+
+		OTG->DCTL |= OTG_DCTL_SDIS; // set soft disconnect
+		// clear USB Txbuffer
+		for (int32_t ep = 1; ep < usbClientState->totalEndpointsCount; ep++) {
+			if (usbClientState->queues[ep] && usbClientState->isTxQueue[ep]) {
+				TinyCLR_UsbClient_ClearEndpoints(usbClientState, ep);
+			}
+		}
+
+		for (i = 0; i < TOTAL_ULPI_PINS; i++) {
+			STM32F7_GpioInternal_ClosePin(g_STM32F7_Usb_Ulpi_Pins[i].number);
+		}
+	}
+	usbClientState->deviceState = on ? USB_DEVICE_STATE_ATTACHED : USB_DEVICE_STATE_DETACHED;
+	TinyCLR_UsbClient_StateCallback(usbClientState);
+	return true;
+}
+#endif
+
+
 
 bool TinyCLR_UsbClient_Initialize(UsbClientState* usbClientState) {
     return STM32F7_UsbDevice_Initialize(usbClientState);

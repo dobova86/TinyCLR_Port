@@ -102,8 +102,14 @@
 
 #define INCLUDE_I2C
 #define TOTAL_I2C_CONTROLLERS 1
-#define STM32F7_I2C_SCL_PINS { { PIN(B, 8), AF(4) } }
-#define STM32F7_I2C_SDA_PINS { { PIN(B, 9), AF(4) } }
+//#define STM32F7_I2C_SCL_PINS { { PIN(B, 8), AF(4) } }
+//#define STM32F7_I2C_SDA_PINS { { PIN(B, 9), AF(4) } }
+
+#define STM32F7_I2C_PINS {				/* SDA				  SCL */			\
+							/*I2C1*/ { { PIN(B, 9), AF(4) }, { PIN(B, 8), AF(4) } }\
+						 }
+
+
 
 #define INCLUDE_PWM
 #define TOTAL_PWM_CONTROLLERS 14
@@ -125,19 +131,38 @@
 						 }
 
 #define INCLUDE_SPI
-#define TOTAL_SPI_CONTROLLERS 2
-#define STM32F7_SPI_SCLK_PINS { { PIN(B, 3), AF(5) }, { PIN(A,12), AF(5) } } //, { PIN(B, 10), AF(5) } }
-#define STM32F7_SPI_MISO_PINS { { PIN(B, 4), AF(5) }, { PIN(B,14), AF(5) } } //, { PIN(C,  2), AF(5) } }
-#define STM32F7_SPI_MOSI_PINS { { PIN(B, 5), AF(5) }, { PIN(B,15), AF(5) } } //, { PIN(C,  3), AF(5) } }
+#define TOTAL_SPI_CONTROLLERS 3
+//#define STM32F7_SPI_SCLK_PINS { { PIN(B, 3), AF(5) }, { PIN(A,12), AF(5) } } //, { PIN(B, 10), AF(5) } }
+//#define STM32F7_SPI_MISO_PINS { { PIN(B, 4), AF(5) }, { PIN(B,14), AF(5) } } //, { PIN(C,  2), AF(5) } }
+//#define STM32F7_SPI_MOSI_PINS { { PIN(B, 5), AF(5) }, { PIN(B,15), AF(5) } } //, { PIN(C,  3), AF(5) } }
+
+#define STM32F7_SPI_PINS {	/* MOSI					 MISO				   CLK */			\
+				/* SPI0*/ { { PIN(B, 5), AF(5) }, { PIN(B, 4), AF(5) }, { PIN(B, 3), AF(5) } },\
+				/* SPI1*/ { { PIN(B,15), AF(5) }, { PIN(B,14), AF(5) }, { PIN(A,12), AF(5) } }, \
+				/* SPI2*/ { { PIN(C, 3), AF(5) }, { PIN(C, 2), AF(5) }, { PIN(B,10), AF(5) } } \
+						 }
+
 
 #define INCLUDE_UART
 #define TOTAL_UART_CONTROLLERS 6
-#define STM32F7_UART_DEFAULT_TX_BUFFER_SIZE  { 256, 256, 256, 256, 256, 256 }
-#define STM32F7_UART_DEFAULT_RX_BUFFER_SIZE  { 512, 512, 512, 512, 512, 512 }
-#define STM32F7_UART_TX_PINS  { { PIN(A, 9), AF(7) }, { PIN(C, 12), AF(8)  },{ PIN_NONE , AF_NONE },{ PIN_NONE , AF_NONE },{ PIN_NONE , AF_NONE }, { PIN(C, 6), AF(8) } }
-#define STM32F7_UART_RX_PINS  { { PIN(A,10), AF(7) }, { PIN(D,  2), AF(8)  },{ PIN_NONE , AF_NONE },{ PIN_NONE , AF_NONE },{ PIN_NONE , AF_NONE }, { PIN(C, 7), AF(8) } }
-#define STM32F7_UART_CTS_PINS { { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE, AF_NONE } }
-#define STM32F7_UART_RTS_PINS { { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE, AF_NONE } }
+#define STM32F7_UART_DEFAULT_TX_BUFFER_SIZE { 16*1024, 16*1024, 16*1024, 16*1024, 16*1024, 16*1024 }
+#define STM32F7_UART_DEFAULT_RX_BUFFER_SIZE { 16*1024, 16*1024, 16*1024, 16*1024, 16*1024, 16*1024 }
+
+//#define STM32F7_UART_TX_PINS  { { PIN(A, 9), AF(7) }, { PIN(C, 12), AF(8)  },{ PIN_NONE , AF_NONE },{ PIN_NONE , AF_NONE },{ PIN_NONE , AF_NONE }, { PIN(C, 6), AF(8) } }
+//#define STM32F7_UART_RX_PINS  { { PIN(A,10), AF(7) }, { PIN(D,  2), AF(8)  },{ PIN_NONE , AF_NONE },{ PIN_NONE , AF_NONE },{ PIN_NONE , AF_NONE }, { PIN(C, 7), AF(8) } }
+//#define STM32F7_UART_CTS_PINS { { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE, AF_NONE } }
+//#define STM32F7_UART_RTS_PINS { { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE },  { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE }, { PIN_NONE, AF_NONE } }
+
+#define STM32F7_UART_PINS	{/*		      TX                      RX                       RTS                      CTS*/  	\
+							/*UART0*/ { { PIN(A, 9), AF(7)  }, { PIN(A, 10), AF(7)  }, { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE } },\
+							/*UART1*/ { { PIN(C, 12),AF(8)  }, { PIN(D,  2), AF(8)  }, { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE } },\
+							/*UART2*/ { { PIN_NONE, AF_NONE }, { PIN_NONE, AF_NONE  }, { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE } },\
+							/*UART3*/ { { PIN_NONE, AF_NONE }, { PIN_NONE, AF_NONE  }, { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE } },\
+							/*UART4*/ { { PIN_NONE, AF_NONE }, { PIN_NONE, AF_NONE  }, { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE } },\
+							/*UART5*/ { { PIN(C, 6), AF(8)  }, { PIN(C, 7), AF(8)   }, { PIN_NONE , AF_NONE }, { PIN_NONE , AF_NONE } },\
+							}
+
+
 
 //#define INCLUDE_DISPLAY_DSI	// this enable code for DSI Display. NOT DEFINE INCLUDE_DISPLAY toghether
 //#define INCLUDE_DISPLAY
@@ -160,15 +185,25 @@
 #define OTG_USE_HS_ULPI					1
 
 #if defined(OTG_USE_HS)
+
+#define STM32F7_USB_PINS {/*          DM                      DP                      VB                      ID*/                   \
+                          /*USBC0*/{ { PIN(B, 14), AF(12) }, { PIN(B, 15), AF(12) }, { PIN(B, 13), AF(12) }, { PIN(B, 12), AF(12) } }\
+                         }
+
 #define STM32F7_USB_DM_PINS { { PIN(B, 14), AF(12) } }
 #define STM32F7_USB_DP_PINS { { PIN(B, 15), AF(12) } }
 #define STM32F7_USB_VB_PINS { { PIN(B, 13), AF(12) } }
 #define STM32F7_USB_ID_PINS { { PIN(B, 12), AF(12) } }
 #else // USE OTG_FS port
-#define STM32F7_USB_DM_PINS { { PIN(A, 11), AF(10) } }
-#define STM32F7_USB_DP_PINS { { PIN(A, 12), AF(10) } }
-#define STM32F7_USB_VB_PINS { { PIN(A,  9), AF(10) } }
-#define STM32F7_USB_ID_PINS { { PIN(A, 10), AF(10) } }
+
+#define STM32F7_USB_PINS {/*          DM                      DP                      VB                      ID*/                   \
+                          /*USBC0*/{ { PIN(A, 11), AF(10) }, { PIN(A, 12), AF(10) }, { PIN(A,  9), AF(10) }, { PIN(A, 10), AF(10) } }\
+                         }
+
+//#define STM32F7_USB_DM_PINS { { PIN(A, 11), AF(10) } }
+//#define STM32F7_USB_DP_PINS { { PIN(A, 12), AF(10) } }
+//#define STM32F7_USB_VB_PINS { { PIN(A,  9), AF(10) } }
+//#define STM32F7_USB_ID_PINS { { PIN(A, 10), AF(10) } }
 #endif // OTG_USE_HS
 
 #if defined(OTG_USE_HS_ULPI)
@@ -188,6 +223,11 @@
 #define STM32F7_SD_DATA3_PINS { { PIN(B, 4), AF(10) } }
 #define STM32F7_SD_CLK_PINS   { { PIN(D, 6), AF(11) } }
 #define STM32F7_SD_CMD_PINS   { { PIN(D, 7), AF(11) } }
+
+#define STM32F7_SD_PINS {  /*          DATA 0                 DATA 1                 DATA 2                  DATA 3                  CLK                      CMD                  */\
+                          /*SDCARD0*/{ { PIN(G, 9), AF(11) }, { PIN(G, 10), AF(11) }, { PIN(B, 3), AF(10) }, { PIN(B, 4), AF(10) }, { PIN(D, 6), AF(11) },  { PIN(D, 7), AF(11) } }\
+                        }
+
 
 #define INCLUDE_STORAGE
 
