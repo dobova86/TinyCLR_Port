@@ -21,7 +21,7 @@
 #define DEVICE_TARGET STM32F7
 #define DEVICE_NAME "DISCO-F746NG"
 #define DEVICE_MANUFACTURER "STM32F7 Disco by DB"
-#define DEVICE_VERSION ((1ULL << 48) | (0ULL << 32) | (0ULL << 16) | (10002ULL << 0))
+#define DEVICE_VERSION ((1ULL << 48) | (0ULL << 32) | (0ULL << 16) | (10003ULL << 0))
 
 #define USB_DEBUGGER_VENDOR_ID 0x1B9F
 #define USB_DEBUGGER_PRODUCT_ID 0x5000
@@ -111,7 +111,7 @@
 #define TOTAL_I2C_CONTROLLERS 1
 #define INCLUDE_I2C			
 #define STM32F7_I2C_PINS {				/* SDA				  SCL				*/ \
-							/*I2C1*/ { { PIN(B, 8), AF(4) }, { PIN(B, 8), AF(4) } }\
+							/*I2C1*/ { { PIN(B, 9), AF(4) }, { PIN(B, 8), AF(4) } }\
 						 }
 
 

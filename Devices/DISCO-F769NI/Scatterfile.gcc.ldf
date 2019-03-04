@@ -90,12 +90,13 @@ SECTIONS
 	}>SDRAM
 
 	
-	ER_HEAP_END 0x60800000 - 0x08 :
+	ER_HEAP_END 0x607F0000 - 0x08 :
 	{
 		* (SectionForHeapEnd)
 	}>SDRAM
 	/*************************************************************************************/
-
+	
+	/* NOTE: RLP area can be set up to SDRAM. Next rel will be */
 	ER_RLP_BEGIN 0x2007B000 :
 	{
 		* (SectionForRlpBegin)
@@ -105,6 +106,19 @@ SECTIONS
 	{
 		* (SectionForRlpEnd)
 	}>IRAM
+	/***********************************************************/
+
+	/* *********** RLP in SDRAM ***************
+	ER_RLP_BEGIN 0x607F0000 :
+	{
+		* (SectionForRlpBegin)
+	}>IRAM
+
+	ER_RLP_END 0x60800000 - 0x08 :
+	{
+		* (SectionForRlpEnd)
+	}>IRAM
+	******************************************/
 
 	ER_STACK_BOTTOM 0x2007C000 :
 	{

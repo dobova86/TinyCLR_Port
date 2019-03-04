@@ -402,6 +402,7 @@ const TinyCLR_Startup_DeploymentConfiguration* LPC24_Deployment_GetDeploymentCon
 
 #endif //USE_INTERNAL_FLASH_DEPLOYMENT
 
+/*
 uint32_t LPC24_Flash_GetPartId() {
     uint32_t command[1];
     uint32_t iap_result[2];
@@ -416,4 +417,4 @@ uint32_t LPC24_Flash_GetPartId() {
 
     return iap_result[1];
 }
-
+*/

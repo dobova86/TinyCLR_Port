@@ -19,6 +19,13 @@
 
 extern void SDRAM_Init(uint8_t databits);
 
+#ifdef SWO_DEBUG
+extern void SWO_Init(uint32_t portBits, uint32_t cpuCoreFreqHz);
+extern void SWO_PrintChar(char c, uint8_t portNo);
+extern void SWO_PrintString(const char* s, uint8_t portNumber);
+#endif
+
+
 void STM32F7_Startup_OnSoftReset(const TinyCLR_Api_Manager* apiManager, const TinyCLR_Interop_Manager* interopProvider) {
 #ifdef INCLUDE_ADC
     STM32F7_Adc_Reset();
@@ -331,6 +338,12 @@ extern "C" {
         // GPIO port A to D is always present
         RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN | RCC_AHB1ENR_GPIOCEN | RCC_AHB1ENR_GPIODEN;
 
+#ifdef SWO_DEBUG
+		uint32_t portBits = SWO_BITMASK;
+		SWO_Init(portBits, STM32F7_SYSTEM_CLOCK_HZ);
+		SWO_PrintString("SWO Debug started!\r\n", SWO_PORT);
+#endif
+
 #ifdef RCC_AHB1ENR_GPIOEEN
         RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;
 #endif
@@ -362,6 +375,11 @@ extern "C" {
 #ifdef USE_SDRAM_HEAP
 	SDRAM_Init(SDRAM_DATABITS);
 #endif
+#ifdef SWO_DEBUG
+	SWO_PrintString("SystemInit() complete, SDRAM Init OK!\r\n", SWO_PORT);
+#endif
+
+
     }
 
 }
@@ -498,7 +516,7 @@ void STM32F7_Startup_GetDebuggerTransportApi(const TinyCLR_Api_Info*& api, const
 #elif defined(DEBUGGER_FORCE_API) && defined(DEBUGGER_FORCE_INDEX)
     api = DEBUGGER_FORCE_API;
 	configuration = (const void*)&STM32F7_Startup_UsbDebuggerConfiguration;
-
+	//SWO_PrintString("Debug transport set!\r\n", SWO_PORT);
 #else
 #error You must specify a debugger mode pin or specify the API explicitly.
 #endif
